@@ -9,6 +9,11 @@ const LEVEL_MUSIC: Record<string, string> = {
   '3': '/audio/level_3.mp3',
   '4': '/audio/level_4.mp3',
   '5': '/audio/level_5.mp3',
+  '6': '/audio/level_6.mp3',
+  '7': '/audio/level_7.mp3',
+  '8': '/audio/level_8.mp3',
+  '9': '/audio/level_9.mp3',
+  '10': '/audio/level_10.mp3',
 };
 
 export const playMusic = async (level?: number): Promise<void> => {
@@ -20,7 +25,7 @@ export const playMusic = async (level?: number): Promise<void> => {
     stopMusic();
 
     const worldNumber = Math.ceil(currentLevel / 5);
-    const musicKey = ((worldNumber - 1) % 5 + 1).toString();
+    const musicKey = worldNumber > 10 ? '10' : worldNumber.toString();
     const audioSrc = LEVEL_MUSIC[musicKey] || LEVEL_MUSIC['1'];
 
     currentAudio = new Audio(audioSrc);
