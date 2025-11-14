@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.twinclash.app',
+  appId: 'com.twinclash.game',
   appName: 'Twin Clash',
   webDir: 'dist',
   server: {
