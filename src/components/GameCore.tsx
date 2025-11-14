@@ -418,6 +418,14 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             if (adjacentIndices.includes(idx) && c.obstacle && (c.obstacleHealth ?? 0) > 0) {
               const newHealth = (c.obstacleHealth ?? 0) - 1;
               if (newHealth <= 0) {
+                // Award coins when obstacle is destroyed
+                if (c.obstacle === 'ice') {
+                  addCoins(10); // 10 coins for ice
+                  console.log('[GameCore] Ice destroyed! +10 coins');
+                } else if (c.obstacle === 'stone') {
+                  addCoins(20); // 20 coins for stone
+                  console.log('[GameCore] Stone destroyed! +20 coins');
+                }
                 return { ...c, obstacle: null, obstacleHealth: 0 };
               }
               return { ...c, obstacleHealth: newHealth };
