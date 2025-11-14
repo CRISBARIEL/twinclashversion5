@@ -521,21 +521,87 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     });
 
     const availablePairs = Array.from(pairsByImage.entries()).filter(([, ids]) => ids.length === 2);
-    const pairsToMatch = availablePairs.slice(0, pairsToReveal);
 
-    const cardIdsToMatch: number[] = [];
-    pairsToMatch.forEach(([, ids]) => {
-      cardIdsToMatch.push(...ids);
-    });
+    // Check if level has obstacles
+    const hasObstacles = cards.some(c => c.obstacle);
 
-    setCards(prev => prev.map(c => {
-      if (cardIdsToMatch.includes(c.id)) {
-        return { ...c, isFlipped: true, isMatched: true };
-      }
-      return c;
-    }));
+    if (hasObstacles) {
+      // SMART LOGIC: Prioritize revealing cards WITH obstacles
+      const pairsWithObstacles: Array<[number, number[]]> = [];
+      const pairsWithoutObstacles: Array<[number, number[]]> = [];
 
-    setMatchedPairs(prev => prev + pairsToMatch.length);
+      availablePairs.forEach(([imageIndex, ids]) => {
+        const hasObstacle = ids.some(id => {
+          const card = cards.find(c => c.id === id);
+          return card && card.obstacle && (card.obstacleHealth ?? 0) > 0;
+        });
+
+        if (hasObstacle) {
+          pairsWithObstacles.push([imageIndex, ids]);
+        } else {
+          pairsWithoutObstacles.push([imageIndex, ids]);
+        }
+      });
+
+      // Prioritize pairs with obstacles, then clean pairs
+      const sortedPairs = [...pairsWithObstacles, ...pairsWithoutObstacles];
+      const pairsToMatch = sortedPairs.slice(0, pairsToReveal);
+
+      const cardIdsToMatch: number[] = [];
+      pairsToMatch.forEach(([, ids]) => {
+        cardIdsToMatch.push(...ids);
+      });
+
+      setCards(prev => prev.map(c => {
+        if (cardIdsToMatch.includes(c.id)) {
+          // If card has stone (2 health), reduce to 1 instead of fully revealing
+          if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 2) {
+            return { ...c, obstacleHealth: 1 };
+          }
+          // If card has ice (1 health), remove obstacle and reveal
+          else if (c.obstacle === 'ice' && (c.obstacleHealth ?? 0) === 1) {
+            return { ...c, isFlipped: true, isMatched: true, obstacle: null, obstacleHealth: 0 };
+          }
+          // If card has stone with 1 health left, remove obstacle and reveal
+          else if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 1) {
+            return { ...c, isFlipped: true, isMatched: true, obstacle: null, obstacleHealth: 0 };
+          }
+          // Clean cards (no obstacle) - reveal normally
+          else {
+            return { ...c, isFlipped: true, isMatched: true };
+          }
+        }
+        return c;
+      }));
+
+      // Only count fully matched pairs
+      const fullyMatchedPairs = pairsToMatch.filter(([, ids]) => {
+        return ids.every(id => {
+          const card = cards.find(c => c.id === id);
+          return !card?.obstacle || (card.obstacleHealth ?? 0) <= 1;
+        });
+      }).length;
+
+      setMatchedPairs(prev => prev + fullyMatchedPairs);
+    } else {
+      // NO OBSTACLES: Normal behavior
+      const pairsToMatch = availablePairs.slice(0, pairsToReveal);
+
+      const cardIdsToMatch: number[] = [];
+      pairsToMatch.forEach(([, ids]) => {
+        cardIdsToMatch.push(...ids);
+      });
+
+      setCards(prev => prev.map(c => {
+        if (cardIdsToMatch.includes(c.id)) {
+          return { ...c, isFlipped: true, isMatched: true };
+        }
+        return c;
+      }));
+
+      setMatchedPairs(prev => prev + pairsToMatch.length);
+    }
+
     setPowerUpUsed(true);
     createConfetti();
   }, [cards]);
