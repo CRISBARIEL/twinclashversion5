@@ -107,3 +107,108 @@ html, body {
     transform: scale(0.5) rotate(15deg);
   }
 }
+
+/**
+ * ICE BREAKING ANIMATION
+ * Performance: Uses only transform and opacity (GPU-accelerated)
+ * Duration: 500ms
+ */
+
+/* Main ice overlay break animation */
+.ice-breaking {
+  animation: ice-shatter 500ms ease-out forwards;
+}
+
+@keyframes ice-shatter {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+    filter: blur(4px);
+  }
+}
+
+/* Ice particles (5 pieces flying outward) */
+.ice-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%);
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+  animation: ice-particle-fly 500ms ease-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes ice-particle-fly {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      translate(
+        calc(cos(var(--angle)) * 60px),
+        calc(sin(var(--angle)) * 60px)
+      )
+      rotate(calc(var(--angle) * 2))
+      scale(0.3);
+  }
+}
+
+/**
+ * ROCK BREAKING ANIMATION
+ * Paper pieces flying outward
+ * Duration: 600ms
+ */
+
+/* Main rock overlay break animation */
+.rock-breaking {
+  animation: rock-shatter 600ms ease-out forwards;
+}
+
+@keyframes rock-shatter {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.15);
+  }
+}
+
+/* Rock particles (paper pieces) */
+.rock-particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: linear-gradient(135deg, #d4a574 0%, #b8956a 100%);
+  border-radius: 2px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  animation: rock-particle-fly 600ms ease-out forwards;
+  will-change: transform, opacity;
+}
+
+@keyframes rock-particle-fly {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      translate(
+        calc(cos(var(--angle)) * 50px),
+        calc(sin(var(--angle)) * 50px)
+      )
+      rotate(calc(var(--angle) * 3))
+      scale(0.2);
+  }
+}
