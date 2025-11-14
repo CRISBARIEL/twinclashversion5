@@ -2,6 +2,7 @@ import { Card } from '../types';
 import { getSkinById, getDefaultSkin, getEquippedTheme } from '../lib/skins';
 import { playSoundFlip } from '../utils/soundManager';
 import { useState, useEffect } from 'react';
+import { ObstacleOverlay } from './ObstacleOverlay';
 // removed custom photo feature
 
 interface GameCardProps {
@@ -10,9 +11,10 @@ interface GameCardProps {
   onClick: (id: number) => void;
   disabled: boolean;
   showHint?: boolean;
+  isBreaking?: boolean;
 }
 
-export const GameCard = ({ card, image, onClick, disabled, showHint = false }: GameCardProps) => {
+export const GameCard = ({ card, image, onClick, disabled, showHint = false, isBreaking = false }: GameCardProps) => {
   const [skin, setSkin] = useState(getDefaultSkin());
 
   useEffect(() => {
@@ -40,7 +42,6 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false }: G
   };
 
   const hasObstacle = card.obstacle && (card.obstacleHealth ?? 0) > 0;
-  const obstacleClass = card.obstacle === 'ice' ? 'obstacle-ice' : card.obstacle === 'stone' ? 'obstacle-stone' : '';
 
   return (
     <div
@@ -52,25 +53,14 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false }: G
           card.isFlipped || card.isMatched ? 'rotate-y-180' : ''
         }`}
       >
+        {/* Cara trasera de la carta (sin voltear) */}
         <div className="absolute w-full h-full backface-hidden">
-          <div className={`w-full h-full ${hasObstacle ? obstacleClass : skin.cardBackColor} rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} relative overflow-hidden ${showHint ? 'hint-pulse' : ''}`}>
-            {hasObstacle ? (
-              <>
-                <div className="absolute inset-2 border-2 border-white/30 rounded-lg"></div>
-                <div className="text-4xl text-white/40 font-bold drop-shadow-lg z-10">?</div>
-                {card.obstacle === 'stone' && card.obstacleHealth === 2 && (
-                  <div className="absolute bottom-2 right-2 w-7 h-7 bg-red-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg border-2 border-white z-20">2</div>
-                )}
-                {card.obstacle === 'stone' && card.obstacleHealth === 1 && (
-                  <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/20 to-black/40 rounded-xl"></div>
-                )}
-              </>
-            ) : (
-              <>
-                <div className="text-4xl text-white font-bold">?</div>
-              </>
-            )}
+          <div className={`w-full h-full ${skin.cardBackColor} rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} relative overflow-hidden ${showHint ? 'hint-pulse' : ''}`}>
+            <div className="text-4xl text-white font-bold">?</div>
           </div>
+
+          {/* Overlay de obstáculo (hielo o piedra) renderizado encima de la carta */}
+          {hasObstacle && <ObstacleOverlay card={card} isBreaking={isBreaking} />}
         </div>
 
         <div className="absolute w-full h-full backface-hidden rotate-y-180">

@@ -659,6 +659,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                   onClick={handleCardClick}
                   disabled={isPreview || isCheckingRef.current}
                   showHint={hintCards.includes(card.id)}
+                  isBreaking={breakingCards.has(card.id)}
                 />
               </div>
             ))}
