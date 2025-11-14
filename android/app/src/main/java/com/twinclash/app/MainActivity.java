@@ -1,4 +1,4 @@
-package com.twinclash.v2;
+package com.twinclash.app;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;

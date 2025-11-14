@@ -1,5 +1,5 @@
 {
-	"appId": "com.twinclash.v2",
+	"appId": "com.twinclash.app",
 	"appName": "Twin Clash",
 	"webDir": "dist",
 	"server": {
