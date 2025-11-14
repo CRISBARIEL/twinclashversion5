@@ -55,6 +55,8 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [showObstacleTutorial, setShowObstacleTutorial] = useState(false);
   const [shatterTrigger, setShatterTrigger] = useState(false);
   const [shatterTheme, setShatterTheme] = useState<ShatterTheme>('ice');
+  const [coinsEarned, setCoinsEarned] = useState(0);
+  const [showCoinAnimation, setShowCoinAnimation] = useState(false);
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -325,11 +327,16 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           console.error('[GameCore] Failed to submit score:', err);
         });
 
-        addCoins(10);
+        const baseCoins = 10;
+        setCoinsEarned(baseCoins);
+        addCoins(baseCoins);
 
         setShowWinModal(true);
+        setTimeout(() => setShowCoinAnimation(true), 500);
       } else {
-        addCoins(10);
+        const baseCoins = 10;
+        setCoinsEarned(baseCoins);
+        addCoins(baseCoins);
         onComplete();
       }
     }
@@ -722,7 +729,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
               </div>
             )}
 
-            <div className="bg-gray-100 rounded-xl p-4 mb-6">
+            <div className="bg-gray-100 rounded-xl p-4 mb-4">
               <div className="flex justify-around text-center">
                 <div>
                   <div className="text-2xl font-bold text-blue-600">{finalTime}s</div>
@@ -733,6 +740,32 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                   <div className="text-xs text-gray-600">Movimientos</div>
                 </div>
               </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-yellow-100 to-amber-100 rounded-xl p-6 mb-6 relative overflow-hidden">
+              <div className="text-4xl mb-2">💰</div>
+              <div className="text-2xl font-bold text-amber-700 mb-1">
+                +{coinsEarned} Monedas
+              </div>
+              <div className="text-sm text-amber-600">¡Ganadas en este nivel!</div>
+
+              {showCoinAnimation && (
+                <div className="absolute inset-0 pointer-events-none">
+                  {[...Array(8)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute text-2xl animate-coin-fall"
+                      style={{
+                        left: `${20 + i * 10}%`,
+                        animationDelay: `${i * 0.1}s`,
+                        animationDuration: '1.2s'
+                      }}
+                    >
+                      🪙
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="flex flex-col gap-2">
               <div className="flex gap-2">
