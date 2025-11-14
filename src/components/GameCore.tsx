@@ -268,6 +268,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         if (prev <= 1) {
           if (timerRef.current) clearInterval(timerRef.current);
           if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
+          soundManager.stopLevelMusic();
           soundManager.playLose();
           setGameOver(true);
           return 0;
@@ -294,6 +295,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
       if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
       createConfetti();
+      soundManager.stopLevelMusic();
       soundManager.playWin();
 
       if (isDailyChallenge) {

@@ -7,6 +7,7 @@ import { ChallengeScene } from './components/ChallengeScene';
 import { WorldMap } from './components/WorldMap';
 import { LevelSelector } from './components/LevelSelector';
 import { loadFromSupabase } from './lib/progression';
+import { soundManager } from './lib/sound';
 
 type Screen = 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect';
 
@@ -47,6 +48,8 @@ function App() {
   };
 
   const handleBackToMenu = () => {
+    soundManager.stopLevelMusic();
+    soundManager.playStartMusic();
     setScreen('menu');
   };
 
@@ -83,6 +86,8 @@ function App() {
             setScreen('levelselect');
           }}
           onBackToMenu={() => {
+            soundManager.stopLevelMusic();
+            soundManager.playStartMusic();
             setScreen('menu');
           }}
         />

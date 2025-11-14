@@ -203,12 +203,21 @@ class SoundManager {
   }
 
   public stopLevelMusic(): void {
-    if (!this.currentLevelTrack) return;
-
     try {
-      this.currentLevelTrack.pause();
-      this.currentLevelTrack.currentTime = 0;
-      this.currentLevelTrack = null;
+      // Detener el track actual
+      if (this.currentLevelTrack) {
+        this.currentLevelTrack.pause();
+        this.currentLevelTrack.currentTime = 0;
+        this.currentLevelTrack = null;
+      }
+
+      // Por seguridad, detener TODOS los tracks de nivel que puedan estar sonando
+      this.levelTracks.forEach((track) => {
+        if (!track.paused) {
+          track.pause();
+          track.currentTime = 0;
+        }
+      });
     } catch (error) {
       console.warn('Error stopping level music:', error);
     }

@@ -89,6 +89,7 @@ export const GameShell = ({ initialLevel, onBackToMenu }: GameShellProps) => {
     }
 
     soundManager.stopStartMusic();
+    soundManager.stopLevelMusic();
     if (currentConfig) {
       soundManager.playLevelMusic(currentConfig.world);
     }
