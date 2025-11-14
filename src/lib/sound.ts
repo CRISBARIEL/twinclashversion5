@@ -72,7 +72,7 @@ class SoundManager {
       this.startMusicTrack.preload = 'auto';
 
       // Músicas de nivel
-      for (let i = 1; i <= 5; i++) {
+      for (let i = 1; i <= 10; i++) {
         const track = new Audio(`/audio/level_${i}.mp3`);
         track.loop = true;
         track.preload = 'auto';
