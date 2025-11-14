@@ -32,7 +32,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matchedPairs, setMatchedPairs] = useState(0);
-  const [showCountdown, setShowCountdown] = useState(true);
+  const [showCountdown, setShowCountdown] = useState(false);
   const [isPreview, setIsPreview] = useState(true);
   const [timeLeft, setTimeLeft] = useState(levelConfig?.timeLimit || 60);
   const [gameOver, setGameOver] = useState(false);
@@ -203,6 +203,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     setCards(shuffled);
     setFlippedCards([]);
     setMatchedPairs(0);
+    setShowCountdown(false);
     setIsPreview(true);
     setGameOver(false);
     setTimeLeft(timeLimit);
@@ -225,7 +226,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
 
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = window.setTimeout(() => {
-      setIsPreview(false);
+      setShowCountdown(true);
     }, PREVIEW_TIME * 1000);
     if (isDailyChallenge) {
       const stored = localStorage.getItem(`best:${seed}`);
@@ -668,6 +669,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         <CountdownOverlay
           onComplete={() => {
             setShowCountdown(false);
+            setIsPreview(false);
           }}
         />
       )}
