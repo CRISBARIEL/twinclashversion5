@@ -12,7 +12,7 @@ import { Card, PREVIEW_TIME, FLIP_DELAY, GameMetrics, BestScore } from '../types
 import { createConfetti } from '../utils/confetti';
 import { getSeedFromURLorToday, shuffleWithSeed } from '../lib/seed';
 import { submitScoreAndReward, getCrewIdFromURL, setCrewIdInURL } from '../lib/api';
-import { addCoins } from '../lib/progression';
+import { addCoins, getLocalCoins } from '../lib/progression';
 import { getLevelConfig } from '../lib/levels';
 import { getThemeImages } from '../lib/themes';
 import { soundManager } from '../lib/sound';
@@ -57,6 +57,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [shatterTheme, setShatterTheme] = useState<ShatterTheme>('ice');
   const [coinsEarned, setCoinsEarned] = useState(0);
   const [showCoinAnimation, setShowCoinAnimation] = useState(false);
+  const [currentCoins, setCurrentCoins] = useState(0);
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -241,6 +242,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   useEffect(() => {
     console.log('[GameCore] mount for level', level);
     initializeLevel();
+    setCurrentCoins(getLocalCoins());
 
     return () => {
       console.log('[GameCore] unmount for level', level);
@@ -330,6 +332,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         const baseCoins = 10;
         setCoinsEarned(baseCoins);
         addCoins(baseCoins);
+        setCurrentCoins(getLocalCoins());
 
         setShowWinModal(true);
         setTimeout(() => setShowCoinAnimation(true), 500);
@@ -431,12 +434,14 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                 // Award coins when obstacle is destroyed
                 if (c.obstacle === 'ice') {
                   addCoins(10); // 10 coins for ice
+                  setCurrentCoins(getLocalCoins());
                   console.log('[GameCore] Ice destroyed! +10 coins');
                   setShatterTheme('ice');
                   setShatterTrigger(true);
                   setTimeout(() => setShatterTrigger(false), 100);
                 } else if (c.obstacle === 'stone') {
                   addCoins(20); // 20 coins for stone
+                  setCurrentCoins(getLocalCoins());
                   console.log('[GameCore] Stone destroyed! +20 coins');
                   setShatterTheme('stone');
                   setShatterTrigger(true);
@@ -602,9 +607,14 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           </div>
         )}
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-bold text-gray-800">
-            {isDailyChallenge ? 'Reto Diario' : `Nivel ${level}`}
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold text-gray-800">
+              {isDailyChallenge ? 'Reto Diario' : `Nivel ${level}`}
+            </h2>
+            <div className="bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-3 py-1 rounded-full font-bold text-sm shadow-md flex items-center gap-1">
+              🪙 {currentCoins}
+            </div>
+          </div>
           <div className="flex items-center gap-3">
             <SoundGear />
             <div className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-red-600 animate-pulse' : 'text-blue-600'}`}>

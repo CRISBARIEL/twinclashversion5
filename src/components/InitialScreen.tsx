@@ -59,20 +59,20 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel 
       clearTimeout(tapTimerRef.current);
     }
 
-    if (tapCountRef.current >= 5) {
+    if (tapCountRef.current >= 7) {
       setShowAdminPanel(true);
       tapCountRef.current = 0;
     } else {
       tapTimerRef.current = window.setTimeout(() => {
         tapCountRef.current = 0;
-      }, 2000);
+      }, 1500);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center p-4">
       <div
-        className="fixed top-0 right-0 w-16 h-16 z-40"
+        className="fixed top-0 left-0 w-32 h-32 z-40"
         onClick={handleAdminTap}
       />
       <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
