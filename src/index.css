@@ -1,0 +1,178 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.game-title {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3))
+          drop-shadow(0 0 20px rgba(255, 122, 34, 0.4))
+          drop-shadow(0 0 30px rgba(76, 199, 255, 0.4));
+}
+
+.game-logo {
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.hint-pulse {
+  animation: hint-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes hint-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.7), 0 0 20px rgba(250, 204, 21, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(250, 204, 21, 0), 0 0 30px rgba(250, 204, 21, 0.5);
+  }
+}
+
+.touch-manipulation {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.5);
+  border-radius: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.8);
+}
+
+html, body {
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.obstacle-ice {
+  background: linear-gradient(135deg, rgba(168, 218, 251, 0.9) 0%, rgba(190, 232, 255, 0.8) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.obstacle-ice::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.6) 50%, transparent 70%);
+  animation: ice-shine 3s ease-in-out infinite;
+}
+
+.obstacle-ice::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.4) 0%, transparent 50%),
+              radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.3) 0%, transparent 50%);
+}
+
+@keyframes ice-shine {
+  0%, 100% {
+    transform: translateX(-100%) translateY(-100%);
+  }
+  50% {
+    transform: translateX(100%) translateY(100%);
+  }
+}
+
+.obstacle-stone {
+  background:
+    linear-gradient(135deg, #78716c 0%, #57534e 25%, #44403c 50%, #292524 75%, #1c1917 100%),
+    repeating-linear-gradient(60deg, transparent, transparent 3px, rgba(0,0,0,0.15) 3px, rgba(0,0,0,0.15) 6px),
+    repeating-linear-gradient(-60deg, transparent, transparent 4px, rgba(0,0,0,0.1) 4px, rgba(0,0,0,0.1) 8px);
+  background-blend-mode: normal, multiply, multiply;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.4), inset 0 -2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.obstacle-stone::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 15%),
+    radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.25) 0%, transparent 20%),
+    radial-gradient(circle at 60% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 18%),
+    radial-gradient(circle at 30% 80%, rgba(0, 0, 0, 0.2) 0%, transparent 22%),
+    radial-gradient(circle at 75% 60%, rgba(87, 83, 78, 0.4) 0%, transparent 25%),
+    radial-gradient(circle at 40% 40%, rgba(68, 64, 60, 0.3) 0%, transparent 20%);
+  mix-blend-mode: overlay;
+}
+
+.obstacle-stone::after {
+  content: '🪨';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  opacity: 0.3;
+  filter: grayscale(100%) brightness(0.7);
+  pointer-events: none;
+}
+
+.obstacle-crack {
+  animation: crack-effect 0.5s ease-out;
+}
+
+@keyframes crack-effect {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.05) rotate(2deg);
+  }
+  75% {
+    transform: scale(0.98) rotate(-2deg);
+  }
+}
+
+.obstacle-break {
+  animation: break-effect 0.6s ease-out forwards;
+}
+
+@keyframes break-effect {
+  0% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1) rotate(5deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(15deg);
+  }
+}

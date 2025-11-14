@@ -1,0 +1,46 @@
+<svg width="180" height="42" viewBox="0 0 180 42" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradMini" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#001935"/>
+      <stop offset="100%" stop-color="#006BCE"/>
+    </linearGradient>
+
+    <linearGradient id="accentMini" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF7A22"/>
+      <stop offset="100%" stop-color="#4CC7FF"/>
+    </linearGradient>
+
+    <filter id="miniGlow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="180" height="42" fill="url(#bgGradMini)" rx="4"/>
+
+  <text x="90" y="28"
+        font-family="Impact, Anton, sans-serif"
+        font-size="22"
+        text-anchor="middle"
+        fill="none"
+        stroke="url(#accentMini)"
+        stroke-width="4"
+        opacity="0.8"
+        filter="url(#miniGlow)">
+    TWIN CLASH
+  </text>
+
+  <text x="90" y="28"
+        font-family="Impact, Anton, sans-serif"
+        font-size="22"
+        text-anchor="middle"
+        fill="#FFFFFF"
+        style="letter-spacing: 1px;">
+    TWIN CLASH
+  </text>
+
+  <rect x="40" y="33" width="100" height="3" rx="1.5" fill="#FF7A22" opacity="0.8"/>
+</svg>

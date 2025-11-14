@@ -1,0 +1,13 @@
+<svg width="260" height="90" viewBox="0 0 260 90" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00E0FF"/>
+      <stop offset="100%" stop-color="#B100FF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="260" height="90" rx="12" fill="transparent"/>
+  <text x="130" y="55" font-family="Impact, Anton, sans-serif" font-size="48" text-anchor="middle" fill="url(#g2)">
+    TWIN CLASH
+  </text>
+</svg>

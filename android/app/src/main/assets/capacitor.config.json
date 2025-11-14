@@ -1,0 +1,9 @@
+{
+	"appId": "com.twinclash.app",
+	"appName": "Twin Clash",
+	"webDir": "dist",
+	"server": {
+		"androidScheme": "https",
+		"cleartext": true
+	}
+}
