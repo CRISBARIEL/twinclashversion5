@@ -60,7 +60,7 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
           </div>
 
           {/* Overlay de obstáculo (hielo o piedra) renderizado encima de la carta */}
-          {hasObstacle && <ObstacleOverlay card={card} isBreaking={isBreaking} />}
+          <ObstacleOverlay card={card} isBreaking={isBreaking} />
         </div>
 
         <div className="absolute w-full h-full backface-hidden rotate-y-180">

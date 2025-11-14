@@ -7,189 +7,162 @@ interface ObstacleOverlayProps {
 }
 
 /**
- * PARTÍCULAS DE HIELO
- * Define las posiciones y direcciones de las partículas que salen despedidas
- * cuando el hielo se rompe.
- *
- * Cada partícula tiene:
- * - initialX, initialY: Posición inicial en % (desde el centro)
- * - translateX, translateY: Dirección del movimiento en px
- * - delay: Retraso de la animación en ms (para efecto escalonado)
- *
- * PARA AÑADIR MÁS PARTÍCULAS: Añade más objetos a este array
- * PARA CAMBIAR DIRECCIONES: Modifica translateX/translateY (valores negativos = izquierda/arriba)
+ * CONFIGURACIÓN DE PARTÍCULAS
+ * Sistema de explosión de partículas estilo Candy Crush
  */
-const ICE_PARTICLES = [
-  { initialX: '50%', initialY: '50%', translateX: -40, translateY: -50, delay: 0 },
-  { initialX: '50%', initialY: '50%', translateX: 40, translateY: -50, delay: 50 },
-  { initialX: '50%', initialY: '50%', translateX: -50, translateY: 20, delay: 100 },
-  { initialX: '50%', initialY: '50%', translateX: 50, translateY: 20, delay: 150 },
-  { initialX: '50%', initialY: '50%', translateX: 0, translateY: -60, delay: 75 },
-  { initialX: '50%', initialY: '50%', translateX: -60, translateY: 0, delay: 125 },
-  { initialX: '50%', initialY: '50%', translateX: 60, translateY: 0, delay: 175 },
-  { initialX: '50%', initialY: '50%', translateX: 0, translateY: 50, delay: 200 },
-];
+
+// Partículas de hielo (cristales que explotan)
+const ICE_PARTICLES = Array.from({ length: 12 }, (_, i) => ({
+  angle: (i * 360) / 12,
+  distance: 60 + Math.random() * 20,
+  size: 8 + Math.random() * 6,
+  duration: 400 + Math.random() * 200,
+  delay: Math.random() * 100,
+}));
+
+// Partículas de roca (trozos de papel/cartón arrugado)
+const ROCK_PARTICLES = Array.from({ length: 10 }, (_, i) => ({
+  angle: (i * 360) / 10,
+  distance: 50 + Math.random() * 25,
+  size: 10 + Math.random() * 8,
+  duration: 500 + Math.random() * 200,
+  delay: Math.random() * 80,
+}));
 
 /**
- * Componente que renderiza el overlay visual de los obstáculos (hielo y piedra)
- * sobre las cartas del juego.
+ * Componente de overlay de obstáculos con efectos tipo Candy Crush
  *
  * HIELO:
- * - Se rompe con un solo golpe (health = 1)
- * - Tiene un efecto visual de hielo translúcido con copo de nieve
- * - Cuando se rompe, muestra una animación de explosión con partículas
+ * - Cristal translúcido brillante con reflejos
+ * - Explosión de cristales al romperse
  *
- * PIEDRA:
- * - Requiere dos golpes para romperse (health = 2 → 1 → 0)
- * - Health 2: Piedra sólida con textura oscura y emoji de roca
- * - Health 1: Piedra agrietada más clara, como si estuviera medio rota
+ * ROCA (PAPEL ARRUGADO):
+ * - Textura tipo papel kraft/cartón arrugado
+ * - Colores cálidos y naturales
+ * - Explosión de trozos al romperse
  */
 export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayProps) => {
-  /**
-   * Estado local para controlar la animación de rotura del hielo
-   *
-   * - isShatteringIce: true cuando el hielo está en proceso de romperse (600ms)
-   * - previousHealth: guarda la salud anterior para detectar el momento exacto de rotura
-   */
   const [isShatteringIce, setIsShatteringIce] = useState(false);
+  const [isShatteringRock, setIsShatteringRock] = useState(false);
   const [previousHealth, setPreviousHealth] = useState(card.obstacleHealth);
 
   /**
-   * DETECCIÓN DE ROTURA DEL HIELO
-   *
-   * useEffect que monitorea cambios en la salud del obstáculo.
-   * Cuando detecta que:
-   * 1. El obstáculo es de tipo 'ice'
-   * 2. La salud anterior era > 0
-   * 3. La salud actual es <= 0
-   *
-   * → Activa la animación de rotura (isShatteringIce = true) durante 600ms
-   *
-   * Este tiempo (600ms) debe coincidir con la duración de la animación CSS
-   * de las partículas para que terminen de desvanecerse antes de que el
-   * componente deje de renderizarse.
+   * Detecta cuando un obstáculo se rompe completamente
    */
   useEffect(() => {
-    if (
-      card.obstacle === 'ice' &&
-      previousHealth !== undefined &&
-      previousHealth > 0 &&
-      (card.obstacleHealth ?? 0) <= 0
-    ) {
-      // El hielo acaba de romperse, activar animación de explosión
-      setIsShatteringIce(true);
+    const wasDestroyed = previousHealth !== undefined && previousHealth > 0 && (card.obstacleHealth ?? 0) <= 0;
 
-      // Después de 600ms, limpiar el estado de animación
-      const timeout = setTimeout(() => {
-        setIsShatteringIce(false);
-      }, 600);
-
-      return () => clearTimeout(timeout);
+    if (wasDestroyed) {
+      if (card.obstacle === 'ice') {
+        setIsShatteringIce(true);
+        setTimeout(() => setIsShatteringIce(false), 600);
+      } else if (card.obstacle === 'stone') {
+        setIsShatteringRock(true);
+        setTimeout(() => setIsShatteringRock(false), 700);
+      }
     }
 
-    // Actualizar la salud previa para la próxima comparación
     setPreviousHealth(card.obstacleHealth);
   }, [card.obstacle, card.obstacleHealth, previousHealth]);
 
   const hasObstacle = card.obstacle && (card.obstacleHealth ?? 0) > 0;
 
-  // Si no hay obstáculo Y no se está rompiendo el hielo, no renderizar nada
-  if (!hasObstacle && !isShatteringIce) return null;
+  // Seguir renderizando durante la animación de rotura
+  if (!hasObstacle && !isShatteringIce && !isShatteringRock) return null;
 
   /**
    * ==========================================
-   * OVERLAY DE HIELO
+   * OVERLAY DE HIELO - Estilo Candy Crush
    * ==========================================
    *
-   * ESTADO NORMAL (health > 0):
-   * - Fondo translúcido azul/celeste con blur
-   * - Copo de nieve centrado con animación pulse
-   * - Reflejos y brillos para simular cristal
-   *
-   * ESTADO DE ROTURA (isShatteringIce = true):
-   * - El overlay completo hace scale + fade (se expande y desvanece)
-   * - Aparecen 8 partículas que salen disparadas en diferentes direcciones
-   * - Las partículas se mueven, rotan y desvanecen en 600ms
-   * - Después de 600ms, el componente deja de renderizarse
+   * Diseño: Cristal azul brillante con reflejos y brillos
+   * Rotura: Explosión de cristales en todas direcciones
    */
-  if (card.obstacle === 'ice') {
+  if (card.obstacle === 'ice' || isShatteringIce) {
     return (
-      <div className="absolute inset-0 pointer-events-none">
-        {/* OVERLAY PRINCIPAL DE HIELO */}
-        {hasObstacle && (
+      <div className="absolute inset-0 pointer-events-none z-10">
+        {/* CRISTAL DE HIELO - Solo visible si aún tiene vida */}
+        {hasObstacle && card.obstacle === 'ice' && (
           <div
-            className={`absolute inset-0 rounded-xl overflow-visible transition-all ${
+            className={`absolute inset-0 rounded-xl transition-all ${
               isBreaking || isShatteringIce
-                ? 'duration-500 opacity-0 scale-125' // Animación de rotura: se expande y desvanece
-                : 'duration-300 opacity-100 scale-100' // Estado normal
+                ? 'duration-300 opacity-0 scale-125 blur-sm'
+                : 'duration-200 opacity-100 scale-100'
             }`}
+            style={{
+              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.85) 0%, rgba(14, 165, 233, 0.9) 50%, rgba(6, 182, 212, 0.85) 100%)',
+              boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.5), inset 0 -5px 15px rgba(0, 0, 0, 0.2), 0 4px 15px rgba(56, 189, 248, 0.4)',
+              border: '2px solid rgba(255, 255, 255, 0.6)',
+            }}
           >
-            {/* Fondo de hielo con degradado celeste y blur */}
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-200/80 via-sky-300/80 to-sky-400/80 backdrop-blur-sm border-2 border-cyan-100/80 rounded-xl"></div>
-
-            {/* Efectos de brillo y reflejos de hielo */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent rounded-xl"></div>
-            <div className="absolute inset-0 bg-gradient-to-tl from-cyan-400/30 via-transparent to-transparent rounded-xl"></div>
-
-            {/* Copo de nieve centrado */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-5xl drop-shadow-lg animate-pulse">❄️</div>
+            {/* Reflejos brillantes dinámicos */}
+            <div className="absolute inset-0 overflow-hidden rounded-xl">
+              <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/40 to-transparent"></div>
+              <div className="absolute top-1/4 left-0 w-1/3 h-1/3 bg-white/20 blur-xl rounded-full"></div>
+              <div className="absolute bottom-1/4 right-0 w-1/2 h-1/2 bg-cyan-400/30 blur-2xl rounded-full"></div>
             </div>
 
-            {/* Borde brillante */}
-            <div className="absolute inset-0 rounded-xl border-2 border-white/40"></div>
+            {/* Brillos animados tipo Candy Crush */}
+            <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full animate-ping"></div>
+            <div className="absolute bottom-3 left-3 w-2 h-2 bg-cyan-100 rounded-full animate-pulse"></div>
+
+            {/* Copo de nieve con efecto de brillo */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="relative">
+                <div className="text-5xl animate-pulse filter drop-shadow-lg">❄️</div>
+                <div className="absolute inset-0 bg-white/20 blur-xl rounded-full"></div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/*
-          PARTÍCULAS DE HIELO
-
-          Solo se renderizan cuando isShatteringIce = true (durante 600ms).
-
-          Cada partícula:
-          1. Comienza en el centro del hielo
-          2. Se mueve hacia su dirección asignada (translateX/translateY)
-          3. Rota mientras se mueve (rotate-45, -rotate-90, etc.)
-          4. Se desvanece gradualmente (opacity: 1 → 0)
-          5. Tiene un delay escalonado para efecto más natural
-
-          PERSONALIZACIÓN:
-          - Tamaño: w-3 h-3 (cambiar a w-2 h-2 o w-4 h-4)
-          - Color: bg-cyan-100, bg-sky-200, bg-white (cualquier color de hielo)
-          - Duración: duration-[600ms] (cambiar el número en ms)
-        */}
+        {/* EXPLOSIÓN DE CRISTALES */}
         {isShatteringIce && (
-          <div className="absolute inset-0 overflow-visible pointer-events-none">
-            {ICE_PARTICLES.map((particle, index) => (
-              <div
-                key={index}
-                className="absolute w-3 h-3 rounded-full shadow-lg transition-all duration-[600ms] ease-out"
-                style={{
-                  left: particle.initialX,
-                  top: particle.initialY,
-                  backgroundColor: index % 3 === 0 ? '#e0f2fe' : index % 3 === 1 ? '#bae6fd' : '#ffffff',
-                  transform: isShatteringIce
-                    ? `translate(${particle.translateX}px, ${particle.translateY}px) rotate(${particle.translateX * 3}deg) scale(0.3)`
-                    : 'translate(-50%, -50%) rotate(0deg) scale(1)',
-                  opacity: isShatteringIce ? 0 : 1,
-                  transitionDelay: `${particle.delay}ms`,
-                }}
-              />
-            ))}
+          <div className="absolute inset-0 overflow-visible">
+            {ICE_PARTICLES.map((particle, i) => {
+              const radian = (particle.angle * Math.PI) / 180;
+              const tx = Math.cos(radian) * particle.distance;
+              const ty = Math.sin(radian) * particle.distance;
 
-            {/* Partículas adicionales tipo "chispas" (más pequeñas y rápidas) */}
-            {[...Array(6)].map((_, i) => (
+              return (
+                <div
+                  key={i}
+                  className="absolute rounded-sm"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: `${particle.size}px`,
+                    height: `${particle.size}px`,
+                    background: i % 3 === 0
+                      ? 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)'
+                      : i % 3 === 1
+                      ? 'linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%)'
+                      : 'linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%)',
+                    boxShadow: '0 0 8px rgba(56, 189, 248, 0.6), inset 0 0 4px rgba(255, 255, 255, 0.8)',
+                    transform: isShatteringIce
+                      ? `translate(${tx}px, ${ty}px) rotate(${particle.angle * 2}deg) scale(0)`
+                      : 'translate(-50%, -50%) rotate(0deg) scale(1)',
+                    opacity: isShatteringIce ? 0 : 1,
+                    transition: `all ${particle.duration}ms ease-out ${particle.delay}ms`,
+                  }}
+                />
+              );
+            })}
+
+            {/* Chispas brillantes adicionales */}
+            {Array.from({ length: 8 }).map((_, i) => (
               <div
                 key={`spark-${i}`}
-                className="absolute w-1.5 h-1.5 bg-white rounded-full opacity-80 transition-all duration-[400ms] ease-out"
+                className="absolute w-1 h-1 bg-white rounded-full"
                 style={{
                   left: '50%',
                   top: '50%',
+                  boxShadow: '0 0 6px #ffffff',
                   transform: isShatteringIce
-                    ? `translate(${Math.cos((i * 60 * Math.PI) / 180) * 70}px, ${Math.sin((i * 60 * Math.PI) / 180) * 70}px) scale(0)`
+                    ? `translate(${Math.cos((i * 45 * Math.PI) / 180) * 80}px, ${Math.sin((i * 45 * Math.PI) / 180) * 80}px) scale(0)`
                     : 'translate(-50%, -50%) scale(1)',
-                  opacity: isShatteringIce ? 0 : 0.8,
-                  transitionDelay: `${i * 30}ms`,
+                  opacity: isShatteringIce ? 0 : 0.9,
+                  transition: `all 350ms ease-out ${i * 30}ms`,
                 }}
               />
             ))}
@@ -201,91 +174,174 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
 
   /**
    * ==========================================
-   * OVERLAY DE PIEDRA
+   * OVERLAY DE ROCA - Estilo Papel Arrugado
    * ==========================================
    *
-   * Tiene dos estados visuales según su salud (health)
+   * Diseño: Papel kraft/cartón arrugado con textura natural
+   * Colores: Tonos cálidos (marrón, beige, crema)
+   * Rotura: Explosión de trozos de papel
    */
-  if (card.obstacle === 'stone') {
-    // PIEDRA SÓLIDA (health = 2)
-    // Apariencia de bloque de roca completo, oscuro y pesado
-    if (card.obstacleHealth === 2) {
-      return (
-        <div className="absolute inset-0 rounded-xl overflow-hidden">
-          {/* Fondo de piedra con textura y degradado oscuro */}
-          <div className="absolute inset-0 bg-gradient-to-br from-stone-600 via-stone-700 to-stone-900"></div>
+  if (card.obstacle === 'stone' || isShatteringRock) {
+    const health = card.obstacleHealth ?? 0;
 
-          {/* Textura de piedra con patrones */}
-          <div className="absolute inset-0 opacity-40">
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/20 to-black/40"></div>
-            <div className="absolute inset-0" style={{
-              backgroundImage: `
-                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 15%),
-                radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.25) 0%, transparent 20%),
-                radial-gradient(circle at 60% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 18%)
-              `
-            }}></div>
+    return (
+      <div className="absolute inset-0 pointer-events-none z-10">
+        {/* PAPEL ARRUGADO - Solo visible si aún tiene vida */}
+        {hasObstacle && card.obstacle === 'stone' && (
+          <div
+            className={`absolute inset-0 rounded-xl transition-all ${
+              isBreaking || isShatteringRock
+                ? 'duration-400 opacity-0 scale-110'
+                : 'duration-200 opacity-100 scale-100'
+            }`}
+          >
+            {/* Estado según la salud */}
+            {health === 2 && (
+              // PAPEL ARRUGADO COMPLETO (2 vidas)
+              <div
+                className="absolute inset-0 rounded-xl"
+                style={{
+                  background: 'linear-gradient(135deg, #d4a574 0%, #b8956a 30%, #9e7e5a 70%, #8b6f47 100%)',
+                  boxShadow: 'inset 0 0 25px rgba(0, 0, 0, 0.3), inset 3px 3px 10px rgba(255, 255, 255, 0.15), 0 4px 15px rgba(0, 0, 0, 0.4)',
+                }}
+              >
+                {/* Textura de papel arrugado */}
+                <div
+                  className="absolute inset-0 opacity-50 rounded-xl"
+                  style={{
+                    backgroundImage: `
+                      radial-gradient(circle at 20% 20%, rgba(0, 0, 0, 0.2) 0%, transparent 3%),
+                      radial-gradient(circle at 80% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 4%),
+                      radial-gradient(circle at 40% 60%, rgba(0, 0, 0, 0.15) 0%, transparent 3%),
+                      radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 5%),
+                      radial-gradient(circle at 15% 80%, rgba(0, 0, 0, 0.2) 0%, transparent 3%),
+                      radial-gradient(circle at 90% 50%, rgba(255, 255, 255, 0.2) 0%, transparent 4%)
+                    `,
+                  }}
+                />
+
+                {/* Arrugas y pliegues */}
+                <div className="absolute inset-0 opacity-40 rounded-xl">
+                  <div className="absolute top-1/4 left-0 w-full h-px bg-gradient-to-r from-transparent via-black/40 to-transparent"></div>
+                  <div className="absolute top-2/3 left-0 w-full h-px bg-gradient-to-r from-transparent via-black/30 to-transparent"></div>
+                  <div className="absolute left-1/3 top-0 w-px h-full bg-gradient-to-b from-transparent via-black/30 to-transparent"></div>
+                  <div className="absolute left-2/3 top-0 w-px h-full bg-gradient-to-b from-transparent via-white/20 to-transparent"></div>
+                </div>
+
+                {/* Icono central */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-5xl filter drop-shadow-lg">📦</div>
+                </div>
+
+                {/* Indicador de vida */}
+                <div className="absolute bottom-2 right-2 w-7 h-7 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-xl border-2 border-white">
+                  2
+                </div>
+              </div>
+            )}
+
+            {health === 1 && (
+              // PAPEL ARRUGADO DAÑADO (1 vida)
+              <div
+                className="absolute inset-0 rounded-xl"
+                style={{
+                  background: 'linear-gradient(135deg, #e8c9a1 0%, #d4a574 40%, #c19968 100%)',
+                  boxShadow: 'inset 0 0 20px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.3)',
+                }}
+              >
+                {/* Textura más clara (desgastada) */}
+                <div
+                  className="absolute inset-0 opacity-60 rounded-xl"
+                  style={{
+                    backgroundImage: `
+                      radial-gradient(circle at 25% 25%, rgba(0, 0, 0, 0.15) 0%, transparent 4%),
+                      radial-gradient(circle at 75% 35%, rgba(255, 255, 255, 0.2) 0%, transparent 5%),
+                      radial-gradient(circle at 50% 70%, rgba(0, 0, 0, 0.1) 0%, transparent 6%)
+                    `,
+                  }}
+                />
+
+                {/* Roturas y grietas visibles */}
+                <div className="absolute inset-0 rounded-xl overflow-hidden">
+                  <div className="absolute top-1/3 left-1/4 w-16 h-0.5 bg-amber-900/60 transform -rotate-12"></div>
+                  <div className="absolute top-1/2 right-1/4 w-12 h-0.5 bg-amber-900/50 transform rotate-20"></div>
+                  <div className="absolute bottom-1/3 left-1/3 w-20 h-px bg-amber-800/40 transform rotate-6"></div>
+
+                  {/* Rasgaduras */}
+                  <svg className="absolute top-1/4 right-1/3 w-8 h-8 opacity-30" viewBox="0 0 32 32">
+                    <path d="M 4 4 L 8 12 L 4 20 L 12 16 L 20 20 L 16 12 L 28 8" stroke="#8b6f47" strokeWidth="2" fill="none" />
+                  </svg>
+                </div>
+
+                {/* Icono más tenue */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-5xl opacity-70 filter drop-shadow-md">📦</div>
+                </div>
+
+                {/* Indicador de vida */}
+                <div className="absolute bottom-2 right-2 w-7 h-7 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg border-2 border-white">
+                  1
+                </div>
+              </div>
+            )}
           </div>
+        )}
 
-          {/* Sombra interna para dar profundidad */}
-          <div className="absolute inset-0 shadow-inner-stone"></div>
+        {/* EXPLOSIÓN DE TROZOS DE PAPEL */}
+        {isShatteringRock && (
+          <div className="absolute inset-0 overflow-visible">
+            {ROCK_PARTICLES.map((particle, i) => {
+              const radian = (particle.angle * Math.PI) / 180;
+              const tx = Math.cos(radian) * particle.distance;
+              const ty = Math.sin(radian) * particle.distance;
 
-          {/* Emoji de roca centrado */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-5xl drop-shadow-2xl">🪨</div>
+              return (
+                <div
+                  key={i}
+                  className="absolute"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: `${particle.size}px`,
+                    height: `${particle.size}px`,
+                    background: i % 3 === 0
+                      ? 'linear-gradient(135deg, #d4a574 0%, #b8956a 100%)'
+                      : i % 3 === 1
+                      ? 'linear-gradient(135deg, #e8c9a1 0%, #d4a574 100%)'
+                      : 'linear-gradient(135deg, #c19968 0%, #9e7e5a 100%)',
+                    borderRadius: '2px',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.4)',
+                    transform: isShatteringRock
+                      ? `translate(${tx}px, ${ty}px) rotate(${particle.angle * 3}deg) scale(0)`
+                      : 'translate(-50%, -50%) rotate(0deg) scale(1)',
+                    opacity: isShatteringRock ? 0 : 1,
+                    transition: `all ${particle.duration}ms ease-out ${particle.delay}ms`,
+                  }}
+                />
+              );
+            })}
+
+            {/* Polvo/partículas pequeñas */}
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={`dust-${i}`}
+                className="absolute w-1.5 h-1.5 rounded-full"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  background: 'rgba(180, 149, 106, 0.8)',
+                  transform: isShatteringRock
+                    ? `translate(${Math.cos((i * 60 * Math.PI) / 180) * 65}px, ${Math.sin((i * 60 * Math.PI) / 180) * 65}px) scale(0)`
+                    : 'translate(-50%, -50%) scale(1)',
+                  opacity: isShatteringRock ? 0 : 0.7,
+                  transition: `all 450ms ease-out ${i * 40}ms`,
+                }}
+              />
+            ))}
           </div>
-
-          {/* Indicador de vida (2 golpes restantes) */}
-          <div className="absolute bottom-2 right-2 w-8 h-8 bg-red-600 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg border-2 border-white z-20">
-            2
-          </div>
-
-          {/* Bordes de roca */}
-          <div className="absolute inset-0 rounded-xl border-2 border-stone-800/50"></div>
-        </div>
-      );
-    }
-
-    // PIEDRA AGRIETADA (health = 1)
-    // Apariencia de roca dañada, más clara, con grietas visibles
-    if (card.obstacleHealth === 1) {
-      return (
-        <div className="absolute inset-0 rounded-xl overflow-hidden">
-          {/* Fondo de piedra más claro (medio rota) */}
-          <div className="absolute inset-0 bg-gradient-to-br from-stone-400 via-stone-500 to-stone-600"></div>
-
-          {/* Grietas y fracturas */}
-          <div className="absolute inset-0">
-            {/* Grieta diagonal principal */}
-            <div className="absolute top-0 left-1/4 w-1 h-full bg-black/60 transform -rotate-12"></div>
-            <div className="absolute top-0 left-1/4 w-0.5 h-full bg-white/20 transform -rotate-12 translate-x-1"></div>
-
-            {/* Grieta horizontal */}
-            <div className="absolute top-1/3 left-0 w-full h-1 bg-black/50"></div>
-            <div className="absolute top-1/3 left-0 w-full h-0.5 bg-white/30 translate-y-1"></div>
-
-            {/* Grieta diagonal secundaria */}
-            <div className="absolute top-0 right-1/3 w-0.5 h-full bg-black/40 transform rotate-20"></div>
-          </div>
-
-          {/* Overlay de daño (más transparente que la piedra sólida) */}
-          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-black/30 to-black/50"></div>
-
-          {/* Emoji de roca más tenue */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-5xl opacity-60 drop-shadow-lg">🪨</div>
-          </div>
-
-          {/* Indicador de vida (1 golpe restante) */}
-          <div className="absolute bottom-2 right-2 w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg border-2 border-white z-20">
-            1
-          </div>
-
-          {/* Borde agrietado */}
-          <div className="absolute inset-0 rounded-xl border-2 border-stone-600/50"></div>
-        </div>
-      );
-    }
+        )}
+      </div>
+    );
   }
 
   return null;
