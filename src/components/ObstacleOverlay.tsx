@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Card } from '../types';
 
 interface ObstacleOverlayProps {
@@ -6,13 +7,37 @@ interface ObstacleOverlayProps {
 }
 
 /**
+ * PARTÍCULAS DE HIELO
+ * Define las posiciones y direcciones de las partículas que salen despedidas
+ * cuando el hielo se rompe.
+ *
+ * Cada partícula tiene:
+ * - initialX, initialY: Posición inicial en % (desde el centro)
+ * - translateX, translateY: Dirección del movimiento en px
+ * - delay: Retraso de la animación en ms (para efecto escalonado)
+ *
+ * PARA AÑADIR MÁS PARTÍCULAS: Añade más objetos a este array
+ * PARA CAMBIAR DIRECCIONES: Modifica translateX/translateY (valores negativos = izquierda/arriba)
+ */
+const ICE_PARTICLES = [
+  { initialX: '50%', initialY: '50%', translateX: -40, translateY: -50, delay: 0 },
+  { initialX: '50%', initialY: '50%', translateX: 40, translateY: -50, delay: 50 },
+  { initialX: '50%', initialY: '50%', translateX: -50, translateY: 20, delay: 100 },
+  { initialX: '50%', initialY: '50%', translateX: 50, translateY: 20, delay: 150 },
+  { initialX: '50%', initialY: '50%', translateX: 0, translateY: -60, delay: 75 },
+  { initialX: '50%', initialY: '50%', translateX: -60, translateY: 0, delay: 125 },
+  { initialX: '50%', initialY: '50%', translateX: 60, translateY: 0, delay: 175 },
+  { initialX: '50%', initialY: '50%', translateX: 0, translateY: 50, delay: 200 },
+];
+
+/**
  * Componente que renderiza el overlay visual de los obstáculos (hielo y piedra)
  * sobre las cartas del juego.
  *
  * HIELO:
  * - Se rompe con un solo golpe (health = 1)
  * - Tiene un efecto visual de hielo translúcido con copo de nieve
- * - Cuando se rompe, desaparece con una animación suave
+ * - Cuando se rompe, muestra una animación de explosión con partículas
  *
  * PIEDRA:
  * - Requiere dos golpes para romperse (health = 2 → 1 → 0)
@@ -20,40 +45,167 @@ interface ObstacleOverlayProps {
  * - Health 1: Piedra agrietada más clara, como si estuviera medio rota
  */
 export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayProps) => {
+  /**
+   * Estado local para controlar la animación de rotura del hielo
+   *
+   * - isShatteringIce: true cuando el hielo está en proceso de romperse (600ms)
+   * - previousHealth: guarda la salud anterior para detectar el momento exacto de rotura
+   */
+  const [isShatteringIce, setIsShatteringIce] = useState(false);
+  const [previousHealth, setPreviousHealth] = useState(card.obstacleHealth);
+
+  /**
+   * DETECCIÓN DE ROTURA DEL HIELO
+   *
+   * useEffect que monitorea cambios en la salud del obstáculo.
+   * Cuando detecta que:
+   * 1. El obstáculo es de tipo 'ice'
+   * 2. La salud anterior era > 0
+   * 3. La salud actual es <= 0
+   *
+   * → Activa la animación de rotura (isShatteringIce = true) durante 600ms
+   *
+   * Este tiempo (600ms) debe coincidir con la duración de la animación CSS
+   * de las partículas para que terminen de desvanecerse antes de que el
+   * componente deje de renderizarse.
+   */
+  useEffect(() => {
+    if (
+      card.obstacle === 'ice' &&
+      previousHealth !== undefined &&
+      previousHealth > 0 &&
+      (card.obstacleHealth ?? 0) <= 0
+    ) {
+      // El hielo acaba de romperse, activar animación de explosión
+      setIsShatteringIce(true);
+
+      // Después de 600ms, limpiar el estado de animación
+      const timeout = setTimeout(() => {
+        setIsShatteringIce(false);
+      }, 600);
+
+      return () => clearTimeout(timeout);
+    }
+
+    // Actualizar la salud previa para la próxima comparación
+    setPreviousHealth(card.obstacleHealth);
+  }, [card.obstacle, card.obstacleHealth, previousHealth]);
+
   const hasObstacle = card.obstacle && (card.obstacleHealth ?? 0) > 0;
 
-  if (!hasObstacle) return null;
+  // Si no hay obstáculo Y no se está rompiendo el hielo, no renderizar nada
+  if (!hasObstacle && !isShatteringIce) return null;
 
-  // OVERLAY DE HIELO
-  // Efecto translúcido azul/celeste con copo de nieve
-  // Se rompe con un solo golpe y desaparece suavemente
+  /**
+   * ==========================================
+   * OVERLAY DE HIELO
+   * ==========================================
+   *
+   * ESTADO NORMAL (health > 0):
+   * - Fondo translúcido azul/celeste con blur
+   * - Copo de nieve centrado con animación pulse
+   * - Reflejos y brillos para simular cristal
+   *
+   * ESTADO DE ROTURA (isShatteringIce = true):
+   * - El overlay completo hace scale + fade (se expande y desvanece)
+   * - Aparecen 8 partículas que salen disparadas en diferentes direcciones
+   * - Las partículas se mueven, rotan y desvanecen en 600ms
+   * - Después de 600ms, el componente deja de renderizarse
+   */
   if (card.obstacle === 'ice') {
     return (
-      <div
-        className={`absolute inset-0 rounded-xl overflow-hidden transition-all duration-500 ${
-          isBreaking ? 'opacity-0 scale-110' : 'opacity-100 scale-100'
-        }`}
-      >
-        {/* Fondo de hielo con degradado celeste y blur */}
-        <div className="absolute inset-0 bg-gradient-to-br from-cyan-200/80 via-sky-300/80 to-sky-400/80 backdrop-blur-sm border-2 border-cyan-100/80"></div>
+      <div className="absolute inset-0 pointer-events-none">
+        {/* OVERLAY PRINCIPAL DE HIELO */}
+        {hasObstacle && (
+          <div
+            className={`absolute inset-0 rounded-xl overflow-visible transition-all ${
+              isBreaking || isShatteringIce
+                ? 'duration-500 opacity-0 scale-125' // Animación de rotura: se expande y desvanece
+                : 'duration-300 opacity-100 scale-100' // Estado normal
+            }`}
+          >
+            {/* Fondo de hielo con degradado celeste y blur */}
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-200/80 via-sky-300/80 to-sky-400/80 backdrop-blur-sm border-2 border-cyan-100/80 rounded-xl"></div>
 
-        {/* Efectos de brillo y reflejos de hielo */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-to-tl from-cyan-400/30 via-transparent to-transparent"></div>
+            {/* Efectos de brillo y reflejos de hielo */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-transparent rounded-xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-tl from-cyan-400/30 via-transparent to-transparent rounded-xl"></div>
 
-        {/* Copo de nieve centrado */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-5xl drop-shadow-lg animate-pulse">❄️</div>
-        </div>
+            {/* Copo de nieve centrado */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="text-5xl drop-shadow-lg animate-pulse">❄️</div>
+            </div>
 
-        {/* Borde brillante */}
-        <div className="absolute inset-0 rounded-xl border-2 border-white/40"></div>
+            {/* Borde brillante */}
+            <div className="absolute inset-0 rounded-xl border-2 border-white/40"></div>
+          </div>
+        )}
+
+        {/*
+          PARTÍCULAS DE HIELO
+
+          Solo se renderizan cuando isShatteringIce = true (durante 600ms).
+
+          Cada partícula:
+          1. Comienza en el centro del hielo
+          2. Se mueve hacia su dirección asignada (translateX/translateY)
+          3. Rota mientras se mueve (rotate-45, -rotate-90, etc.)
+          4. Se desvanece gradualmente (opacity: 1 → 0)
+          5. Tiene un delay escalonado para efecto más natural
+
+          PERSONALIZACIÓN:
+          - Tamaño: w-3 h-3 (cambiar a w-2 h-2 o w-4 h-4)
+          - Color: bg-cyan-100, bg-sky-200, bg-white (cualquier color de hielo)
+          - Duración: duration-[600ms] (cambiar el número en ms)
+        */}
+        {isShatteringIce && (
+          <div className="absolute inset-0 overflow-visible pointer-events-none">
+            {ICE_PARTICLES.map((particle, index) => (
+              <div
+                key={index}
+                className="absolute w-3 h-3 rounded-full shadow-lg transition-all duration-[600ms] ease-out"
+                style={{
+                  left: particle.initialX,
+                  top: particle.initialY,
+                  backgroundColor: index % 3 === 0 ? '#e0f2fe' : index % 3 === 1 ? '#bae6fd' : '#ffffff',
+                  transform: isShatteringIce
+                    ? `translate(${particle.translateX}px, ${particle.translateY}px) rotate(${particle.translateX * 3}deg) scale(0.3)`
+                    : 'translate(-50%, -50%) rotate(0deg) scale(1)',
+                  opacity: isShatteringIce ? 0 : 1,
+                  transitionDelay: `${particle.delay}ms`,
+                }}
+              />
+            ))}
+
+            {/* Partículas adicionales tipo "chispas" (más pequeñas y rápidas) */}
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={`spark-${i}`}
+                className="absolute w-1.5 h-1.5 bg-white rounded-full opacity-80 transition-all duration-[400ms] ease-out"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  transform: isShatteringIce
+                    ? `translate(${Math.cos((i * 60 * Math.PI) / 180) * 70}px, ${Math.sin((i * 60 * Math.PI) / 180) * 70}px) scale(0)`
+                    : 'translate(-50%, -50%) scale(1)',
+                  opacity: isShatteringIce ? 0 : 0.8,
+                  transitionDelay: `${i * 30}ms`,
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
     );
   }
 
-  // OVERLAY DE PIEDRA
-  // Tiene dos estados visuales según su salud (health)
+  /**
+   * ==========================================
+   * OVERLAY DE PIEDRA
+   * ==========================================
+   *
+   * Tiene dos estados visuales según su salud (health)
+   */
   if (card.obstacle === 'stone') {
     // PIEDRA SÓLIDA (health = 2)
     // Apariencia de bloque de roca completo, oscuro y pesado

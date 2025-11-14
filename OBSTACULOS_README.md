@@ -23,10 +23,51 @@ He mejorado completamente el sistema visual de obstáculos (hielo y piedra) sin 
 - Bordes brillantes que simulan hielo real
 - Reflejos de luz para efecto 3D
 
-**Animación de rotura:**
-- Transición suave de `opacity-100` a `opacity-0`
-- Escala de `scale-100` a `scale-110` (se expande ligeramente al romperse)
-- Duración: 500ms
+**Animación de rotura mejorada:**
+- El overlay completo se expande y desvanece (`scale-100` → `scale-125` + fade)
+- **8 partículas grandes** salen disparadas en diferentes direcciones
+- **6 chispas pequeñas** adicionales para más dramatismo
+- Las partículas rotan mientras se mueven
+- Cada partícula tiene un delay escalonado (0-200ms)
+- Duración total: 600ms
+- Las partículas tienen 3 tonos diferentes de azul/celeste/blanco
+
+### Sistema de Detección de Rotura
+
+El componente `ObstacleOverlay.tsx` usa un `useEffect` inteligente que detecta automáticamente cuándo el hielo se rompe:
+
+**Cómo funciona** (líneas 72-92 de `ObstacleOverlay.tsx`):
+
+1. **Guarda la salud anterior** en un estado local `previousHealth`
+2. **Compara** la salud anterior con la salud actual en cada render
+3. **Detecta el momento exacto** cuando `previousHealth > 0` y `currentHealth <= 0`
+4. **Activa la animación** estableciendo `isShatteringIce = true`
+5. **Espera 600ms** para que termine la animación
+6. **Limpia el estado** estableciendo `isShatteringIce = false`
+
+```typescript
+useEffect(() => {
+  if (
+    card.obstacle === 'ice' &&
+    previousHealth !== undefined &&
+    previousHealth > 0 &&
+    (card.obstacleHealth ?? 0) <= 0
+  ) {
+    // ¡El hielo acaba de romperse!
+    setIsShatteringIce(true);
+
+    const timeout = setTimeout(() => {
+      setIsShatteringIce(false);
+    }, 600); // Duración de la animación
+
+    return () => clearTimeout(timeout);
+  }
+
+  setPreviousHealth(card.obstacleHealth);
+}, [card.obstacle, card.obstacleHealth, previousHealth]);
+```
+
+Este sistema es completamente automático y no requiere cambios en la lógica del juego.
 
 ### Código Relevante
 
@@ -232,18 +273,95 @@ shuffled[idx].obstacleHealth = 2;  // Cambia el 2 por 3 o más
 
 ## 🔧 Ajustes Avanzados
 
-### Cambiar duración de animación de rotura del hielo
+### Personalizar las partículas de hielo
 
-**Archivo**: `src/components/ObstacleOverlay.tsx` (línea 34)
+**Archivo**: `src/components/ObstacleOverlay.tsx`
+
+#### Añadir o quitar partículas
+
+**Líneas 22-31**: El array `ICE_PARTICLES` define las 8 partículas principales.
+
+Para añadir más partículas:
 ```typescript
-transition-all duration-500  // Cambia 500 por 300, 700, 1000, etc. (milisegundos)
+const ICE_PARTICLES = [
+  // ... partículas existentes
+  { initialX: '50%', initialY: '50%', translateX: 30, translateY: 70, delay: 250 }, // Nueva partícula
+];
 ```
 
-### Cambiar el efecto de escala al romperse
+Para quitar partículas, simplemente elimina líneas del array.
 
-**Archivo**: `src/components/ObstacleOverlay.tsx` (línea 35)
+#### Cambiar direcciones y velocidad
+
 ```typescript
-scale-110  // Opciones: scale-105, scale-125, scale-150
+{
+  initialX: '50%',      // Posición inicial X (siempre '50%' para centrar)
+  initialY: '50%',      // Posición inicial Y (siempre '50%' para centrar)
+  translateX: -40,      // Movimiento horizontal (-izquierda, +derecha) en px
+  translateY: -50,      // Movimiento vertical (-arriba, +abajo) en px
+  delay: 0              // Retraso de la animación en ms (0-200 recomendado)
+}
+```
+
+#### Cambiar tamaño de partículas
+
+**Línea 166**: Tamaño de partículas grandes
+```typescript
+className="absolute w-3 h-3 rounded-full..."  // w-3 h-3 = 12px × 12px
+// Opciones: w-2 h-2 (8px), w-4 h-4 (16px), w-5 h-5 (20px)
+```
+
+**Línea 184**: Tamaño de chispas pequeñas
+```typescript
+className="absolute w-1.5 h-1.5 bg-white..."  // w-1.5 h-1.5 = 6px × 6px
+```
+
+#### Cambiar colores de partículas
+
+**Línea 170**: Colores de las partículas principales (3 tonos alternados)
+```typescript
+backgroundColor: index % 3 === 0 ? '#e0f2fe' : index % 3 === 1 ? '#bae6fd' : '#ffffff'
+// #e0f2fe = Azul muy claro
+// #bae6fd = Celeste medio
+// #ffffff = Blanco
+```
+
+#### Cambiar duración de la animación
+
+**Línea 83**: Duración del timeout (debe coincidir con la animación)
+```typescript
+setTimeout(() => {
+  setIsShatteringIce(false);
+}, 600);  // ← Cambiar este número (en ms)
+```
+
+**Línea 166**: Duración de partículas grandes
+```typescript
+className="... transition-all duration-[600ms] ease-out"
+// Cambiar 600ms por 400ms, 800ms, 1000ms, etc.
+```
+
+**Línea 184**: Duración de chispas pequeñas
+```typescript
+className="... transition-all duration-[400ms] ease-out"
+// Normalmente más rápido que las partículas grandes
+```
+
+#### Cambiar número de chispas
+
+**Línea 181**: Cantidad de chispas pequeñas adicionales
+```typescript
+{[...Array(6)].map((_, i) =>
+// Cambiar el 6 por cualquier número (4, 8, 10, etc.)
+```
+
+### Cambiar duración de animación del overlay principal
+
+**Línea 123**: Duración del fade y scale del overlay
+```typescript
+className="... duration-500 opacity-0 scale-125"
+// duration-500 = 500ms (cambiar por duration-300, duration-700, etc.)
+// scale-125 = expande al 125% (cambiar por scale-110, scale-150, etc.)
 ```
 
 ### Añadir un tercer estado a la piedra
@@ -277,7 +395,10 @@ if (card.obstacleHealth === 3) {
 
 - ✅ Hielo se rompe con un solo golpe
 - ✅ Hielo tiene efecto visual translúcido y bonito
-- ✅ Animación suave al romperse el hielo
+- ✅ **Animación de rotura con partículas explosivas**
+- ✅ **8 partículas grandes + 6 chispas pequeñas**
+- ✅ **Rotación y movimiento direccional de partículas**
+- ✅ **Delays escalonados para efecto natural**
 - ✅ Piedra requiere dos golpes (health 2 → 1 → 0)
 - ✅ Piedra sólida (health=2) se ve como roca completa
 - ✅ Piedra agrietada (health=1) tiene grietas visibles
@@ -286,6 +407,8 @@ if (card.obstacleHealth === 3) {
 - ✅ No se cambió el nombre del proyecto
 - ✅ Código comentado en español
 - ✅ Sistema modular y fácil de personalizar
+- ✅ useEffect detecta automáticamente la rotura del hielo
+- ✅ pointer-events-none para no bloquear clics
 
 ---
 
