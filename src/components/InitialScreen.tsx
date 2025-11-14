@@ -5,6 +5,7 @@ import { Shop } from './Shop';
 import { AdminPanel } from './AdminPanel';
 import { playSoundZap } from '../utils/soundManager';
 import { soundManager } from '../lib/sound';
+import { initializeNotifications } from '../lib/notifications';
 
 interface InitialScreenProps {
   onStartGame: () => void;
@@ -37,6 +38,12 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel 
       }, 300);
       logoPlayedRef.current = true;
     }
+
+    initializeNotifications().then((success) => {
+      if (success) {
+        console.log('Notificaciones diarias activadas');
+      }
+    });
   }, []);
 
   // removed custom photo feature
@@ -108,26 +115,28 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel 
             onClick={onStartGame}
             className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
           >
-            🗺️ Empezar a Jugar (10 Mundos)
+            🗺️ Jugar
           </button>
 
-          <button
-            type="button"
-            onClick={onStartDailyChallenge}
-            className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
-          >
-            <Calendar size={20} />
-            Reto Diario
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onStartDailyChallenge}
+              className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl p-3 font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+            >
+              <Calendar size={20} />
+              <span className="text-sm">Reto Diario</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={onStartDuel}
-            className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
-          >
-            <Swords size={20} />
-            Duelo 1v1
-          </button>
+            <button
+              type="button"
+              onClick={onStartDuel}
+              className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl p-3 font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+            >
+              <Swords size={20} />
+              <span className="text-sm">Duelo 1v1</span>
+            </button>
+          </div>
         </div>
       </div>
 
