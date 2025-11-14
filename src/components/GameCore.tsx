@@ -7,6 +7,7 @@ import { CoinShop } from './CoinShop';
 import { ExitConfirmModal } from './ExitConfirmModal';
 import { SoundGear } from './SoundGear';
 import { ShareModal } from './ShareModal';
+import { ShatterEffect, ShatterTheme } from './ShatterEffect';
 import { Card, PREVIEW_TIME, FLIP_DELAY, GameMetrics, BestScore } from '../types';
 import { createConfetti } from '../utils/confetti';
 import { getSeedFromURLorToday, shuffleWithSeed } from '../lib/seed';
@@ -52,6 +53,8 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [crackedCards, setCrackedCards] = useState<Set<number>>(new Set());
   const [breakingCards, setBreakingCards] = useState<Set<number>>(new Set());
   const [showObstacleTutorial, setShowObstacleTutorial] = useState(false);
+  const [shatterTrigger, setShatterTrigger] = useState(false);
+  const [shatterTheme, setShatterTheme] = useState<ShatterTheme>('ice');
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -422,9 +425,15 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                 if (c.obstacle === 'ice') {
                   addCoins(10); // 10 coins for ice
                   console.log('[GameCore] Ice destroyed! +10 coins');
+                  setShatterTheme('ice');
+                  setShatterTrigger(true);
+                  setTimeout(() => setShatterTrigger(false), 100);
                 } else if (c.obstacle === 'stone') {
                   addCoins(20); // 20 coins for stone
                   console.log('[GameCore] Stone destroyed! +20 coins');
+                  setShatterTheme('stone');
+                  setShatterTrigger(true);
+                  setTimeout(() => setShatterTrigger(false), 100);
                 }
                 return { ...c, obstacle: null, obstacleHealth: 0 };
               }
@@ -839,6 +848,8 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           </div>
         </div>
       )}
+
+      <ShatterEffect trigger={shatterTrigger} theme={shatterTheme} />
     </div>
   );
 };
