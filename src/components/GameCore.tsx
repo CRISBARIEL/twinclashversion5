@@ -224,9 +224,12 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       }
     }
 
+    setShowCountdown(true);
+
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = window.setTimeout(() => {
-      setShowCountdown(true);
+      setIsPreview(false);
+      setShowCountdown(false);
     }, PREVIEW_TIME * 1000);
     if (isDailyChallenge) {
       const stored = localStorage.getItem(`best:${seed}`);
@@ -665,8 +668,9 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex flex-col p-4">
-      {showCountdown && (
+      {showCountdown && isPreview && (
         <CountdownOverlay
+          initialCount={PREVIEW_TIME}
           onComplete={() => {
             setShowCountdown(false);
             setIsPreview(false);

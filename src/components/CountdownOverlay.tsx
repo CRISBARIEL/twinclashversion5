@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react';
 
 interface CountdownOverlayProps {
+  initialCount: number;
   onComplete: () => void;
 }
 
-export const CountdownOverlay = ({ onComplete }: CountdownOverlayProps) => {
-  const [count, setCount] = useState(3);
+export const CountdownOverlay = ({ initialCount, onComplete }: CountdownOverlayProps) => {
+  const [count, setCount] = useState(initialCount);
 
   useEffect(() => {
     if (count === 0) {
-      setTimeout(onComplete, 300);
+      setTimeout(onComplete, 100);
       return;
     }
 
@@ -20,23 +21,15 @@ export const CountdownOverlay = ({ onComplete }: CountdownOverlayProps) => {
     return () => clearTimeout(timer);
   }, [count, onComplete]);
 
-  if (count === 0) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 animate-fade-out">
-        <div className="text-white text-9xl font-black animate-bounce-once">
-          ¡GO!
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
       <div
         key={count}
-        className="text-white text-9xl font-black animate-scale-pulse"
+        className="bg-gradient-to-br from-orange-500 to-red-600 text-white rounded-2xl px-8 py-4 shadow-2xl animate-scale-pulse"
       >
-        {count}
+        <div className="text-7xl font-black">
+          {count}
+        </div>
       </div>
     </div>
   );
