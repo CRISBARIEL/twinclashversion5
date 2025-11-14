@@ -8,6 +8,7 @@ import { ExitConfirmModal } from './ExitConfirmModal';
 import { SoundGear } from './SoundGear';
 import { ShareModal } from './ShareModal';
 import { ShatterEffect, ShatterTheme } from './ShatterEffect';
+import { CountdownOverlay } from './CountdownOverlay';
 import { Card, PREVIEW_TIME, FLIP_DELAY, GameMetrics, BestScore } from '../types';
 import { createConfetti } from '../utils/confetti';
 import { getSeedFromURLorToday, shuffleWithSeed } from '../lib/seed';
@@ -31,6 +32,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matchedPairs, setMatchedPairs] = useState(0);
+  const [showCountdown, setShowCountdown] = useState(true);
   const [isPreview, setIsPreview] = useState(true);
   const [timeLeft, setTimeLeft] = useState(levelConfig?.timeLimit || 60);
   const [gameOver, setGameOver] = useState(false);
@@ -662,6 +664,13 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex flex-col p-4">
+      {showCountdown && (
+        <CountdownOverlay
+          onComplete={() => {
+            setShowCountdown(false);
+          }}
+        />
+      )}
       <div className="bg-white rounded-2xl shadow-xl p-4 mb-4">
         {isDailyChallenge && (
           <div className="mb-3 text-sm text-gray-600 flex flex-col gap-1">

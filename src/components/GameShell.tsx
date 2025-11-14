@@ -19,10 +19,11 @@ type BannerType = 'level' | 'end' | null;
 interface GameShellProps {
   initialLevel: number;
   onBackToMenu: () => void;
+  onShowWorldMap?: () => void;
   // removed custom photo feature
 }
 
-export const GameShell = ({ initialLevel, onBackToMenu }: GameShellProps) => {
+export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameShellProps) => {
   const [level, setLevel] = useState(initialLevel);
   const [nextLevel, setNextLevel] = useState<number | null>(null);
   const [showBanner, setShowBanner] = useState(false);
@@ -157,19 +158,29 @@ export const GameShell = ({ initialLevel, onBackToMenu }: GameShellProps) => {
                 <div className="text-6xl mb-4">🎉</div>
                 <h3 className="text-3xl font-bold text-green-600 mb-2">¡Nivel {level} Completado!</h3>
                 <p className="text-gray-600 mb-6">Pulsa para continuar.</p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={onBackToMenu}
-                    className="flex-1 bg-gray-500 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
-                  >
-                    Salir
-                  </button>
+                <div className="flex flex-col gap-3">
                   <button
                     onClick={handleNextLevel}
-                    className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
+                    className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
                   >
-                    Nivel {nextLevel}
+                    Siguiente Nivel {nextLevel}
                   </button>
+                  <div className="flex gap-3">
+                    {onShowWorldMap && (
+                      <button
+                        onClick={onShowWorldMap}
+                        className="flex-1 bg-blue-500 text-white py-3 rounded-xl font-bold text-base shadow-lg hover:shadow-xl transition-all"
+                      >
+                        Ver Mundos
+                      </button>
+                    )}
+                    <button
+                      onClick={onBackToMenu}
+                      className="flex-1 bg-gray-500 text-white py-3 rounded-xl font-bold text-base shadow-lg hover:shadow-xl transition-all"
+                    >
+                      Menú
+                    </button>
+                  </div>
                 </div>
               </>
             ) : (

@@ -71,7 +71,10 @@ function App() {
     <>
       {screen === 'menu' && (
         <InitialScreen
-          onStartGame={() => setScreen('worldmap')}
+          onStartGame={() => {
+            setSelectedLevel(1);
+            setScreen('game');
+          }}
           onStartDailyChallenge={handleStartDailyChallenge}
           onStartDuel={handleStartDuel}
         />
@@ -108,6 +111,7 @@ function App() {
           key={selectedLevel}
           initialLevel={selectedLevel}
           onBackToMenu={handleBackToMenu}
+          onShowWorldMap={() => setScreen('worldmap')}
         />
       )}
       {screen === 'challenge' && (
