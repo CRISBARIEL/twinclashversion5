@@ -5,7 +5,6 @@ import { Shop } from './Shop';
 import { AdminPanel } from './AdminPanel';
 import { playSoundZap } from '../utils/soundManager';
 import { soundManager } from '../lib/sound';
-import { initializeNotifications } from '../lib/notifications';
 
 interface InitialScreenProps {
   onStartGame: () => void;
@@ -38,12 +37,6 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel 
       }, 300);
       logoPlayedRef.current = true;
     }
-
-    initializeNotifications().then((success) => {
-      if (success) {
-        console.log('Notificaciones diarias activadas');
-      }
-    });
   }, []);
 
   // removed custom photo feature

@@ -14,7 +14,6 @@
     "@capacitor/android": "^7.4.4",
     "@capacitor/cli": "^7.4.4",
     "@capacitor/core": "^7.4.4",
-    "@capacitor/local-notifications": "^7.0.3",
     "@supabase/supabase-js": "^2.57.4",
     "@tsparticles/slim": "^3.9.1",
     "lucide-react": "^0.344.0",
