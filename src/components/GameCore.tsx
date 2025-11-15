@@ -712,27 +712,27 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           </div>
         )}
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full">
           <button
             onClick={openExitModal}
-            className="bg-gray-500 text-white py-2 px-4 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-gray-600 transition-colors"
+            className="bg-gray-500 text-white py-2 px-3 rounded-lg font-semibold flex items-center justify-center gap-1 hover:bg-gray-600 transition-colors text-sm"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} />
             Volver
           </button>
           <button
             onClick={handleRestart}
-            className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-orange-600 transition-colors"
+            className="flex-1 bg-orange-500 text-white py-2 px-3 rounded-lg font-semibold flex items-center justify-center gap-1 hover:bg-orange-600 transition-colors text-sm"
           >
-            <RotateCcw size={18} />
+            <RotateCcw size={16} />
             Reiniciar
           </button>
           {isDailyChallenge && (
             <button
               onClick={() => setShowLeaderboard(true)}
-              className="flex-1 bg-yellow-500 text-white py-2 px-4 rounded-lg font-semibold flex items-center justify-center gap-2 hover:bg-yellow-600 transition-colors"
+              className="flex-1 bg-yellow-500 text-white py-2 px-3 rounded-lg font-semibold flex items-center justify-center gap-1 hover:bg-yellow-600 transition-colors text-sm"
             >
-              <List size={18} />
+              <List size={16} />
               Top
             </button>
           )}
