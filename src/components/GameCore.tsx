@@ -350,18 +350,13 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         setShowWinModal(true);
         setTimeout(() => setShowCoinAnimation(true), 500);
       } else {
-        const finalTimeValue = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
-        setTimeElapsed(finalTimeValue);
-        setFinalTime(finalTimeValue);
-        setFinalMoves(moves);
-
         const baseCoins = 10;
         setCoinsEarned(baseCoins);
         addCoins(baseCoins);
-        setCurrentCoins(getLocalCoins());
-
-        setShowWinModal(true);
-        setTimeout(() => setShowCoinAnimation(true), 500);
+        setTimeout(() => {
+          console.log('[GameCore] Calling onComplete after delay');
+          onComplete();
+        }, 1500);
       }
     }
   }, [matchedPairs, level, onComplete, isDailyChallenge, moves, seed, timeElapsed]);
@@ -874,20 +869,6 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
               )}
             </div>
             <div className="flex flex-col gap-2">
-              {!isDailyChallenge && (
-                <button
-                  onClick={() => {
-                    console.log('[GameCore] Siguiente Nivel button clicked');
-                    setShowWinModal(false);
-                    console.log('[GameCore] Calling onComplete()');
-                    onComplete();
-                    console.log('[GameCore] onComplete() called');
-                  }}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
-                >
-                  Siguiente Nivel ➡️
-                </button>
-              )}
               <div className="flex gap-2">
                 <button
                   onClick={handleShare}
