@@ -10,11 +10,8 @@
   --safe-area-inset-left: env(safe-area-inset-left);
 }
 
-body {
-  padding-top: var(--safe-area-inset-top);
-  padding-right: var(--safe-area-inset-right);
+#root {
   padding-bottom: var(--safe-area-inset-bottom);
-  padding-left: var(--safe-area-inset-left);
 }
 
 @keyframes scale-pulse {
