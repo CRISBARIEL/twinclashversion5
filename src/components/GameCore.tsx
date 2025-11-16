@@ -762,9 +762,9 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         )}
       </div>
 
-      <div className="flex-1 flex items-center justify-center overflow-y-auto px-2 py-4">
+      <div className="flex-1 flex items-center justify-center overflow-hidden px-4">
         <div className="w-full max-w-lg">
-          <div className={`grid gap-2 ${pairs <= 10 ? 'grid-cols-4' : pairs <= 12 ? 'grid-cols-4' : pairs <= 15 ? 'grid-cols-5' : 'grid-cols-6'}`}>
+          <div className="grid grid-cols-4 gap-3">
             {cards.map((card) => (
               <div
                 key={card.id}
