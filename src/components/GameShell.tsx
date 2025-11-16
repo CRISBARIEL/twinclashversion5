@@ -81,6 +81,9 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
   useEffect(() => {
     console.log('[GameShell] LEVEL_CHANGED', level);
     completedRef.current = false;
+    setShowBanner(false);
+    setNextLevel(null);
+    setWorldUnlockEvent(null);
 
     const currentConfig = getLevelConfig(level);
     if (currentConfig && currentConfig.world !== lastWorldRef.current && currentConfig.level === 1) {
