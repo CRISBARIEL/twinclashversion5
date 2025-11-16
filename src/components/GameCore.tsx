@@ -667,12 +667,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const gridCols = getGridColumns();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex flex-col p-4 pb-safe">
-      <style>{`
-        .pb-safe {
-          padding-bottom: max(1rem, env(safe-area-inset-bottom));
-        }
-      `}</style>
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex flex-col p-4">
       {showCountdown && isPreview && (
         <CountdownOverlay
           initialCount={PREVIEW_TIME}
