@@ -58,6 +58,8 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
   }, []);
 
   useEffect(() => {
+    soundManager.stopStartMusic();
+
     const params = new URLSearchParams(window.location.search);
     const roomCode = params.get('room');
 

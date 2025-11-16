@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Trophy, Star, RotateCcw } from 'lucide-react';
 import { GameCore } from './GameCore';
 import { supabase, getOrCreateClientId } from '../lib/supabase';
+import { soundManager } from '../lib/sound';
 
 interface ChallengeSceneProps {
   onBackToMenu: () => void;
@@ -23,6 +24,7 @@ export const ChallengeScene = ({ onBackToMenu }: ChallengeSceneProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    soundManager.stopStartMusic();
     loadChallengeProgress();
   }, [challengeLevels]);
 

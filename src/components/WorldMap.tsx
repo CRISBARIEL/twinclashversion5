@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu } from 'lucide-react';
 import { canEnterWorld, isWorldCompleted, purchaseWorld, ensureWorld, WORLD_COSTS } from '../lib/worldProgress';
 import { getLocalCoins } from '../lib/progression';
+import { soundManager } from '../lib/sound';
 
 const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu];
 const worldNames = ['Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio', 'Océano', 'Comida', 'Música', 'Belleza', 'Tecnología'];
@@ -37,6 +38,8 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
   const [adminWorldTarget, setAdminWorldTarget] = useState<number | null>(null);
 
   useEffect(() => {
+    soundManager.stopStartMusic();
+
     const loadWorldStates = async () => {
       const access: Record<number, boolean> = { 1: true };
       const complete: Record<number, boolean> = {};
