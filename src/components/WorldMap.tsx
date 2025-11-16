@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu } from 'lucide-react';
 import { canEnterWorld, isWorldCompleted, purchaseWorld, ensureWorld, WORLD_COSTS } from '../lib/worldProgress';
 import { getLocalCoins } from '../lib/progression';
@@ -36,6 +36,9 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [adminWorldTarget, setAdminWorldTarget] = useState<number | null>(null);
+  const [showAdminButton, setShowAdminButton] = useState(false);
+  const tapCountRef = useRef(0);
+  const tapTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     soundManager.stopStartMusic();
@@ -244,7 +247,32 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
       {purchaseModalWorld && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
-            <div className="text-6xl mb-4">🔓</div>
+            <div
+              className="text-6xl mb-4 cursor-pointer select-none"
+              onClick={() => {
+                tapCountRef.current += 1;
+
+                if (tapTimerRef.current) {
+                  clearTimeout(tapTimerRef.current);
+                }
+
+                if (tapCountRef.current >= 5) {
+                  setShowAdminButton(true);
+                  tapCountRef.current = 0;
+                  if (tapTimerRef.current) {
+                    clearTimeout(tapTimerRef.current);
+                    tapTimerRef.current = null;
+                  }
+                } else {
+                  tapTimerRef.current = window.setTimeout(() => {
+                    tapCountRef.current = 0;
+                    tapTimerRef.current = null;
+                  }, 1000);
+                }
+              }}
+            >
+              🔓
+            </div>
             <h3 className="text-3xl font-bold text-gray-800 mb-2">
               Desbloquear Mundo {purchaseModalWorld}
             </h3>
@@ -270,7 +298,15 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setPurchaseModalWorld(null)}
+                onClick={() => {
+                  setPurchaseModalWorld(null);
+                  setShowAdminButton(false);
+                  tapCountRef.current = 0;
+                  if (tapTimerRef.current) {
+                    clearTimeout(tapTimerRef.current);
+                    tapTimerRef.current = null;
+                  }
+                }}
                 disabled={loading}
                 className="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-colors disabled:opacity-50"
               >
@@ -286,17 +322,20 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
               </button>
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setAdminWorldTarget(purchaseModalWorld);
-                setPurchaseModalWorld(null);
-                setShowAdminPassword(true);
-              }}
-              className="mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              Admin
-            </button>
+            {showAdminButton && (
+              <button
+                type="button"
+                onClick={() => {
+                  setAdminWorldTarget(purchaseModalWorld);
+                  setPurchaseModalWorld(null);
+                  setShowAdminPassword(true);
+                  setShowAdminButton(false);
+                }}
+                className="mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                Admin
+              </button>
+            )}
           </div>
         </div>
       )}
