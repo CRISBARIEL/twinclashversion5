@@ -37,7 +37,6 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
     if (!logoPlayedRef.current) {
       setTimeout(() => {
         playSoundZap();
-        soundManager.playStartMusic();
       }, 300);
       logoPlayedRef.current = true;
     }

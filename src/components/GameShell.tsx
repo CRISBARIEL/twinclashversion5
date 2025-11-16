@@ -92,10 +92,6 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
     }
 
     soundManager.stopStartMusic();
-    soundManager.stopLevelMusic();
-    if (currentConfig) {
-      soundManager.playLevelMusic(currentConfig.world);
-    }
   }, [level]);
 
   const handleNextLevel = useCallback(() => {

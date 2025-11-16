@@ -226,6 +226,11 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
 
     setShowCountdown(true);
 
+    soundManager.stopLevelMusic();
+    if (config) {
+      soundManager.playLevelMusic(config.world);
+    }
+
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = window.setTimeout(() => {
       setIsPreview(false);
