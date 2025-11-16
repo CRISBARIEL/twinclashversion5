@@ -667,7 +667,12 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const gridCols = getGridColumns();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex flex-col p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex flex-col p-4 pb-safe">
+      <style>{`
+        .pb-safe {
+          padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+      `}</style>
       {showCountdown && isPreview && (
         <CountdownOverlay
           initialCount={PREVIEW_TIME}
@@ -762,9 +767,9 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         )}
       </div>
 
-      <div className="flex-1 flex items-center justify-center overflow-hidden px-4">
+      <div className="flex-1 flex items-center justify-center overflow-y-auto px-2 py-4">
         <div className="w-full max-w-lg">
-          <div className="grid grid-cols-4 gap-3">
+          <div className={`grid gap-2 ${pairs <= 10 ? 'grid-cols-4' : pairs <= 12 ? 'grid-cols-4' : pairs <= 15 ? 'grid-cols-5' : 'grid-cols-6'}`}>
             {cards.map((card) => (
               <div
                 key={card.id}
