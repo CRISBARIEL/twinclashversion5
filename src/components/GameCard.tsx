@@ -45,13 +45,13 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
 
   return (
     <div
-      className="relative aspect-square cursor-pointer perspective-1000"
+      className="relative aspect-square cursor-pointer perspective-1000 active:scale-95 transition-transform duration-100"
       onClick={handleClick}
     >
       <div
-        className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
+        className={`relative w-full h-full transition-all duration-300 ease-out transform-style-3d ${
           card.isFlipped || card.isMatched ? 'rotate-y-180' : ''
-        }`}
+        } ${card.isMatched ? 'scale-105 opacity-90' : ''}`}
       >
         {/* Cara trasera de la carta (sin voltear) */}
         <div className="absolute w-full h-full backface-hidden">

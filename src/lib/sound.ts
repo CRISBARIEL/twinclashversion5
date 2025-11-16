@@ -20,6 +20,7 @@ class SoundManager {
     this.loadSettings();
     this.preloadAudio();
     this.setupUserInteractionListener();
+    this.setupAppLifecycleListeners();
   }
 
   private loadSettings(): void {
@@ -62,6 +63,25 @@ class SoundManager {
     document.addEventListener('click', markInteraction, { once: true });
     document.addEventListener('keypress', markInteraction, { once: true });
     document.addEventListener('touchstart', markInteraction, { once: true });
+  }
+
+  private setupAppLifecycleListeners(): void {
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.stopLevelMusic();
+        this.stopStartMusic();
+      }
+    });
+
+    window.addEventListener('pagehide', () => {
+      this.stopLevelMusic();
+      this.stopStartMusic();
+    });
+
+    window.addEventListener('beforeunload', () => {
+      this.stopLevelMusic();
+      this.stopStartMusic();
+    });
   }
 
   private preloadAudio(): void {
@@ -180,9 +200,10 @@ class SoundManager {
   public playLevelMusic(level: number): void {
     if (!this.userInteracted) return;
 
-    const newTrack = this.levelTracks.get(level);
+    const trackNumber = Math.min(level, 10);
+    const newTrack = this.levelTracks.get(trackNumber);
     if (!newTrack) {
-      console.warn(`Level ${level} music not found`);
+      console.warn(`Level ${level} music not found, using track ${trackNumber}`);
       return;
     }
 
