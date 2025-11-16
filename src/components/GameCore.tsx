@@ -348,7 +348,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         const baseCoins = 10;
         setCoinsEarned(baseCoins);
         addCoins(baseCoins);
-        onComplete();
+        setTimeout(() => {
+          console.log('[GameCore] Calling onComplete after delay');
+          onComplete();
+        }, 1500);
       }
     }
   }, [matchedPairs, level, onComplete, isDailyChallenge, moves, seed, timeElapsed]);

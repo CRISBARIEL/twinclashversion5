@@ -72,6 +72,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
       }
     } else {
       const nextLevelId = level + 1;
+      console.log('[GameShell] Setting banner for next level:', nextLevelId);
       setCurrentLevel(nextLevelId);
       setNextLevel(nextLevelId);
       setBannerType('level');
@@ -122,7 +123,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
     setShowWorldIntro(false);
   }, []);
 
-  console.log('[GameShell] Render', { level, nextLevel, showBanner, bannerType });
+  console.log('[GameShell] Render', { level, nextLevel, showBanner, bannerType, worldUnlockEvent });
 
   return (
     <>
@@ -151,7 +152,10 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
         />
       )}
 
-      {showBanner && nextLevel != null && !worldUnlockEvent && (
+      {showBanner && nextLevel != null && !worldUnlockEvent && (() => {
+        console.log('[GameShell] SHOWING BANNER MODAL');
+        return true;
+      })() && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl pointer-events-auto">
             {bannerType === 'level' ? (
