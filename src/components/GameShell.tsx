@@ -72,7 +72,6 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
       }
     } else {
       const nextLevelId = level + 1;
-      console.log('[GameShell] Setting banner for next level', nextLevelId);
       setNextLevel(nextLevelId);
       setBannerType('level');
       setShowBanner(true);
@@ -122,8 +121,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
     setShowWorldIntro(false);
   }, []);
 
-  console.log('[GameShell] Render', { level, nextLevel, showBanner, bannerType, worldUnlockEvent });
-  console.log('[GameShell] Modal should show?', showBanner && nextLevel != null && !worldUnlockEvent);
+  console.log('[GameShell] Render', { level, nextLevel, showBanner, bannerType });
 
   return (
     <>
