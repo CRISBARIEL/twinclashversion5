@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { GameCore } from './GameCore';
-import { addCoins } from '../lib/progression';
+import { addCoins, setCurrentLevel } from '../lib/progression';
 import { getLevelConfig } from '../lib/levels';
 import { WorldUnlockModal } from './WorldUnlockModal';
 import { WorldIntroScreen } from './WorldIntroScreen';
@@ -72,6 +72,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
       }
     } else {
       const nextLevelId = level + 1;
+      setCurrentLevel(nextLevelId);
       setNextLevel(nextLevelId);
       setBannerType('level');
       setShowBanner(true);
@@ -81,9 +82,6 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
   useEffect(() => {
     console.log('[GameShell] LEVEL_CHANGED', level);
     completedRef.current = false;
-    setShowBanner(false);
-    setNextLevel(null);
-    setWorldUnlockEvent(null);
 
     const currentConfig = getLevelConfig(level);
     if (currentConfig && currentConfig.world !== lastWorldRef.current && currentConfig.level === 1) {

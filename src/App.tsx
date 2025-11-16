@@ -6,7 +6,7 @@ import { DuelScene } from './components/DuelScene';
 import { ChallengeScene } from './components/ChallengeScene';
 import { WorldMap } from './components/WorldMap';
 import { LevelSelector } from './components/LevelSelector';
-import { loadFromSupabase } from './lib/progression';
+import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 
 type Screen = 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect';
@@ -20,7 +20,7 @@ function App() {
     }
     return 'menu';
   });
-  const [selectedLevel, setSelectedLevel] = useState(1);
+  const [selectedLevel, setSelectedLevel] = useState(() => getCurrentLevel());
   const [selectedWorld, setSelectedWorld] = useState(1);
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
 
@@ -75,6 +75,11 @@ function App() {
             setSelectedLevel(1);
             setScreen('game');
           }}
+          onContinueGame={(level) => {
+            setSelectedLevel(level);
+            setScreen('game');
+          }}
+          onShowWorldMap={() => setScreen('worldmap')}
           onStartDailyChallenge={handleStartDailyChallenge}
           onStartDuel={handleStartDuel}
         />

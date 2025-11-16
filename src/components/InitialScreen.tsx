@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Calendar, Swords, ShoppingBag, Gift, Coins } from 'lucide-react';
-import { canClaimDaily, claimDailyReward, getLocalCoins, loadFromSupabase } from '../lib/progression';
+import { Calendar, Swords, ShoppingBag, Gift, Coins, Map } from 'lucide-react';
+import { canClaimDaily, claimDailyReward, getLocalCoins, loadFromSupabase, getCurrentLevel } from '../lib/progression';
 import { Shop } from './Shop';
 import { AdminPanel } from './AdminPanel';
 import { playSoundZap } from '../utils/soundManager';
@@ -10,13 +10,16 @@ interface InitialScreenProps {
   onStartGame: () => void;
   onStartDailyChallenge: () => void;
   onStartDuel: () => void;
+  onShowWorldMap?: () => void;
+  onContinueGame?: (level: number) => void;
 }
 
-export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel }: InitialScreenProps) => {
+export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel, onShowWorldMap, onContinueGame }: InitialScreenProps) => {
   const [showShop, setShowShop] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [coins, setCoins] = useState(0);
   const [showDailyReward, setShowDailyReward] = useState(false);
+  const [savedLevel, setSavedLevel] = useState(1);
   const logoPlayedRef = useRef(false);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<number | null>(null);
@@ -24,6 +27,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel 
   useEffect(() => {
     loadFromSupabase().then(() => {
       setCoins(getLocalCoins());
+      setSavedLevel(getCurrentLevel());
 
       if (canClaimDaily()) {
         setShowDailyReward(true);
@@ -103,13 +107,34 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel 
         </div>
 
         <div className="space-y-4">
-          <button
-            type="button"
-            onClick={onStartGame}
-            className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
-          >
-            🗺️ Jugar
-          </button>
+          {savedLevel > 1 && onContinueGame && (
+            <button
+              type="button"
+              onClick={() => onContinueGame(savedLevel)}
+              className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
+            >
+              ▶️ Continuar Nivel {savedLevel}
+            </button>
+          )}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={onStartGame}
+              className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
+            >
+              🆕 Nuevo Juego
+            </button>
+            {onShowWorldMap && (
+              <button
+                type="button"
+                onClick={onShowWorldMap}
+                className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+              >
+                <Map size={20} />
+                <span className="text-sm">Mundos</span>
+              </button>
+            )}
+          </div>
 
           <div className="flex gap-3">
             <button
