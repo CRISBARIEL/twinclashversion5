@@ -72,11 +72,9 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
       }
     } else {
       const nextLevelId = level + 1;
-      console.log('[GameShell] Setting banner for next level:', nextLevelId);
+      console.log('[GameShell] Moving to next level:', nextLevelId);
       setCurrentLevel(nextLevelId);
-      setNextLevel(nextLevelId);
-      setBannerType('level');
-      setShowBanner(true);
+      setLevel(nextLevelId);
     }
   }, [level]);
 
