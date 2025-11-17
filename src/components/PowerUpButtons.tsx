@@ -5,9 +5,10 @@ import { getLocalCoins, spendCoins } from '../lib/progression';
 interface PowerUpButtonsProps {
   onPowerUpUsed: (percentage: number) => void;
   disabled: boolean;
+  hasObstacles?: boolean;
 }
 
-export function PowerUpButtons({ onPowerUpUsed, disabled }: PowerUpButtonsProps) {
+export function PowerUpButtons({ onPowerUpUsed, disabled, hasObstacles = false }: PowerUpButtonsProps) {
   const [coins, setCoins] = useState(getLocalCoins());
   const [showConfirm, setShowConfirm] = useState<20 | 40 | null>(null);
 
@@ -78,10 +79,12 @@ export function PowerUpButtons({ onPowerUpUsed, disabled }: PowerUpButtonsProps)
               {showConfirm === 20 ? '⚡' : '✨'}
             </div>
             <h3 className="text-2xl font-bold text-gray-800 mb-2">
-              Revelar {showConfirm}% de Parejas
+              {hasObstacles ? `Desbloquear ${showConfirm}% de Obstáculos` : `Revelar ${showConfirm}% de Parejas`}
             </h3>
             <p className="text-gray-600 mb-4">
-              Esta ayuda revelará automáticamente algunas parejas de cartas
+              {hasObstacles
+                ? 'Esta ayuda eliminará obstáculos (hielo/piedra) dejando las cartas disponibles pero boca abajo'
+                : 'Esta ayuda revelará automáticamente algunas parejas de cartas'}
             </p>
 
             <div className="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl p-3 mb-6">

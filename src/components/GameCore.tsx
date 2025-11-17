@@ -542,63 +542,31 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     const hasObstacles = cards.some(c => c.obstacle);
 
     if (hasObstacles) {
-      // SMART LOGIC: Prioritize revealing cards WITH obstacles
-      const pairsWithObstacles: Array<[number, number[]]> = [];
-      const pairsWithoutObstacles: Array<[number, number[]]> = [];
-
-      availablePairs.forEach(([imageIndex, ids]) => {
-        const hasObstacle = ids.some(id => {
-          const card = cards.find(c => c.id === id);
-          return card && card.obstacle && (card.obstacleHealth ?? 0) > 0;
-        });
-
-        if (hasObstacle) {
-          pairsWithObstacles.push([imageIndex, ids]);
-        } else {
-          pairsWithoutObstacles.push([imageIndex, ids]);
-        }
-      });
-
-      // Prioritize pairs with obstacles, then clean pairs
-      const sortedPairs = [...pairsWithObstacles, ...pairsWithoutObstacles];
-      const pairsToMatch = sortedPairs.slice(0, pairsToReveal);
-
-      const cardIdsToMatch: number[] = [];
-      pairsToMatch.forEach(([, ids]) => {
-        cardIdsToMatch.push(...ids);
-      });
+      // DIFFICULT LEVELS: Only unlock obstacles, don't reveal cards
+      const cardsWithObstacles = unmatchedCards.filter(c => c.obstacle && (c.obstacleHealth ?? 0) > 0);
+      const cardsToUnlock = Math.max(1, Math.floor(cardsWithObstacles.length * (percentage / 100)));
+      const selectedCards = cardsWithObstacles.slice(0, cardsToUnlock);
 
       setCards(prev => prev.map(c => {
-        if (cardIdsToMatch.includes(c.id)) {
-          // If card has stone (2 health), reduce to 1 instead of fully revealing
+        const shouldUnlock = selectedCards.find(sc => sc.id === c.id);
+        if (shouldUnlock) {
+          // Stone: reduce health by 1
           if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 2) {
             return { ...c, obstacleHealth: 1 };
           }
-          // If card has ice (1 health), remove obstacle and reveal
-          else if (c.obstacle === 'ice' && (c.obstacleHealth ?? 0) === 1) {
-            return { ...c, isFlipped: true, isMatched: true, obstacle: null, obstacleHealth: 0 };
-          }
-          // If card has stone with 1 health left, remove obstacle and reveal
+          // Stone with 1 health: remove obstacle completely (card stays face down)
           else if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 1) {
-            return { ...c, isFlipped: true, isMatched: true, obstacle: null, obstacleHealth: 0 };
+            return { ...c, obstacle: null, obstacleHealth: 0 };
           }
-          // Clean cards (no obstacle) - reveal normally
-          else {
-            return { ...c, isFlipped: true, isMatched: true };
+          // Ice: remove obstacle completely (card stays face down)
+          else if (c.obstacle === 'ice') {
+            return { ...c, obstacle: null, obstacleHealth: 0 };
           }
         }
         return c;
       }));
 
-      // Only count fully matched pairs
-      const fullyMatchedPairs = pairsToMatch.filter(([, ids]) => {
-        return ids.every(id => {
-          const card = cards.find(c => c.id === id);
-          return !card?.obstacle || (card.obstacleHealth ?? 0) <= 1;
-        });
-      }).length;
-
-      setMatchedPairs(prev => prev + fullyMatchedPairs);
+      // Don't add to matchedPairs - we only unlocked obstacles
     } else {
       // NO OBSTACLES: Normal behavior
       const pairsToMatch = availablePairs.slice(0, pairsToReveal);
@@ -749,11 +717,12 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         {!isDailyChallenge && (
           <div className="mt-4 pt-4 border-t border-gray-200">
             <div className="text-xs text-gray-600 font-semibold mb-2 text-center">
-              💡 Ayuda Extra (Revela Parejas)
+              💡 Ayuda Extra {cards.some(c => c.obstacle) ? '(Desbloquea Obstáculos)' : '(Revela Parejas)'}
             </div>
             <PowerUpButtons
               onPowerUpUsed={handlePowerUp}
               disabled={isPreview || gameOver || powerUpUsed}
+              hasObstacles={cards.some(c => c.obstacle)}
             />
             {powerUpUsed && (
               <div className="text-xs text-center text-green-600 font-semibold mt-2">
