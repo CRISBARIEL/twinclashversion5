@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Clock, Users, ArrowLeft, Copy, Share2 } from 'lucide-react';
+import { Clock, Users, ArrowLeft, Copy, MessageCircle } from 'lucide-react';
 import { GameCard } from './GameCard';
 import { DuelInvitePanel } from './DuelInvitePanel';
 import { Card } from '../types';
@@ -95,10 +95,14 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
       })
       .subscribe();
 
+    if (room.status === 'playing' && gameState === 'lobby') {
+      startGame(room);
+    }
+
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [room?.room_code]);
+  }, [room?.room_code, room?.status]);
 
   const startGame = (currentRoom: DuelRoom) => {
     const levelId = getGlobalLevelId(currentRoom.world_id, 1);
@@ -282,12 +286,8 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
         console.log('Share cancelled', err);
       }
     } else {
-      try {
-        await navigator.clipboard.writeText(text);
-        alert('Enlace copiado al portapapeles');
-      } catch {
-        alert(text);
-      }
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(whatsappUrl, '_blank');
     }
   };
 
@@ -345,8 +345,9 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
                 <button
                   onClick={shareRoom}
                   className="p-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                  title="Compartir por WhatsApp"
                 >
-                  <Share2 size={16} />
+                  <MessageCircle size={16} />
                 </button>
               </div>
               {copied && <div className="text-xs text-green-600 mt-1">✅ Copiado</div>}
@@ -382,7 +383,7 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
             <Users size={64} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg font-semibold mb-2">Sala: {room.room_code}</p>
             <p className="text-sm opacity-80">
-              {opponentConnected ? 'Esperando que el anfitrión inicie...' : 'Esperando oponente...'}
+              {opponentConnected ? 'El duelo comenzará automáticamente...' : 'Esperando oponente...'}
             </p>
           </div>
         </div>
