@@ -543,13 +543,60 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
 
     if (hasObstacles) {
       // DIFFICULT LEVELS: Only unlock obstacles, don't reveal cards
+      // Strategy: Unlock COMPLETE PAIRS and prioritize cards adjacent to locked cards
+
       const cardsWithObstacles = unmatchedCards.filter(c => c.obstacle && (c.obstacleHealth ?? 0) > 0);
-      const cardsToUnlock = Math.max(1, Math.floor(cardsWithObstacles.length * (percentage / 100)));
-      const selectedCards = cardsWithObstacles.slice(0, cardsToUnlock);
+
+      // Group cards by image to find complete pairs
+      const pairsByImage = new Map<number, typeof cardsWithObstacles>();
+      cardsWithObstacles.forEach(card => {
+        if (!pairsByImage.has(card.imageIndex)) {
+          pairsByImage.set(card.imageIndex, []);
+        }
+        pairsByImage.get(card.imageIndex)!.push(card);
+      });
+
+      // Get only complete pairs (both cards have obstacles)
+      const completePairs = Array.from(pairsByImage.entries())
+        .filter(([, cards]) => cards.length === 2)
+        .map(([, cards]) => cards);
+
+      // Calculate how many pairs to unlock based on percentage
+      const pairsToUnlock = Math.max(1, Math.floor(completePairs.length * (percentage / 100)));
+
+      // Helper: Check if a card is adjacent to locked cards (4-column grid)
+      const getAdjacentScore = (card: Card) => {
+        const index = cards.findIndex(c => c.id === card.id);
+        const row = Math.floor(index / 4);
+        const col = index % 4;
+
+        const adjacentPositions = [
+          index - 4,     // top
+          index + 4,     // bottom
+          col > 0 ? index - 1 : -1,     // left
+          col < 3 ? index + 1 : -1,     // right
+        ];
+
+        return adjacentPositions.filter(pos => {
+          if (pos < 0 || pos >= cards.length) return false;
+          const adjacentCard = cards[pos];
+          return adjacentCard && adjacentCard.obstacle && (adjacentCard.obstacleHealth ?? 0) > 0;
+        }).length;
+      };
+
+      // Sort pairs by adjacency score (prioritize pairs near other locked cards)
+      const sortedPairs = completePairs.sort((pairA, pairB) => {
+        const scoreA = pairA.reduce((sum, card) => sum + getAdjacentScore(card), 0);
+        const scoreB = pairB.reduce((sum, card) => sum + getAdjacentScore(card), 0);
+        return scoreB - scoreA; // Higher score first
+      });
+
+      // Select pairs to unlock
+      const selectedPairs = sortedPairs.slice(0, pairsToUnlock);
+      const cardIdsToUnlock = selectedPairs.flat().map(c => c.id);
 
       setCards(prev => prev.map(c => {
-        const shouldUnlock = selectedCards.find(sc => sc.id === c.id);
-        if (shouldUnlock) {
+        if (cardIdsToUnlock.includes(c.id)) {
           // Stone: reduce health by 1
           if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 2) {
             return { ...c, obstacleHealth: 1 };
