@@ -38,10 +38,10 @@ export function PowerUpButtons({ onPowerUpUsed, disabled, hasObstacles = false, 
     <>
       <div className="flex gap-2 justify-center">
         <button
-          onClick={() => handlePurchase(20, 100)}
-          disabled={disabled || coins < 100}
+          onClick={() => handlePurchase(20, 600)}
+          disabled={disabled || coins < 600}
           className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm shadow-lg transition-all ${
-            disabled || coins < 100
+            disabled || coins < 600
               ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
               : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-105 active:scale-95'
           }`}
@@ -52,15 +52,15 @@ export function PowerUpButtons({ onPowerUpUsed, disabled, hasObstacles = false, 
           </div>
           <div className="text-xs flex items-center justify-center gap-1 mt-1">
             <Coins size={12} />
-            <span>100</span>
+            <span>600</span>
           </div>
         </button>
 
         <button
-          onClick={() => handlePurchase(40, 200)}
-          disabled={disabled || coins < 200}
+          onClick={() => handlePurchase(40, 1000)}
+          disabled={disabled || coins < 1000}
           className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm shadow-lg transition-all ${
-            disabled || coins < 200
+            disabled || coins < 1000
               ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
               : 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white hover:scale-105 active:scale-95'
           }`}
@@ -71,7 +71,7 @@ export function PowerUpButtons({ onPowerUpUsed, disabled, hasObstacles = false, 
           </div>
           <div className="text-xs flex items-center justify-center gap-1 mt-1">
             <Coins size={12} />
-            <span>200</span>
+            <span>1000</span>
           </div>
         </button>
       </div>
@@ -95,7 +95,7 @@ export function PowerUpButtons({ onPowerUpUsed, disabled, hasObstacles = false, 
               <div className="flex items-center justify-center gap-2 text-white">
                 <Coins size={24} />
                 <span className="text-2xl font-black">
-                  {showConfirm === 20 ? '100' : '200'}
+                  {showConfirm === 20 ? '600' : '1000'}
                 </span>
                 <span className="text-sm font-semibold">monedas</span>
               </div>
@@ -109,7 +109,7 @@ export function PowerUpButtons({ onPowerUpUsed, disabled, hasObstacles = false, 
                 Cancelar
               </button>
               <button
-                onClick={() => confirmPurchase(showConfirm, showConfirm === 20 ? 100 : 200)}
+                onClick={() => confirmPurchase(showConfirm, showConfirm === 20 ? 600 : 1000)}
                 className={`flex-1 py-3 rounded-xl font-bold text-white transition-all ${
                   showConfirm === 20
                     ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-105'
