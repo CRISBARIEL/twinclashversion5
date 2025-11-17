@@ -1,19 +1,21 @@
 import { Zap, Sparkles, Coins } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getLocalCoins, spendCoins } from '../lib/progression';
 
 interface PowerUpButtonsProps {
   onPowerUpUsed: (percentage: number) => void;
   disabled: boolean;
   hasObstacles?: boolean;
+  onModalStateChange?: (isOpen: boolean) => void;
 }
 
-export function PowerUpButtons({ onPowerUpUsed, disabled, hasObstacles = false }: PowerUpButtonsProps) {
+export function PowerUpButtons({ onPowerUpUsed, disabled, hasObstacles = false, onModalStateChange }: PowerUpButtonsProps) {
   const [coins, setCoins] = useState(getLocalCoins());
   const [showConfirm, setShowConfirm] = useState<20 | 40 | null>(null);
 
   const handlePurchase = (percentage: 20 | 40, cost: number) => {
     setShowConfirm(percentage);
+    onModalStateChange?.(true);
   };
 
   const confirmPurchase = (percentage: 20 | 40, cost: number) => {
@@ -21,6 +23,7 @@ export function PowerUpButtons({ onPowerUpUsed, disabled, hasObstacles = false }
       setCoins(getLocalCoins());
       onPowerUpUsed(percentage);
       setShowConfirm(null);
+      onModalStateChange?.(false);
     } else {
       alert('¡No tienes suficientes monedas!');
     }
@@ -28,6 +31,7 @@ export function PowerUpButtons({ onPowerUpUsed, disabled, hasObstacles = false }
 
   const cancelPurchase = () => {
     setShowConfirm(null);
+    onModalStateChange?.(false);
   };
 
   return (

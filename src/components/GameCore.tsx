@@ -50,6 +50,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [consecutiveMisses, setConsecutiveMisses] = useState(0);
   const [powerUpUsed, setPowerUpUsed] = useState(false);
   const [showCoinShop, setShowCoinShop] = useState(false);
+  const [isTimerPaused, setIsTimerPaused] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareData, setShareData] = useState({ text: '', url: '' });
   const [crackedCards, setCrackedCards] = useState<Set<number>>(new Set());
@@ -264,7 +265,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   }, [level, initializeLevel]);
 
   useEffect(() => {
-    if (isPreview || gameOver) {
+    if (isPreview || gameOver || isTimerPaused) {
       if (timerRef.current) clearInterval(timerRef.current);
       if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
       return;
@@ -296,7 +297,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       if (timerRef.current) clearInterval(timerRef.current);
       if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
     };
-  }, [isPreview, gameOver]);
+  }, [isPreview, gameOver, isTimerPaused]);
 
   useEffect(() => {
     const totalPairs = levelConfig?.pairs || 6;
@@ -770,6 +771,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
               onPowerUpUsed={handlePowerUp}
               disabled={isPreview || gameOver || powerUpUsed}
               hasObstacles={cards.some(c => c.obstacle)}
+              onModalStateChange={setIsTimerPaused}
             />
             {powerUpUsed && (
               <div className="text-xs text-center text-green-600 font-semibold mt-2">
@@ -777,7 +779,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
               </div>
             )}
             <button
-              onClick={() => setShowCoinShop(true)}
+              onClick={() => {
+                setShowCoinShop(true);
+                setIsTimerPaused(true);
+              }}
               className="w-full mt-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-2 px-4 rounded-lg font-bold text-sm shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
             >
               💰 Comprar Monedas
@@ -928,7 +933,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
 
       {showCoinShop && (
         <CoinShop
-          onClose={() => setShowCoinShop(false)}
+          onClose={() => {
+            setShowCoinShop(false);
+            setIsTimerPaused(false);
+          }}
         />
       )}
 
