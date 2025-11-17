@@ -163,6 +163,31 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
   };
 
   const handleJoinRoom = async (roomCode: string) => {
+    const existingRoom = await getDuelRoom(roomCode);
+
+    if (!existingRoom) {
+      alert('❌ Código incorrecto. La sala no existe.');
+      return;
+    }
+
+    if (existingRoom.host_client_id === clientId) {
+      setRoom(existingRoom);
+      const url = new URL(window.location.href);
+      url.searchParams.set('room', existingRoom.room_code);
+      window.history.replaceState({}, '', url.toString());
+      return;
+    }
+
+    if (existingRoom.status !== 'waiting') {
+      alert('⚠️ Esta sala ya no está disponible. El duelo ya comenzó o finalizó.');
+      return;
+    }
+
+    if (existingRoom.guest_client_id && existingRoom.guest_client_id !== clientId) {
+      alert('🚫 Sala llena. Ya hay otro jugador en esta sala.');
+      return;
+    }
+
     const joinedRoom = await joinDuelRoom(clientId, roomCode);
     if (joinedRoom) {
       setRoom(joinedRoom);
@@ -174,7 +199,7 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
         startGame(joinedRoom);
       }
     } else {
-      alert('Sala no encontrada o ya está llena');
+      alert('⚠️ No se pudo unir a la sala. Intenta nuevamente.');
     }
   };
 
