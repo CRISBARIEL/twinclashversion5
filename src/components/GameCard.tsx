@@ -65,7 +65,7 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
 
         <div className="absolute w-full h-full backface-hidden rotate-y-180">
           <div className={`w-full h-full bg-white rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} overflow-hidden`}>
-            <div className="text-6xl">{image}</div>
+            <div className="text-4xl sm:text-5xl md:text-6xl">{image}</div>
           </div>
         </div>
       </div>
