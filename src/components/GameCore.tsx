@@ -61,6 +61,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [coinsEarned, setCoinsEarned] = useState(0);
   const [showCoinAnimation, setShowCoinAnimation] = useState(false);
   const [currentCoins, setCurrentCoins] = useState(0);
+  const [freezeTimeLeft, setFreezeTimeLeft] = useState(0);
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -276,16 +277,24 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     }
 
     timerRef.current = window.setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
-          soundManager.stopLevelMusic();
-          soundManager.playLose();
-          setGameOver(true);
-          return 0;
+      setFreezeTimeLeft((freeze) => {
+        if (freeze > 0) {
+          return freeze - 1;
         }
-        return prev - 1;
+
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
+            soundManager.stopLevelMusic();
+            soundManager.playLose();
+            setGameOver(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+
+        return 0;
       });
     }, 1000);
 
@@ -524,6 +533,11 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     }
   }, [consecutiveMisses, isPreview, gameOver, cards, hintCards.length]);
 
+  const handleFreezeTime = useCallback((seconds: number) => {
+    setFreezeTimeLeft(seconds);
+    setPowerUpUsed(true);
+  }, []);
+
   const handlePowerUp = useCallback((percentage: number) => {
     const unmatchedCards = cards.filter(c => !c.isMatched);
     const totalPairs = unmatchedCards.length / 2;
@@ -724,9 +738,14 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           </div>
           <div className="flex items-center gap-3">
             <SoundGear />
-            <div className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-red-600 animate-pulse' : 'text-blue-600'}`}>
-              {isPreview ? `Preview: ${Math.max(0, Math.ceil(timeLeft - (timeLimit - PREVIEW_TIME)))}s` : `${timeLeft}s`}
+            <div className={`text-2xl font-bold ${freezeTimeLeft > 0 ? 'text-cyan-500' : timeLeft <= 10 ? 'text-red-600 animate-pulse' : 'text-blue-600'}`}>
+              {isPreview ? `Preview: ${Math.max(0, Math.ceil(timeLeft - (timeLimit - PREVIEW_TIME)))}s` : freezeTimeLeft > 0 ? `⏱️ ${timeLeft}s` : `${timeLeft}s`}
             </div>
+            {freezeTimeLeft > 0 && !isPreview && (
+              <div className="text-xs text-cyan-600 font-semibold mt-1">
+                ❄️ Congelado: {freezeTimeLeft}s
+              </div>
+            )}
           </div>
         </div>
         {isDailyChallenge && (
@@ -769,6 +788,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             </div>
             <PowerUpButtons
               onPowerUpUsed={handlePowerUp}
+              onFreezeTime={handleFreezeTime}
               disabled={isPreview || gameOver || powerUpUsed}
               hasObstacles={cards.some(c => c.obstacle)}
               onModalStateChange={setIsTimerPaused}

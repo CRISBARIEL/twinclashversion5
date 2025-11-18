@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Sparkles } from 'lucide-react';
+import { Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Sparkles, Waves, Pizza, Music, Sparkle, Cpu } from 'lucide-react';
 
 interface WorldIntroScreenProps {
   world: number;
@@ -45,7 +45,47 @@ const worldData = [
     emoji: '🚀',
     description: 'Viaja más allá de las estrellas',
     color: { from: 'from-indigo-500', to: 'to-blue-700', bg: 'bg-gradient-to-br from-indigo-400 via-blue-500 to-cyan-600' },
-    features: ['14-18 parejas', '40-25 segundos', '260 monedas totales']
+    features: ['10 parejas', '40-25 segundos', '260 monedas totales']
+  },
+  {
+    name: 'Océano',
+    icon: Waves,
+    emoji: '🌊',
+    description: 'Sumérgete en las profundidades',
+    color: { from: 'from-blue-500', to: 'to-teal-700', bg: 'bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600' },
+    features: ['10 parejas', '38-22 segundos', '340 monedas totales']
+  },
+  {
+    name: 'Comida',
+    icon: Pizza,
+    emoji: '🍕',
+    description: 'Un festín para tus sentidos',
+    color: { from: 'from-red-500', to: 'to-orange-700', bg: 'bg-gradient-to-br from-red-400 via-orange-500 to-yellow-600' },
+    features: ['10 parejas', '36-20 segundos', '420 monedas totales']
+  },
+  {
+    name: 'Música',
+    icon: Music,
+    emoji: '🎵',
+    description: 'Siente el ritmo de la memoria',
+    color: { from: 'from-pink-500', to: 'to-purple-700', bg: 'bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-600' },
+    features: ['10 parejas', '34-18 segundos', '500 monedas totales']
+  },
+  {
+    name: 'Belleza',
+    icon: Sparkle,
+    emoji: '💄',
+    description: 'El glamour te está esperando',
+    color: { from: 'from-rose-500', to: 'to-pink-700', bg: 'bg-gradient-to-br from-rose-400 via-pink-500 to-fuchsia-600' },
+    features: ['10 parejas', '32-16 segundos', '580 monedas totales']
+  },
+  {
+    name: 'Tecnología',
+    icon: Cpu,
+    emoji: '💻',
+    description: 'El futuro digital es ahora',
+    color: { from: 'from-cyan-500', to: 'to-blue-700', bg: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600' },
+    features: ['10 parejas', '30-15 segundos', '660 monedas totales']
   }
 ];
 
@@ -93,7 +133,7 @@ export function WorldIntroScreen({ world, onStart }: WorldIntroScreenProps) {
             <h3 className="text-2xl font-bold text-gray-800">Características</h3>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-3 mb-5">
             {data.features.map((feature, index) => (
               <div
                 key={index}
@@ -104,6 +144,31 @@ export function WorldIntroScreen({ world, onStart }: WorldIntroScreenProps) {
                 <span className="font-semibold">{feature}</span>
               </div>
             ))}
+          </div>
+
+          <div className="border-t border-gray-200 pt-4">
+            <h4 className="text-lg font-bold text-gray-800 mb-3 text-center">💡 Ayudas Disponibles</h4>
+            <div className="space-y-2 text-sm text-gray-700">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">⚡ 20% Parejas</span>
+                <span className="ml-auto text-yellow-600 font-bold">600 🪙</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">✨ 40% Parejas</span>
+                <span className="ml-auto text-yellow-600 font-bold">1000 🪙</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">⏱️ +10s Tiempo</span>
+                <span className="ml-auto text-yellow-600 font-bold">1000 🪙</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">⏱️ +15s Tiempo</span>
+                <span className="ml-auto text-yellow-600 font-bold">1400 🪙</span>
+              </div>
+            </div>
+            <p className="text-xs text-gray-500 mt-3 text-center">
+              Usa las ayudas de tiempo para congelar el reloj y completar el nivel
+            </p>
           </div>
         </div>
 
