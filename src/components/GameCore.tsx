@@ -82,6 +82,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const elapsedTimerRef = useRef<number | null>(null);
   const gameStartTimeRef = useRef<number>(0);
   const hintTimeoutRef = useRef<number | null>(null);
+  const triggerIceBreakerRef = useRef<((cardId: number) => void) | null>(null);
 
   const initializeLevel = useCallback(() => {
     console.log('[GameCore] initializeLevel', { level, seed });
@@ -375,6 +376,84 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     }
   }, [matchedPairs, level, onComplete, isDailyChallenge, moves, seed, timeElapsed]);
 
+  useEffect(() => {
+    triggerIceBreakerRef.current = (centerCardId: number) => {
+      const centerIdx = cards.findIndex(c => c.id === centerCardId);
+      if (centerIdx === -1) return;
+
+      const gridSize = Math.ceil(Math.sqrt(cards.length));
+      const centerRow = Math.floor(centerIdx / gridSize);
+      const centerCol = centerIdx % gridSize;
+
+      const neighborIndices: number[] = [];
+      for (let dRow = -1; dRow <= 1; dRow++) {
+        for (let dCol = -1; dCol <= 1; dCol++) {
+          const newRow = centerRow + dRow;
+          const newCol = centerCol + dCol;
+          if (newRow >= 0 && newRow < gridSize && newCol >= 0 && newCol < gridSize) {
+            const idx = newRow * gridSize + newCol;
+            if (idx < cards.length) {
+              neighborIndices.push(idx);
+            }
+          }
+        }
+      }
+
+      setComboCardId(centerCardId);
+      setTimeout(() => setComboCardId(null), 1000);
+
+      const newCrackedCards = new Set(crackedCards);
+      const newBreakingCards = new Set(breakingCards);
+
+      neighborIndices.forEach((idx) => {
+        const card = cards[idx];
+        if (card?.obstacle === 'ice' && (card.obstacleHealth ?? 0) > 0) {
+          const newHealth = (card.obstacleHealth ?? 0) - 1;
+          if (newHealth <= 0) {
+            newBreakingCards.add(card.id);
+            setTimeout(() => {
+              setBreakingCards((prev) => {
+                const updated = new Set(prev);
+                updated.delete(card.id);
+                return updated;
+              });
+            }, 600);
+          } else {
+            newCrackedCards.add(card.id);
+            setTimeout(() => {
+              setCrackedCards((prev) => {
+                const updated = new Set(prev);
+                updated.delete(card.id);
+                return updated;
+              });
+            }, 500);
+          }
+        }
+      });
+
+      setCrackedCards(newCrackedCards);
+      setBreakingCards(newBreakingCards);
+
+      setCards((prev) =>
+        prev.map((c, idx) => {
+          if (neighborIndices.includes(idx) && c.obstacle === 'ice' && (c.obstacleHealth ?? 0) > 0) {
+            const newHealth = (c.obstacleHealth ?? 0) - 1;
+            if (newHealth <= 0) {
+              addCoins(10);
+              setCurrentCoins(getLocalCoins());
+              setShatterTheme('ice');
+              setShatterTrigger(true);
+              setTimeout(() => setShatterTrigger(false), 100);
+              return { ...c, obstacle: null, obstacleHealth: 0 };
+            }
+            return { ...c, obstacleHealth: newHealth };
+          }
+          return c;
+        })
+      );
+    };
+  }, [cards, crackedCards, breakingCards]);
+
   const handleCardClick = useCallback((id: number) => {
     if (isPreview || isCheckingRef.current || flippedCards.length >= 2) return;
 
@@ -496,7 +575,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             const hasIceOnly = cards.some(c => c.obstacle === 'ice' && !cards.some(c2 => c2.obstacle === 'stone'));
             if (hasIceOnly) {
               setTimeout(() => {
-                triggerIceBreakerPower(secondId);
+                triggerIceBreakerRef.current?.(secondId);
               }, 100);
             }
             return 0;
@@ -521,7 +600,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         }, FLIP_DELAY);
       }
     }
-  }, [cards, flippedCards, isPreview, crackedCards, breakingCards, triggerIceBreakerPower]);
+  }, [cards, flippedCards, isPreview, crackedCards, breakingCards]);
 
   useEffect(() => {
     if (consecutiveMisses >= 4 && !isPreview && !gameOver && hintCards.length === 0) {
@@ -557,82 +636,6 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     setFreezeTimeLeft(seconds);
     setPowerUpUsed(true);
   }, []);
-
-  const triggerIceBreakerPower = useCallback((centerCardId: number) => {
-    const centerIdx = cards.findIndex(c => c.id === centerCardId);
-    if (centerIdx === -1) return;
-
-    const gridSize = Math.ceil(Math.sqrt(cards.length));
-    const centerRow = Math.floor(centerIdx / gridSize);
-    const centerCol = centerIdx % gridSize;
-
-    const neighborIndices: number[] = [];
-    for (let dRow = -1; dRow <= 1; dRow++) {
-      for (let dCol = -1; dCol <= 1; dCol++) {
-        const newRow = centerRow + dRow;
-        const newCol = centerCol + dCol;
-        if (newRow >= 0 && newRow < gridSize && newCol >= 0 && newCol < gridSize) {
-          const idx = newRow * gridSize + newCol;
-          if (idx < cards.length) {
-            neighborIndices.push(idx);
-          }
-        }
-      }
-    }
-
-    setComboCardId(centerCardId);
-    setTimeout(() => setComboCardId(null), 1000);
-
-    const newCrackedCards = new Set(crackedCards);
-    const newBreakingCards = new Set(breakingCards);
-
-    neighborIndices.forEach((idx) => {
-      const card = cards[idx];
-      if (card?.obstacle === 'ice' && (card.obstacleHealth ?? 0) > 0) {
-        const newHealth = (card.obstacleHealth ?? 0) - 1;
-        if (newHealth <= 0) {
-          newBreakingCards.add(card.id);
-          setTimeout(() => {
-            setBreakingCards((prev) => {
-              const updated = new Set(prev);
-              updated.delete(card.id);
-              return updated;
-            });
-          }, 600);
-        } else {
-          newCrackedCards.add(card.id);
-          setTimeout(() => {
-            setCrackedCards((prev) => {
-              const updated = new Set(prev);
-              updated.delete(card.id);
-              return updated;
-            });
-          }, 500);
-        }
-      }
-    });
-
-    setCrackedCards(newCrackedCards);
-    setBreakingCards(newBreakingCards);
-
-    setCards((prev) =>
-      prev.map((c, idx) => {
-        if (neighborIndices.includes(idx) && c.obstacle === 'ice' && (c.obstacleHealth ?? 0) > 0) {
-          const newHealth = (c.obstacleHealth ?? 0) - 1;
-          if (newHealth <= 0) {
-            addCoins(10);
-            setCurrentCoins(getLocalCoins());
-            setShatterTheme('ice');
-            setShatterTrigger(true);
-            setTimeout(() => setShatterTrigger(false), 100);
-            return { ...c, obstacle: null, obstacleHealth: 0 };
-          }
-          return { ...c, obstacleHealth: newHealth };
-        }
-        return c;
-      })
-    );
-  }, [cards, crackedCards, breakingCards]);
 
   const handlePowerUp = useCallback((percentage: number) => {
     const unmatchedCards = cards.filter(c => !c.isMatched);
