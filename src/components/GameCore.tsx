@@ -62,6 +62,8 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [showCoinAnimation, setShowCoinAnimation] = useState(false);
   const [currentCoins, setCurrentCoins] = useState(0);
   const [freezeTimeLeft, setFreezeTimeLeft] = useState(0);
+  const [streakMatches, setStreakMatches] = useState(0);
+  const [comboCardId, setComboCardId] = useState<number | null>(null);
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -217,6 +219,8 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     setPowerUpUsed(false);
     setCrackedCards(new Set());
     setBreakingCards(new Set());
+    setStreakMatches(0);
+    setComboCardId(null);
     gameStartTimeRef.current = 0;
 
     if (config?.obstacles && (config.obstacles.ice || config.obstacles.stone)) {
@@ -485,8 +489,24 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         setFlippedCards([]);
         setConsecutiveMisses(0);
         setHintCards([]);
+
+        setStreakMatches((prev) => {
+          const newStreak = prev + 1;
+          if (newStreak >= 6) {
+            const hasIceOnly = cards.some(c => c.obstacle === 'ice' && !cards.some(c2 => c2.obstacle === 'stone'));
+            if (hasIceOnly) {
+              setTimeout(() => {
+                triggerIceBreakerPower(secondId);
+              }, 100);
+            }
+            return 0;
+          }
+          return newStreak;
+        });
+
         isCheckingRef.current = false;
       } else {
+        setStreakMatches(0);
         setConsecutiveMisses((prev) => prev + 1);
         setTimeout(() => {
           setCards((prev) =>
@@ -501,7 +521,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         }, FLIP_DELAY);
       }
     }
-  }, [cards, flippedCards, isPreview, crackedCards, breakingCards]);
+  }, [cards, flippedCards, isPreview, crackedCards, breakingCards, triggerIceBreakerPower]);
 
   useEffect(() => {
     if (consecutiveMisses >= 4 && !isPreview && !gameOver && hintCards.length === 0) {
@@ -537,6 +557,82 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     setFreezeTimeLeft(seconds);
     setPowerUpUsed(true);
   }, []);
+
+  const triggerIceBreakerPower = useCallback((centerCardId: number) => {
+    const centerIdx = cards.findIndex(c => c.id === centerCardId);
+    if (centerIdx === -1) return;
+
+    const gridSize = Math.ceil(Math.sqrt(cards.length));
+    const centerRow = Math.floor(centerIdx / gridSize);
+    const centerCol = centerIdx % gridSize;
+
+    const neighborIndices: number[] = [];
+    for (let dRow = -1; dRow <= 1; dRow++) {
+      for (let dCol = -1; dCol <= 1; dCol++) {
+        const newRow = centerRow + dRow;
+        const newCol = centerCol + dCol;
+        if (newRow >= 0 && newRow < gridSize && newCol >= 0 && newCol < gridSize) {
+          const idx = newRow * gridSize + newCol;
+          if (idx < cards.length) {
+            neighborIndices.push(idx);
+          }
+        }
+      }
+    }
+
+    setComboCardId(centerCardId);
+    setTimeout(() => setComboCardId(null), 1000);
+
+    const newCrackedCards = new Set(crackedCards);
+    const newBreakingCards = new Set(breakingCards);
+
+    neighborIndices.forEach((idx) => {
+      const card = cards[idx];
+      if (card?.obstacle === 'ice' && (card.obstacleHealth ?? 0) > 0) {
+        const newHealth = (card.obstacleHealth ?? 0) - 1;
+        if (newHealth <= 0) {
+          newBreakingCards.add(card.id);
+          setTimeout(() => {
+            setBreakingCards((prev) => {
+              const updated = new Set(prev);
+              updated.delete(card.id);
+              return updated;
+            });
+          }, 600);
+        } else {
+          newCrackedCards.add(card.id);
+          setTimeout(() => {
+            setCrackedCards((prev) => {
+              const updated = new Set(prev);
+              updated.delete(card.id);
+              return updated;
+            });
+          }, 500);
+        }
+      }
+    });
+
+    setCrackedCards(newCrackedCards);
+    setBreakingCards(newBreakingCards);
+
+    setCards((prev) =>
+      prev.map((c, idx) => {
+        if (neighborIndices.includes(idx) && c.obstacle === 'ice' && (c.obstacleHealth ?? 0) > 0) {
+          const newHealth = (c.obstacleHealth ?? 0) - 1;
+          if (newHealth <= 0) {
+            addCoins(10);
+            setCurrentCoins(getLocalCoins());
+            setShatterTheme('ice');
+            setShatterTrigger(true);
+            setTimeout(() => setShatterTrigger(false), 100);
+            return { ...c, obstacle: null, obstacleHealth: 0 };
+          }
+          return { ...c, obstacleHealth: newHealth };
+        }
+        return c;
+      })
+    );
+  }, [cards, crackedCards, breakingCards]);
 
   const handlePowerUp = useCallback((percentage: number) => {
     const unmatchedCards = cards.filter(c => !c.isMatched);
@@ -746,6 +842,11 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                 ❄️ Congelado: {freezeTimeLeft}s
               </div>
             )}
+            {streakMatches > 0 && !isPreview && cards.some(c => c.obstacle === 'ice') && (
+              <div className={`text-sm font-bold transition-all ${streakMatches >= 6 ? 'text-green-500 animate-pulse' : 'text-orange-500'}`}>
+                🔥 {streakMatches}/6
+              </div>
+            )}
           </div>
         </div>
         {isDailyChallenge && (
@@ -817,7 +918,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             {cards.map((card) => (
               <div
                 key={card.id}
-                className={`${crackedCards.has(card.id) ? 'obstacle-crack' : ''} ${breakingCards.has(card.id) ? 'obstacle-break' : ''}`}
+                className={`${crackedCards.has(card.id) ? 'obstacle-crack' : ''} ${breakingCards.has(card.id) ? 'obstacle-break' : ''} ${comboCardId === card.id ? 'combo-power-animation' : ''}`}
               >
                 <GameCard
                   card={{ ...card, isFlipped: isPreview || card.isFlipped }}
