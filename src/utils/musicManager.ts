@@ -25,7 +25,14 @@ export const playMusic = async (level?: number): Promise<void> => {
     stopMusic();
 
     const worldNumber = Math.ceil(currentLevel / 5);
-    const musicKey = worldNumber > 10 ? '10' : worldNumber.toString();
+    let musicKey: string;
+    if (worldNumber <= 10) {
+      musicKey = worldNumber.toString();
+    } else if (worldNumber === 11 || worldNumber === 12) {
+      musicKey = '10';
+    } else {
+      musicKey = ((worldNumber - 13) % 3 + 1).toString();
+    }
     const audioSrc = LEVEL_MUSIC[musicKey] || LEVEL_MUSIC['1'];
 
     currentAudio = new Audio(audioSrc);
