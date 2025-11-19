@@ -368,6 +368,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         const baseCoins = 10;
         setCoinsEarned(baseCoins);
         addCoins(baseCoins);
+        setTimeout(() => setShowCoinAnimation(true), 500);
         setTimeout(() => {
           console.log('[GameCore] Calling onComplete after delay');
           onComplete();
