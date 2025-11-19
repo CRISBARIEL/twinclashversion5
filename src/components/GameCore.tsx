@@ -814,9 +814,9 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           }}
         />
       )}
-      <div className="bg-white rounded-2xl shadow-xl p-4 mb-4">
+      <div className="bg-white rounded-2xl shadow-xl p-3 mb-3">
         {isDailyChallenge && (
-          <div className="mb-3 text-sm text-gray-600 flex flex-col gap-1">
+          <div className="mb-2 text-sm text-gray-600 flex flex-col gap-1">
             <span>Reto: {seed}</span>
             {bestScore && (
               <span className="flex items-center gap-1">
@@ -826,7 +826,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             )}
           </div>
         )}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold text-gray-800">
               {isDailyChallenge ? 'Reto Diario' : `Nivel ${level}`}
@@ -886,9 +886,9 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         </div>
 
         {!isDailyChallenge && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="text-xs text-gray-600 font-semibold mb-2 text-center">
-              💡 Ayuda Extra {cards.some(c => c.obstacle) ? '(Desbloquea Obstáculos)' : '(Revela Parejas)'}
+          <div className="mt-3 pt-2 border-t border-gray-200">
+            <div className="text-xs text-gray-600 font-semibold mb-1.5 text-center">
+              💡 Ayuda Extra
             </div>
             <PowerUpButtons
               onPowerUpUsed={handlePowerUp}
@@ -898,8 +898,8 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
               onModalStateChange={setIsTimerPaused}
             />
             {powerUpUsed && (
-              <div className="text-xs text-center text-green-600 font-semibold mt-2">
-                ✅ Ayuda usada en este nivel
+              <div className="text-xs text-center text-green-600 font-semibold mt-1">
+                ✅ Ayuda usada
               </div>
             )}
             <button
@@ -907,7 +907,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                 setShowCoinShop(true);
                 setIsTimerPaused(true);
               }}
-              className="w-full mt-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-2 px-4 rounded-lg font-bold text-sm shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+              className="w-full mt-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-1.5 px-3 rounded-lg font-bold text-xs shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-1.5"
             >
               💰 Comprar Monedas
             </button>

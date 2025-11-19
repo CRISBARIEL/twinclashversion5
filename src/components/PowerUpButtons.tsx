@@ -43,87 +43,67 @@ export function PowerUpButtons({ onPowerUpUsed, onFreezeTime, disabled, hasObsta
 
   return (
     <>
-      <div className="flex gap-2 justify-center mb-2">
+      <div className="flex gap-2 justify-center">
         <button
           onClick={() => handlePurchase(20)}
           disabled={disabled || coins < 600}
-          className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm shadow-lg transition-all ${
+          className={`w-14 h-14 rounded-full font-bold text-xs shadow-lg transition-all flex flex-col items-center justify-center ${
             disabled || coins < 600
               ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-              : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-105 active:scale-95'
+              : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-110 active:scale-95'
           }`}
+          title="Revelar 20% - 600 monedas"
         >
-          <div className="flex items-center justify-center gap-1">
-            <Zap size={16} />
-            <span>20%</span>
-          </div>
-          <div className="text-xs flex items-center justify-center gap-1 mt-1">
-            <Coins size={12} />
-            <span>600</span>
-          </div>
+          <Zap size={14} />
+          <span className="text-[10px] leading-none mt-0.5">20%</span>
         </button>
 
         <button
           onClick={() => handlePurchase(40)}
           disabled={disabled || coins < 1000}
-          className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm shadow-lg transition-all ${
+          className={`w-14 h-14 rounded-full font-bold text-xs shadow-lg transition-all flex flex-col items-center justify-center ${
             disabled || coins < 1000
               ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-              : 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white hover:scale-105 active:scale-95'
+              : 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white hover:scale-110 active:scale-95'
           }`}
+          title="Revelar 40% - 1000 monedas"
         >
-          <div className="flex items-center justify-center gap-1">
-            <Sparkles size={16} />
-            <span>40%</span>
-          </div>
-          <div className="text-xs flex items-center justify-center gap-1 mt-1">
-            <Coins size={12} />
-            <span>1000</span>
-          </div>
+          <Sparkles size={14} />
+          <span className="text-[10px] leading-none mt-0.5">40%</span>
         </button>
+
+        {onFreezeTime && (
+          <>
+            <button
+              onClick={() => handlePurchase('freeze10')}
+              disabled={disabled || coins < 1000}
+              className={`w-14 h-14 rounded-full font-bold text-xs shadow-lg transition-all flex flex-col items-center justify-center ${
+                disabled || coins < 1000
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white hover:scale-110 active:scale-95'
+              }`}
+              title="Congelar +10s - 1000 monedas"
+            >
+              <Clock size={14} />
+              <span className="text-[10px] leading-none mt-0.5">+10s</span>
+            </button>
+
+            <button
+              onClick={() => handlePurchase('freeze15')}
+              disabled={disabled || coins < 1400}
+              className={`w-14 h-14 rounded-full font-bold text-xs shadow-lg transition-all flex flex-col items-center justify-center ${
+                disabled || coins < 1400
+                  ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:scale-110 active:scale-95'
+              }`}
+              title="Congelar +15s - 1400 monedas"
+            >
+              <Clock size={14} />
+              <span className="text-[10px] leading-none mt-0.5">+15s</span>
+            </button>
+          </>
+        )}
       </div>
-
-      {onFreezeTime && (
-        <div className="flex gap-2 justify-center">
-          <button
-            onClick={() => handlePurchase('freeze10')}
-            disabled={disabled || coins < 1000}
-            className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm shadow-lg transition-all ${
-              disabled || coins < 1000
-                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                : 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white hover:scale-105 active:scale-95'
-            }`}
-          >
-            <div className="flex items-center justify-center gap-1">
-              <Clock size={16} />
-              <span>+10s</span>
-            </div>
-            <div className="text-xs flex items-center justify-center gap-1 mt-1">
-              <Coins size={12} />
-              <span>1000</span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => handlePurchase('freeze15')}
-            disabled={disabled || coins < 1400}
-            className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm shadow-lg transition-all ${
-              disabled || coins < 1400
-                ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:scale-105 active:scale-95'
-            }`}
-          >
-            <div className="flex items-center justify-center gap-1">
-              <Clock size={16} />
-              <span>+15s</span>
-            </div>
-            <div className="text-xs flex items-center justify-center gap-1 mt-1">
-              <Coins size={12} />
-              <span>1400</span>
-            </div>
-          </button>
-        </div>
-      )}
 
       {showConfirm && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
