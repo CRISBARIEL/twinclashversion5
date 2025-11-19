@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Trophy, Sparkles, Coins } from 'lucide-react';
 import { createConfetti } from '../utils/confetti';
 
@@ -17,6 +17,7 @@ export function WorldUnlockModal({
   onContinue,
   isGameComplete = false
 }: WorldUnlockModalProps) {
+  const [showCoinAnimation, setShowCoinAnimation] = useState(false);
 
   useEffect(() => {
     createConfetti();
@@ -29,11 +30,13 @@ export function WorldUnlockModal({
       intervals.push(interval);
     }
 
+    setTimeout(() => setShowCoinAnimation(true), 500);
+
     return () => intervals.forEach(clearTimeout);
   }, []);
 
-  const worldNames = ['', 'Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio'];
-  const worldEmojis = ['', '🌿', '⚽', '🎮', '🐾', '🚀'];
+  const worldNames = ['', 'Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio', 'Océano', 'Comida', 'Música', 'Belleza', 'Tecnología', 'Ciudad', 'Ciencia', 'Granja', 'Arte', 'Transporte'];
+  const worldEmojis = ['', '🌿', '⚽', '🎮', '🐾', '🚀', '🌊', '🍕', '🎵', '💄', '💻', '🏙️', '🔬', '🚜', '🎨', '🚗'];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
@@ -89,12 +92,30 @@ export function WorldUnlockModal({
           )}
         </div>
 
-        <div className="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl p-4 mb-6 shadow-lg">
+        <div className="bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl p-4 mb-6 shadow-lg relative overflow-hidden">
           <div className="flex items-center justify-center gap-2 text-white">
             <Coins size={28} />
             <span className="text-3xl font-black">+{coinsEarned}</span>
             <span className="text-lg font-semibold">monedas</span>
           </div>
+
+          {showCoinAnimation && (
+            <div className="absolute inset-0 pointer-events-none">
+              {[...Array(8)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute text-2xl animate-coin-fall"
+                  style={{
+                    left: `${20 + i * 10}%`,
+                    animationDelay: `${i * 0.1}s`,
+                    animationDuration: '1.2s'
+                  }}
+                >
+                  🪙
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <button
@@ -104,8 +125,8 @@ export function WorldUnlockModal({
           {isGameComplete ? '¡Vamos!' : `Explorar Mundo ${unlockedWorld}`}
         </button>
 
-        <div className="mt-4 flex justify-center gap-2">
-          {[...Array(5)].map((_, i) => (
+        <div className="mt-4 flex justify-center gap-2 flex-wrap">
+          {[...Array(15)].map((_, i) => (
             <div
               key={i}
               className={`w-3 h-3 rounded-full ${
