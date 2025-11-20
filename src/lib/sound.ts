@@ -86,40 +86,42 @@ class SoundManager {
 
   private preloadAudio(): void {
     try {
+      const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/proxy-audio`;
+
       // Música de inicio
-      this.startMusicTrack = new Audio('https://drive.google.com/uc?export=download&id=11emXBwP8Eh5Ab1-g0iE_6ur9aSd1Mlg0');
+      this.startMusicTrack = new Audio(`${proxyUrl}?id=11emXBwP8Eh5Ab1-g0iE_6ur9aSd1Mlg0`);
       this.startMusicTrack.loop = true;
       this.startMusicTrack.preload = 'auto';
 
       // Músicas de nivel desde Google Drive
-      const levelUrls: Record<number, string> = {
-        1: 'https://drive.google.com/uc?export=download&id=1_SmRaOJLpStZkeE2CJTwbGc0wl40JHHt',
-        2: 'https://drive.google.com/uc?export=download&id=1RZJnneed5RDjCFRk_qJTN7vgqSh8l6iq',
-        3: 'https://drive.google.com/uc?export=download&id=1ROiU_daRdwvFDGyP-7lqjgUGPiu-tNud',
-        4: 'https://drive.google.com/uc?export=download&id=1z8uc4xwAU6p0ByRagyxtopdRuTSWw6g6',
-        5: 'https://drive.google.com/uc?export=download&id=1gPF6ZeGedoteadPQ4r1lz7X9tL3k4nf0',
-        6: 'https://drive.google.com/uc?export=download&id=1ftqAtZtGsUsaXkY1ktkBBmjz7R25uRzG',
-        7: 'https://drive.google.com/uc?export=download&id=12zL4eFNLBnTdEAKeXdFuaVAwwSmCP7G5',
-        8: 'https://drive.google.com/uc?export=download&id=1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-',
-        9: '/audio/level_9.mp3',
-        10: '/audio/level_10.mp3',
+      const levelIds: Record<number, string> = {
+        1: '1_SmRaOJLpStZkeE2CJTwbGc0wl40JHHt',
+        2: '1RZJnneed5RDjCFRk_qJTN7vgqSh8l6iq',
+        3: '1ROiU_daRdwvFDGyP-7lqjgUGPiu-tNud',
+        4: '1z8uc4xwAU6p0ByRagyxtopdRuTSWw6g6',
+        5: '1gPF6ZeGedoteadPQ4r1lz7X9tL3k4nf0',
+        6: '1ftqAtZtGsUsaXkY1ktkBBmjz7R25uRzG',
+        7: '12zL4eFNLBnTdEAKeXdFuaVAwwSmCP7G5',
+        8: '1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-',
+        9: '1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-',
+        10: '1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-',
       };
 
       for (let i = 1; i <= 10; i++) {
-        const track = new Audio(levelUrls[i]);
+        const track = new Audio(`${proxyUrl}?id=${levelIds[i]}`);
         track.loop = true;
         track.preload = 'auto';
         this.levelTracks.set(i, track);
       }
 
       // Efectos de sonido
-      this.matchSfx = new Audio('https://drive.google.com/uc?export=download&id=1KnYkPFe1DBkiaBBt7ddp81XQFsNUC79T');
+      this.matchSfx = new Audio(`${proxyUrl}?id=1KnYkPFe1DBkiaBBt7ddp81XQFsNUC79T`);
       this.matchSfx.preload = 'auto';
 
-      this.winSfx = new Audio('https://drive.google.com/uc?export=download&id=1A7IP2i0yZpRjW-_6pxqYpHkLPXyUn9ee');
+      this.winSfx = new Audio(`${proxyUrl}?id=1A7IP2i0yZpRjW-_6pxqYpHkLPXyUn9ee`);
       this.winSfx.preload = 'auto';
 
-      this.loseSfx = new Audio('https://drive.google.com/uc?export=download&id=1M5yAgmL23hk78G6Cs9onk2EFtDAxjNDM');
+      this.loseSfx = new Audio(`${proxyUrl}?id=1M5yAgmL23hk78G6Cs9onk2EFtDAxjNDM`);
       this.loseSfx.preload = 'auto';
 
       // Aplicar volumen inicial

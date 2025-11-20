@@ -2,18 +2,20 @@ let currentAudio: HTMLAudioElement | null = null;
 let isPlaying = false;
 let currentLevel = 1;
 
+const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/proxy-audio`;
+
 const LEVEL_MUSIC: Record<string, string> = {
-  'start': 'https://drive.google.com/uc?export=download&id=11emXBwP8Eh5Ab1-g0iE_6ur9aSd1Mlg0',
-  '1': 'https://drive.google.com/uc?export=download&id=1_SmRaOJLpStZkeE2CJTwbGc0wl40JHHt',
-  '2': 'https://drive.google.com/uc?export=download&id=1RZJnneed5RDjCFRk_qJTN7vgqSh8l6iq',
-  '3': 'https://drive.google.com/uc?export=download&id=1ROiU_daRdwvFDGyP-7lqjgUGPiu-tNud',
-  '4': 'https://drive.google.com/uc?export=download&id=1z8uc4xwAU6p0ByRagyxtopdRuTSWw6g6',
-  '5': 'https://drive.google.com/uc?export=download&id=1gPF6ZeGedoteadPQ4r1lz7X9tL3k4nf0',
-  '6': 'https://drive.google.com/uc?export=download&id=1ftqAtZtGsUsaXkY1ktkBBmjz7R25uRzG',
-  '7': 'https://drive.google.com/uc?export=download&id=12zL4eFNLBnTdEAKeXdFuaVAwwSmCP7G5',
-  '8': 'https://drive.google.com/uc?export=download&id=1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-',
-  '9': '/audio/level_9.mp3',
-  '10': '/audio/level_10.mp3',
+  'start': `${proxyUrl}?id=11emXBwP8Eh5Ab1-g0iE_6ur9aSd1Mlg0`,
+  '1': `${proxyUrl}?id=1_SmRaOJLpStZkeE2CJTwbGc0wl40JHHt`,
+  '2': `${proxyUrl}?id=1RZJnneed5RDjCFRk_qJTN7vgqSh8l6iq`,
+  '3': `${proxyUrl}?id=1ROiU_daRdwvFDGyP-7lqjgUGPiu-tNud`,
+  '4': `${proxyUrl}?id=1z8uc4xwAU6p0ByRagyxtopdRuTSWw6g6`,
+  '5': `${proxyUrl}?id=1gPF6ZeGedoteadPQ4r1lz7X9tL3k4nf0`,
+  '6': `${proxyUrl}?id=1ftqAtZtGsUsaXkY1ktkBBmjz7R25uRzG`,
+  '7': `${proxyUrl}?id=12zL4eFNLBnTdEAKeXdFuaVAwwSmCP7G5`,
+  '8': `${proxyUrl}?id=1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-`,
+  '9': `${proxyUrl}?id=1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-`,
+  '10': `${proxyUrl}?id=1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-`,
 };
 
 export const playMusic = async (level?: number): Promise<void> => {
