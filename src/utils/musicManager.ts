@@ -2,20 +2,18 @@ let currentAudio: HTMLAudioElement | null = null;
 let isPlaying = false;
 let currentLevel = 1;
 
-const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/proxy-audio`;
-
 const LEVEL_MUSIC: Record<string, string> = {
-  'start': `${proxyUrl}?id=11emXBwP8Eh5Ab1-g0iE_6ur9aSd1Mlg0`,
-  '1': `${proxyUrl}?id=1_SmRaOJLpStZkeE2CJTwbGc0wl40JHHt`,
-  '2': `${proxyUrl}?id=1RZJnneed5RDjCFRk_qJTN7vgqSh8l6iq`,
-  '3': `${proxyUrl}?id=1ROiU_daRdwvFDGyP-7lqjgUGPiu-tNud`,
-  '4': `${proxyUrl}?id=1z8uc4xwAU6p0ByRagyxtopdRuTSWw6g6`,
-  '5': `${proxyUrl}?id=1gPF6ZeGedoteadPQ4r1lz7X9tL3k4nf0`,
-  '6': `${proxyUrl}?id=1ftqAtZtGsUsaXkY1ktkBBmjz7R25uRzG`,
-  '7': `${proxyUrl}?id=12zL4eFNLBnTdEAKeXdFuaVAwwSmCP7G5`,
-  '8': `${proxyUrl}?id=1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-`,
-  '9': `${proxyUrl}?id=1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-`,
-  '10': `${proxyUrl}?id=1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-`,
+  'start': '/audio/start_theme.mp3',
+  '1': '/audio/level_1.mp3',
+  '2': '/audio/level_2.mp3',
+  '3': '/audio/level_3.mp3',
+  '4': '/audio/level_4.mp3',
+  '5': '/audio/level_5.mp3',
+  '6': '/audio/level_6.mp3',
+  '7': '/audio/level_7.mp3',
+  '8': '/audio/level_8.mp3',
+  '9': '/audio/level_9.mp3',
+  '10': '/audio/level_10.mp3',
 };
 
 export const playMusic = async (level?: number): Promise<void> => {

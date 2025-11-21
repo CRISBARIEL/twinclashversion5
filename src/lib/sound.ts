@@ -86,45 +86,26 @@ class SoundManager {
 
   private preloadAudio(): void {
     try {
-      const proxyUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/proxy-audio`;
-
-      // Música de inicio
-      this.startMusicTrack = new Audio(`${proxyUrl}?id=11emXBwP8Eh5Ab1-g0iE_6ur9aSd1Mlg0`);
+      this.startMusicTrack = new Audio('/audio/start_theme.mp3');
       this.startMusicTrack.loop = true;
       this.startMusicTrack.preload = 'auto';
 
-      // Músicas de nivel desde Google Drive
-      const levelIds: Record<number, string> = {
-        1: '1_SmRaOJLpStZkeE2CJTwbGc0wl40JHHt',
-        2: '1RZJnneed5RDjCFRk_qJTN7vgqSh8l6iq',
-        3: '1ROiU_daRdwvFDGyP-7lqjgUGPiu-tNud',
-        4: '1z8uc4xwAU6p0ByRagyxtopdRuTSWw6g6',
-        5: '1gPF6ZeGedoteadPQ4r1lz7X9tL3k4nf0',
-        6: '1ftqAtZtGsUsaXkY1ktkBBmjz7R25uRzG',
-        7: '12zL4eFNLBnTdEAKeXdFuaVAwwSmCP7G5',
-        8: '1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-',
-        9: '1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-',
-        10: '1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-',
-      };
-
       for (let i = 1; i <= 10; i++) {
-        const track = new Audio(`${proxyUrl}?id=${levelIds[i]}`);
+        const track = new Audio(`/audio/level_${i}.mp3`);
         track.loop = true;
         track.preload = 'auto';
         this.levelTracks.set(i, track);
       }
 
-      // Efectos de sonido
-      this.matchSfx = new Audio(`${proxyUrl}?id=1KnYkPFe1DBkiaBBt7ddp81XQFsNUC79T`);
+      this.matchSfx = new Audio('/audio/match.wav');
       this.matchSfx.preload = 'auto';
 
-      this.winSfx = new Audio(`${proxyUrl}?id=1A7IP2i0yZpRjW-_6pxqYpHkLPXyUn9ee`);
+      this.winSfx = new Audio('/audio/win.mp3');
       this.winSfx.preload = 'auto';
 
-      this.loseSfx = new Audio(`${proxyUrl}?id=1M5yAgmL23hk78G6Cs9onk2EFtDAxjNDM`);
+      this.loseSfx = new Audio('/audio/lose.mp3');
       this.loseSfx.preload = 'auto';
 
-      // Aplicar volumen inicial
       this.applyVolume();
     } catch (error) {
       console.warn('Error preloading audio:', error);
