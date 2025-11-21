@@ -89,11 +89,23 @@ class SoundManager {
       this.startMusicTrack = new Audio('/audio/start_theme.mp3');
       this.startMusicTrack.loop = true;
       this.startMusicTrack.preload = 'auto';
+      this.startMusicTrack.addEventListener('ended', () => {
+        if (this.startMusicTrack && !this.muted) {
+          this.startMusicTrack.currentTime = 0;
+          this.startMusicTrack.play().catch(err => console.warn('Error restarting start music:', err));
+        }
+      });
 
       for (let i = 1; i <= 10; i++) {
         const track = new Audio(`/audio/level_${i}.mp3`);
         track.loop = true;
         track.preload = 'auto';
+        track.addEventListener('ended', () => {
+          if (!this.muted && track === this.currentLevelTrack) {
+            track.currentTime = 0;
+            track.play().catch(err => console.warn('Error restarting level music:', err));
+          }
+        });
         this.levelTracks.set(i, track);
       }
 
@@ -213,9 +225,10 @@ class SoundManager {
     }
 
     try {
-      // Si es la MISMA pista y ya está sonando, NO hacer nada
+      // Si es la MISMA pista y ya está sonando, reiniciarla desde el inicio
       if (this.currentLevelTrack === newTrack && !this.currentLevelTrack.paused) {
-        console.log(`Level ${level} music already playing, skipping`);
+        console.log(`Level ${level} music already playing, restarting`);
+        newTrack.currentTime = 0;
         return;
       }
 
