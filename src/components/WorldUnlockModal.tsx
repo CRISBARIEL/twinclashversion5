@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Trophy, Sparkles, Coins } from 'lucide-react';
 import { createConfetti } from '../utils/confetti';
+import { soundManager } from '../lib/sound';
 
 interface WorldUnlockModalProps {
   completedWorld: number;
@@ -20,6 +21,7 @@ export function WorldUnlockModal({
   const [showCoinAnimation, setShowCoinAnimation] = useState(false);
 
   useEffect(() => {
+    soundManager.playWin();
     createConfetti();
 
     const intervals: number[] = [];

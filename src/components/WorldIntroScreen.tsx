@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Sparkles, Waves, Pizza, Music, Sparkle, Cpu } from 'lucide-react';
+import { soundManager } from '../lib/sound';
 
 interface WorldIntroScreenProps {
   world: number;
@@ -95,6 +96,7 @@ export function WorldIntroScreen({ world, onStart }: WorldIntroScreenProps) {
   const Icon = data.icon;
 
   useEffect(() => {
+    soundManager.playWin();
     setTimeout(() => setIsVisible(true), 100);
   }, []);
 
