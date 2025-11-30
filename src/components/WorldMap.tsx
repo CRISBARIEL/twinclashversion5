@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car } from 'lucide-react';
 import { canEnterWorld, isWorldCompleted, purchaseWorld, ensureWorld, WORLD_COSTS } from '../lib/worldProgress';
 import { getLocalCoins } from '../lib/progression';
+import { soundManager } from '../lib/sound';
 
-const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu];
-const worldNames = ['Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio', 'Océano', 'Comida', 'Música', 'Belleza', 'Tecnología'];
+const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car];
+const worldNames = ['Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio', 'Océano', 'Comida', 'Música', 'Belleza', 'Tecnología', 'Ciudad', 'Ciencia', 'Granja', 'Arte', 'Transporte'];
 const worldColors = [
   { from: 'from-emerald-500', to: 'to-green-700' },
   { from: 'from-yellow-500', to: 'to-orange-700' },
@@ -16,6 +17,11 @@ const worldColors = [
   { from: 'from-violet-500', to: 'to-purple-700' },
   { from: 'from-fuchsia-500', to: 'to-pink-700' },
   { from: 'from-slate-500', to: 'to-gray-700' },
+  { from: 'from-blue-500', to: 'to-sky-700' },
+  { from: 'from-teal-500', to: 'to-cyan-700' },
+  { from: 'from-lime-500', to: 'to-green-600' },
+  { from: 'from-amber-500', to: 'to-yellow-700' },
+  { from: 'from-rose-500', to: 'to-red-600' },
 ];
 
 interface WorldMapProps {
@@ -35,13 +41,18 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [adminWorldTarget, setAdminWorldTarget] = useState<number | null>(null);
+  const [showAdminButton, setShowAdminButton] = useState(false);
+  const tapCountRef = useRef(0);
+  const tapTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
+    soundManager.stopStartMusic();
+
     const loadWorldStates = async () => {
       const access: Record<number, boolean> = { 1: true };
       const complete: Record<number, boolean> = {};
 
-      for (let i = 1; i <= 10; i++) {
+      for (let i = 1; i <= 15; i++) {
         ensureWorld(`world-${i}`, 5);
 
         if (i > 1) {
@@ -100,10 +111,10 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
       </button>
 
       <h1 className="text-4xl font-bold text-white text-center mb-3">Elige tu Mundo</h1>
-      <p className="text-white/80 text-center mb-10 text-lg">10 Mundos · 50 Niveles · Aventura Épica</p>
+      <p className="text-white/80 text-center mb-10 text-lg">15 Mundos · 75 Niveles · Aventura Épica</p>
 
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((worldId) => {
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((worldId) => {
           const isUnlocked = worldAccess[worldId] ?? false;
           const Icon = worldIcons[worldId - 1];
           const colors = worldColors[worldId - 1];
@@ -241,7 +252,32 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
       {purchaseModalWorld && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
-            <div className="text-6xl mb-4">🔓</div>
+            <div
+              className="text-6xl mb-4 cursor-pointer select-none"
+              onClick={() => {
+                tapCountRef.current += 1;
+
+                if (tapTimerRef.current) {
+                  clearTimeout(tapTimerRef.current);
+                }
+
+                if (tapCountRef.current >= 5) {
+                  setShowAdminButton(true);
+                  tapCountRef.current = 0;
+                  if (tapTimerRef.current) {
+                    clearTimeout(tapTimerRef.current);
+                    tapTimerRef.current = null;
+                  }
+                } else {
+                  tapTimerRef.current = window.setTimeout(() => {
+                    tapCountRef.current = 0;
+                    tapTimerRef.current = null;
+                  }, 1000);
+                }
+              }}
+            >
+              🔓
+            </div>
             <h3 className="text-3xl font-bold text-gray-800 mb-2">
               Desbloquear Mundo {purchaseModalWorld}
             </h3>
@@ -267,7 +303,15 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setPurchaseModalWorld(null)}
+                onClick={() => {
+                  setPurchaseModalWorld(null);
+                  setShowAdminButton(false);
+                  tapCountRef.current = 0;
+                  if (tapTimerRef.current) {
+                    clearTimeout(tapTimerRef.current);
+                    tapTimerRef.current = null;
+                  }
+                }}
                 disabled={loading}
                 className="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-colors disabled:opacity-50"
               >
@@ -283,17 +327,20 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
               </button>
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setAdminWorldTarget(purchaseModalWorld);
-                setPurchaseModalWorld(null);
-                setShowAdminPassword(true);
-              }}
-              className="mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              Admin
-            </button>
+            {showAdminButton && (
+              <button
+                type="button"
+                onClick={() => {
+                  setAdminWorldTarget(purchaseModalWorld);
+                  setPurchaseModalWorld(null);
+                  setShowAdminPassword(true);
+                  setShowAdminButton(false);
+                }}
+                className="mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                Admin
+              </button>
+            )}
           </div>
         </div>
       )}

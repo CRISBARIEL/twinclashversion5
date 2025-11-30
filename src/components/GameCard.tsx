@@ -49,7 +49,7 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
       onClick={handleClick}
     >
       <div
-        className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
+        className={`relative w-full h-full transition-transform duration-300 transform-style-3d ${
           card.isFlipped || card.isMatched ? 'rotate-y-180' : ''
         }`}
       >
@@ -65,7 +65,7 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
 
         <div className="absolute w-full h-full backface-hidden rotate-y-180">
           <div className={`w-full h-full bg-white rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} overflow-hidden`}>
-            <div className="text-6xl">{image}</div>
+            <div className="text-5xl sm:text-6xl md:text-7xl">{image}</div>
           </div>
         </div>
       </div>

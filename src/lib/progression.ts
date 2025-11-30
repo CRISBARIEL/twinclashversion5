@@ -16,6 +16,7 @@ const STORAGE_KEY_COINS = 'user_coins';
 const STORAGE_KEY_LAST_DAILY = 'last_daily_at';
 const STORAGE_KEY_OWNED_SKINS = 'owned_skins';
 const STORAGE_KEY_EQUIPPED_SKIN = 'equipped_skin';
+const STORAGE_KEY_CURRENT_LEVEL = 'current_level';
 
 export function getLocalCoins(): number {
   const stored = localStorage.getItem(STORAGE_KEY_COINS);
@@ -111,6 +112,16 @@ export function equipSkin(skinId: string): boolean {
   return true;
 }
 
+export function getCurrentLevel(): number {
+  const stored = localStorage.getItem(STORAGE_KEY_CURRENT_LEVEL);
+  return stored ? parseInt(stored, 10) : 1;
+}
+
+export function setCurrentLevel(level: number): void {
+  localStorage.setItem(STORAGE_KEY_CURRENT_LEVEL, level.toString());
+  syncToSupabase();
+}
+
 
 export async function syncToSupabase(): Promise<void> {
   try {
@@ -119,6 +130,8 @@ export async function syncToSupabase(): Promise<void> {
     const ownedSkins = getOwnedSkins();
     const equippedSkin = getEquippedSkin();
     const lastDaily = getLastDailyAt();
+    const currentLevel = getCurrentLevel();
+    const currentWorld = Math.ceil(currentLevel / 5);
 
     await supabase.from('profiles').upsert({
       client_id: clientId,
@@ -126,9 +139,9 @@ export async function syncToSupabase(): Promise<void> {
       owned_skins: ownedSkins,
       equipped_skin: equippedSkin,
       last_daily_at: lastDaily,
-      current_world: 1,
-      current_level: 1,
-      worlds_completed: 0,
+      current_world: currentWorld,
+      current_level: currentLevel,
+      worlds_completed: Math.max(0, currentWorld - 1),
       updated_at: new Date().toISOString(),
     });
   } catch (err) {
@@ -161,6 +174,10 @@ export async function loadFromSupabase(): Promise<void> {
 
       if (data.last_daily_at) {
         setLastDailyAt(data.last_daily_at);
+      }
+
+      if (data.current_level) {
+        localStorage.setItem(STORAGE_KEY_CURRENT_LEVEL, data.current_level.toString());
       }
     }
   } catch (err) {

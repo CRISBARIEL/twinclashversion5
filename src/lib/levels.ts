@@ -18,14 +18,14 @@ export const LEVELS: Record<number, LevelConfig> = {
   6: { world: 2, level: 1, pairs: 8, timeLimit: 55, theme: 'sports', unlockReward: 15 },
   7: { world: 2, level: 2, pairs: 9, timeLimit: 52, theme: 'sports', unlockReward: 18 },
   8: { world: 2, level: 3, pairs: 10, timeLimit: 48, theme: 'sports', unlockReward: 20 },
-  9: { world: 2, level: 4, pairs: 11, timeLimit: 44, theme: 'sports', unlockReward: 25 },
-  10: { world: 2, level: 5, pairs: 12, timeLimit: 40, theme: 'sports', unlockReward: 120 },
+  9: { world: 2, level: 4, pairs: 10, timeLimit: 44, theme: 'sports', unlockReward: 25 },
+  10: { world: 2, level: 5, pairs: 10, timeLimit: 40, theme: 'sports', unlockReward: 120 },
 
   11: { world: 3, level: 1, pairs: 10, timeLimit: 50, theme: 'arcade', unlockReward: 20 },
-  12: { world: 3, level: 2, pairs: 11, timeLimit: 47, theme: 'arcade', unlockReward: 22 },
-  13: { world: 3, level: 3, pairs: 12, timeLimit: 44, theme: 'arcade', unlockReward: 25 },
-  14: { world: 3, level: 4, pairs: 13, timeLimit: 40, theme: 'arcade', unlockReward: 30 },
-  15: { world: 3, level: 5, pairs: 14, timeLimit: 35, theme: 'arcade', unlockReward: 150 },
+  12: { world: 3, level: 2, pairs: 10, timeLimit: 47, theme: 'arcade', unlockReward: 22 },
+  13: { world: 3, level: 3, pairs: 10, timeLimit: 44, theme: 'arcade', unlockReward: 25 },
+  14: { world: 3, level: 4, pairs: 10, timeLimit: 40, theme: 'arcade', unlockReward: 30 },
+  15: { world: 3, level: 5, pairs: 10, timeLimit: 35, theme: 'arcade', unlockReward: 150 },
 
   16: { world: 4, level: 1, pairs: 10, timeLimit: 45, theme: 'animals', unlockReward: 30, obstacles: { ice: 3 } },
   17: { world: 4, level: 2, pairs: 10, timeLimit: 42, theme: 'animals', unlockReward: 35, obstacles: { ice: 4 } },
@@ -68,6 +68,36 @@ export const LEVELS: Record<number, LevelConfig> = {
   48: { world: 10, level: 3, pairs: 10, timeLimit: 22, theme: 'tech', unlockReward: 170, obstacles: { ice: 9, stone: 8 } },
   49: { world: 10, level: 4, pairs: 10, timeLimit: 18, theme: 'tech', unlockReward: 180, obstacles: { ice: 10, stone: 8 } },
   50: { world: 10, level: 5, pairs: 10, timeLimit: 15, theme: 'tech', unlockReward: 1000, obstacles: { ice: 10, stone: 8 } },
+
+  51: { world: 11, level: 1, pairs: 10, timeLimit: 28, theme: 'city', unlockReward: 170, obstacles: { ice: 9 } },
+  52: { world: 11, level: 2, pairs: 10, timeLimit: 24, theme: 'city', unlockReward: 180, obstacles: { ice: 10 } },
+  53: { world: 11, level: 3, pairs: 10, timeLimit: 20, theme: 'city', unlockReward: 190, obstacles: { ice: 10 } },
+  54: { world: 11, level: 4, pairs: 10, timeLimit: 16, theme: 'city', unlockReward: 200, obstacles: { ice: 11 } },
+  55: { world: 11, level: 5, pairs: 10, timeLimit: 14, theme: 'city', unlockReward: 1100, obstacles: { ice: 11 } },
+
+  56: { world: 12, level: 1, pairs: 10, timeLimit: 26, theme: 'science', unlockReward: 190, obstacles: { ice: 10 } },
+  57: { world: 12, level: 2, pairs: 10, timeLimit: 22, theme: 'science', unlockReward: 200, obstacles: { ice: 11 } },
+  58: { world: 12, level: 3, pairs: 10, timeLimit: 18, theme: 'science', unlockReward: 210, obstacles: { ice: 11 } },
+  59: { world: 12, level: 4, pairs: 10, timeLimit: 15, theme: 'science', unlockReward: 220, obstacles: { ice: 12 } },
+  60: { world: 12, level: 5, pairs: 10, timeLimit: 13, theme: 'science', unlockReward: 1200, obstacles: { ice: 12 } },
+
+  61: { world: 13, level: 1, pairs: 10, timeLimit: 24, theme: 'farm', unlockReward: 210, obstacles: { ice: 11 } },
+  62: { world: 13, level: 2, pairs: 10, timeLimit: 20, theme: 'farm', unlockReward: 220, obstacles: { ice: 12 } },
+  63: { world: 13, level: 3, pairs: 10, timeLimit: 17, theme: 'farm', unlockReward: 230, obstacles: { ice: 12 } },
+  64: { world: 13, level: 4, pairs: 10, timeLimit: 14, theme: 'farm', unlockReward: 240, obstacles: { ice: 13 } },
+  65: { world: 13, level: 5, pairs: 10, timeLimit: 12, theme: 'farm', unlockReward: 1300, obstacles: { ice: 13 } },
+
+  66: { world: 14, level: 1, pairs: 10, timeLimit: 22, theme: 'art', unlockReward: 230, obstacles: { ice: 12 } },
+  67: { world: 14, level: 2, pairs: 10, timeLimit: 18, theme: 'art', unlockReward: 240, obstacles: { ice: 13 } },
+  68: { world: 14, level: 3, pairs: 10, timeLimit: 15, theme: 'art', unlockReward: 250, obstacles: { ice: 13 } },
+  69: { world: 14, level: 4, pairs: 10, timeLimit: 12, theme: 'art', unlockReward: 260, obstacles: { ice: 14 } },
+  70: { world: 14, level: 5, pairs: 10, timeLimit: 10, theme: 'art', unlockReward: 1400, obstacles: { ice: 14 } },
+
+  71: { world: 15, level: 1, pairs: 10, timeLimit: 20, theme: 'transport', unlockReward: 250, obstacles: { ice: 13 } },
+  72: { world: 15, level: 2, pairs: 10, timeLimit: 16, theme: 'transport', unlockReward: 260, obstacles: { ice: 14 } },
+  73: { world: 15, level: 3, pairs: 10, timeLimit: 13, theme: 'transport', unlockReward: 270, obstacles: { ice: 14 } },
+  74: { world: 15, level: 4, pairs: 10, timeLimit: 10, theme: 'transport', unlockReward: 280, obstacles: { ice: 15 } },
+  75: { world: 15, level: 5, pairs: 10, timeLimit: 8, theme: 'transport', unlockReward: 1500, obstacles: { ice: 15 } },
 };
 
 export function getLevelConfig(levelId: number): LevelConfig | undefined {

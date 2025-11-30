@@ -50,6 +50,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [consecutiveMisses, setConsecutiveMisses] = useState(0);
   const [powerUpUsed, setPowerUpUsed] = useState(false);
   const [showCoinShop, setShowCoinShop] = useState(false);
+  const [isTimerPaused, setIsTimerPaused] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareData, setShareData] = useState({ text: '', url: '' });
   const [crackedCards, setCrackedCards] = useState<Set<number>>(new Set());
@@ -60,6 +61,9 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [coinsEarned, setCoinsEarned] = useState(0);
   const [showCoinAnimation, setShowCoinAnimation] = useState(false);
   const [currentCoins, setCurrentCoins] = useState(0);
+  const [freezeTimeLeft, setFreezeTimeLeft] = useState(0);
+  const [streakMatches, setStreakMatches] = useState(0);
+  const [comboCardId, setComboCardId] = useState<number | null>(null);
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -78,6 +82,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const elapsedTimerRef = useRef<number | null>(null);
   const gameStartTimeRef = useRef<number>(0);
   const hintTimeoutRef = useRef<number | null>(null);
+  const triggerIceBreakerRef = useRef<((cardId: number) => void) | null>(null);
 
   const initializeLevel = useCallback(() => {
     console.log('[GameCore] initializeLevel', { level, seed });
@@ -215,6 +220,8 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     setPowerUpUsed(false);
     setCrackedCards(new Set());
     setBreakingCards(new Set());
+    setStreakMatches(0);
+    setComboCardId(null);
     gameStartTimeRef.current = 0;
 
     if (config?.obstacles && (config.obstacles.ice || config.obstacles.stone)) {
@@ -225,6 +232,11 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     }
 
     setShowCountdown(true);
+
+    soundManager.stopLevelMusic();
+    if (config) {
+      soundManager.playLevelMusic(config.world);
+    }
 
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = window.setTimeout(() => {
@@ -259,7 +271,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   }, [level, initializeLevel]);
 
   useEffect(() => {
-    if (isPreview || gameOver) {
+    if (isPreview || gameOver || isTimerPaused) {
       if (timerRef.current) clearInterval(timerRef.current);
       if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
       return;
@@ -270,16 +282,24 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     }
 
     timerRef.current = window.setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          if (timerRef.current) clearInterval(timerRef.current);
-          if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
-          soundManager.stopLevelMusic();
-          soundManager.playLose();
-          setGameOver(true);
-          return 0;
+      setFreezeTimeLeft((freeze) => {
+        if (freeze > 0) {
+          return freeze - 1;
         }
-        return prev - 1;
+
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            if (timerRef.current) clearInterval(timerRef.current);
+            if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
+            soundManager.stopLevelMusic();
+            soundManager.playLose();
+            setGameOver(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+
+        return 0;
       });
     }, 1000);
 
@@ -291,7 +311,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       if (timerRef.current) clearInterval(timerRef.current);
       if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
     };
-  }, [isPreview, gameOver]);
+  }, [isPreview, gameOver, isTimerPaused]);
 
   useEffect(() => {
     const totalPairs = levelConfig?.pairs || 6;
@@ -348,10 +368,91 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         const baseCoins = 10;
         setCoinsEarned(baseCoins);
         addCoins(baseCoins);
-        onComplete();
+        setTimeout(() => {
+          console.log('[GameCore] Calling onComplete after delay');
+          onComplete();
+        }, 1500);
       }
     }
   }, [matchedPairs, level, onComplete, isDailyChallenge, moves, seed, timeElapsed]);
+
+  useEffect(() => {
+    triggerIceBreakerRef.current = (centerCardId: number) => {
+      const centerIdx = cards.findIndex(c => c.id === centerCardId);
+      if (centerIdx === -1) return;
+
+      const gridSize = Math.ceil(Math.sqrt(cards.length));
+      const centerRow = Math.floor(centerIdx / gridSize);
+      const centerCol = centerIdx % gridSize;
+
+      const neighborIndices: number[] = [];
+      for (let dRow = -1; dRow <= 1; dRow++) {
+        for (let dCol = -1; dCol <= 1; dCol++) {
+          const newRow = centerRow + dRow;
+          const newCol = centerCol + dCol;
+          if (newRow >= 0 && newRow < gridSize && newCol >= 0 && newCol < gridSize) {
+            const idx = newRow * gridSize + newCol;
+            if (idx < cards.length) {
+              neighborIndices.push(idx);
+            }
+          }
+        }
+      }
+
+      setComboCardId(centerCardId);
+      setTimeout(() => setComboCardId(null), 1000);
+
+      const newCrackedCards = new Set(crackedCards);
+      const newBreakingCards = new Set(breakingCards);
+
+      neighborIndices.forEach((idx) => {
+        const card = cards[idx];
+        if (card?.obstacle === 'ice' && (card.obstacleHealth ?? 0) > 0) {
+          const newHealth = (card.obstacleHealth ?? 0) - 1;
+          if (newHealth <= 0) {
+            newBreakingCards.add(card.id);
+            setTimeout(() => {
+              setBreakingCards((prev) => {
+                const updated = new Set(prev);
+                updated.delete(card.id);
+                return updated;
+              });
+            }, 600);
+          } else {
+            newCrackedCards.add(card.id);
+            setTimeout(() => {
+              setCrackedCards((prev) => {
+                const updated = new Set(prev);
+                updated.delete(card.id);
+                return updated;
+              });
+            }, 500);
+          }
+        }
+      });
+
+      setCrackedCards(newCrackedCards);
+      setBreakingCards(newBreakingCards);
+
+      setCards((prev) =>
+        prev.map((c, idx) => {
+          if (neighborIndices.includes(idx) && c.obstacle === 'ice' && (c.obstacleHealth ?? 0) > 0) {
+            const newHealth = (c.obstacleHealth ?? 0) - 1;
+            if (newHealth <= 0) {
+              addCoins(10);
+              setCurrentCoins(getLocalCoins());
+              setShatterTheme('ice');
+              setShatterTrigger(true);
+              setTimeout(() => setShatterTrigger(false), 100);
+              return { ...c, obstacle: null, obstacleHealth: 0 };
+            }
+            return { ...c, obstacleHealth: newHealth };
+          }
+          return c;
+        })
+      );
+    };
+  }, [cards, crackedCards, breakingCards]);
 
   const handleCardClick = useCallback((id: number) => {
     if (isPreview || isCheckingRef.current || flippedCards.length >= 2) return;
@@ -467,8 +568,24 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         setFlippedCards([]);
         setConsecutiveMisses(0);
         setHintCards([]);
+
+        setStreakMatches((prev) => {
+          const newStreak = prev + 1;
+          if (newStreak >= 6) {
+            const hasIceOnly = cards.some(c => c.obstacle === 'ice' && !cards.some(c2 => c2.obstacle === 'stone'));
+            if (hasIceOnly) {
+              setTimeout(() => {
+                triggerIceBreakerRef.current?.(secondId);
+              }, 100);
+            }
+            return 0;
+          }
+          return newStreak;
+        });
+
         isCheckingRef.current = false;
       } else {
+        setStreakMatches(0);
         setConsecutiveMisses((prev) => prev + 1);
         setTimeout(() => {
           setCards((prev) =>
@@ -515,6 +632,11 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     }
   }, [consecutiveMisses, isPreview, gameOver, cards, hintCards.length]);
 
+  const handleFreezeTime = useCallback((seconds: number) => {
+    setFreezeTimeLeft(seconds);
+    setPowerUpUsed(true);
+  }, []);
+
   const handlePowerUp = useCallback((percentage: number) => {
     const unmatchedCards = cards.filter(c => !c.isMatched);
     const totalPairs = unmatchedCards.length / 2;
@@ -534,63 +656,78 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     const hasObstacles = cards.some(c => c.obstacle);
 
     if (hasObstacles) {
-      // SMART LOGIC: Prioritize revealing cards WITH obstacles
-      const pairsWithObstacles: Array<[number, number[]]> = [];
-      const pairsWithoutObstacles: Array<[number, number[]]> = [];
+      // DIFFICULT LEVELS: Only unlock obstacles, don't reveal cards
+      // Strategy: Unlock COMPLETE PAIRS and prioritize cards adjacent to locked cards
 
-      availablePairs.forEach(([imageIndex, ids]) => {
-        const hasObstacle = ids.some(id => {
-          const card = cards.find(c => c.id === id);
-          return card && card.obstacle && (card.obstacleHealth ?? 0) > 0;
-        });
+      const cardsWithObstacles = unmatchedCards.filter(c => c.obstacle && (c.obstacleHealth ?? 0) > 0);
 
-        if (hasObstacle) {
-          pairsWithObstacles.push([imageIndex, ids]);
-        } else {
-          pairsWithoutObstacles.push([imageIndex, ids]);
+      // Group cards by image to find complete pairs
+      const pairsByImage = new Map<number, typeof cardsWithObstacles>();
+      cardsWithObstacles.forEach(card => {
+        if (!pairsByImage.has(card.imageIndex)) {
+          pairsByImage.set(card.imageIndex, []);
         }
+        pairsByImage.get(card.imageIndex)!.push(card);
       });
 
-      // Prioritize pairs with obstacles, then clean pairs
-      const sortedPairs = [...pairsWithObstacles, ...pairsWithoutObstacles];
-      const pairsToMatch = sortedPairs.slice(0, pairsToReveal);
+      // Get only complete pairs (both cards have obstacles)
+      const completePairs = Array.from(pairsByImage.entries())
+        .filter(([, cards]) => cards.length === 2)
+        .map(([, cards]) => cards);
 
-      const cardIdsToMatch: number[] = [];
-      pairsToMatch.forEach(([, ids]) => {
-        cardIdsToMatch.push(...ids);
+      // Calculate how many pairs to unlock based on percentage
+      const pairsToUnlock = Math.max(1, Math.floor(completePairs.length * (percentage / 100)));
+
+      // Helper: Check if a card is adjacent to locked cards (4-column grid)
+      const getAdjacentScore = (card: Card) => {
+        const index = cards.findIndex(c => c.id === card.id);
+        const row = Math.floor(index / 4);
+        const col = index % 4;
+
+        const adjacentPositions = [
+          index - 4,     // top
+          index + 4,     // bottom
+          col > 0 ? index - 1 : -1,     // left
+          col < 3 ? index + 1 : -1,     // right
+        ];
+
+        return adjacentPositions.filter(pos => {
+          if (pos < 0 || pos >= cards.length) return false;
+          const adjacentCard = cards[pos];
+          return adjacentCard && adjacentCard.obstacle && (adjacentCard.obstacleHealth ?? 0) > 0;
+        }).length;
+      };
+
+      // Sort pairs by adjacency score (prioritize pairs near other locked cards)
+      const sortedPairs = completePairs.sort((pairA, pairB) => {
+        const scoreA = pairA.reduce((sum, card) => sum + getAdjacentScore(card), 0);
+        const scoreB = pairB.reduce((sum, card) => sum + getAdjacentScore(card), 0);
+        return scoreB - scoreA; // Higher score first
       });
+
+      // Select pairs to unlock
+      const selectedPairs = sortedPairs.slice(0, pairsToUnlock);
+      const cardIdsToUnlock = selectedPairs.flat().map(c => c.id);
 
       setCards(prev => prev.map(c => {
-        if (cardIdsToMatch.includes(c.id)) {
-          // If card has stone (2 health), reduce to 1 instead of fully revealing
+        if (cardIdsToUnlock.includes(c.id)) {
+          // Stone: reduce health by 1
           if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 2) {
             return { ...c, obstacleHealth: 1 };
           }
-          // If card has ice (1 health), remove obstacle and reveal
-          else if (c.obstacle === 'ice' && (c.obstacleHealth ?? 0) === 1) {
-            return { ...c, isFlipped: true, isMatched: true, obstacle: null, obstacleHealth: 0 };
-          }
-          // If card has stone with 1 health left, remove obstacle and reveal
+          // Stone with 1 health: remove obstacle completely (card stays face down)
           else if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 1) {
-            return { ...c, isFlipped: true, isMatched: true, obstacle: null, obstacleHealth: 0 };
+            return { ...c, obstacle: null, obstacleHealth: 0 };
           }
-          // Clean cards (no obstacle) - reveal normally
-          else {
-            return { ...c, isFlipped: true, isMatched: true };
+          // Ice: remove obstacle completely (card stays face down)
+          else if (c.obstacle === 'ice') {
+            return { ...c, obstacle: null, obstacleHealth: 0 };
           }
         }
         return c;
       }));
 
-      // Only count fully matched pairs
-      const fullyMatchedPairs = pairsToMatch.filter(([, ids]) => {
-        return ids.every(id => {
-          const card = cards.find(c => c.id === id);
-          return !card?.obstacle || (card.obstacleHealth ?? 0) <= 1;
-        });
-      }).length;
-
-      setMatchedPairs(prev => prev + fullyMatchedPairs);
+      // Don't add to matchedPairs - we only unlocked obstacles
     } else {
       // NO OBSTACLES: Normal behavior
       const pairsToMatch = availablePairs.slice(0, pairsToReveal);
@@ -677,9 +814,9 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           }}
         />
       )}
-      <div className="bg-white rounded-2xl shadow-xl p-4 mb-4">
+      <div className="bg-white rounded-2xl shadow-xl p-3 mb-3">
         {isDailyChallenge && (
-          <div className="mb-3 text-sm text-gray-600 flex flex-col gap-1">
+          <div className="mb-2 text-sm text-gray-600 flex flex-col gap-1">
             <span>Reto: {seed}</span>
             {bestScore && (
               <span className="flex items-center gap-1">
@@ -689,7 +826,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             )}
           </div>
         )}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold text-gray-800">
               {isDailyChallenge ? 'Reto Diario' : `Nivel ${level}`}
@@ -700,9 +837,19 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           </div>
           <div className="flex items-center gap-3">
             <SoundGear />
-            <div className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-red-600 animate-pulse' : 'text-blue-600'}`}>
-              {isPreview ? `Preview: ${Math.max(0, Math.ceil(timeLeft - (timeLimit - PREVIEW_TIME)))}s` : `${timeLeft}s`}
+            <div className={`text-2xl font-bold ${freezeTimeLeft > 0 ? 'text-cyan-500' : timeLeft <= 10 ? 'text-red-600 animate-pulse' : 'text-blue-600'}`}>
+              {isPreview ? `Preview: ${Math.max(0, Math.ceil(timeLeft - (timeLimit - PREVIEW_TIME)))}s` : freezeTimeLeft > 0 ? `⏱️ ${timeLeft}s` : `${timeLeft}s`}
             </div>
+            {freezeTimeLeft > 0 && !isPreview && (
+              <div className="text-xs text-cyan-600 font-semibold mt-1">
+                ❄️ Congelado: {freezeTimeLeft}s
+              </div>
+            )}
+            {streakMatches > 0 && !isPreview && cards.some(c => c.obstacle === 'ice') && (
+              <div className={`text-sm font-bold transition-all ${streakMatches >= 6 ? 'text-green-500 animate-pulse' : 'text-orange-500'}`}>
+                🔥 {streakMatches}/6
+              </div>
+            )}
           </div>
         </div>
         {isDailyChallenge && (
@@ -739,22 +886,28 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         </div>
 
         {!isDailyChallenge && (
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="text-xs text-gray-600 font-semibold mb-2 text-center">
-              💡 Ayuda Extra (Revela Parejas)
+          <div className="mt-3 pt-2 border-t border-gray-200">
+            <div className="text-xs text-gray-600 font-semibold mb-1.5 text-center">
+              💡 Ayuda Extra
             </div>
             <PowerUpButtons
               onPowerUpUsed={handlePowerUp}
+              onFreezeTime={handleFreezeTime}
               disabled={isPreview || gameOver || powerUpUsed}
+              hasObstacles={cards.some(c => c.obstacle)}
+              onModalStateChange={setIsTimerPaused}
             />
             {powerUpUsed && (
-              <div className="text-xs text-center text-green-600 font-semibold mt-2">
-                ✅ Ayuda usada en este nivel
+              <div className="text-xs text-center text-green-600 font-semibold mt-1">
+                ✅ Ayuda usada
               </div>
             )}
             <button
-              onClick={() => setShowCoinShop(true)}
-              className="w-full mt-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-2 px-4 rounded-lg font-bold text-sm shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+              onClick={() => {
+                setShowCoinShop(true);
+                setIsTimerPaused(true);
+              }}
+              className="w-full mt-2 bg-gradient-to-r from-yellow-400 to-orange-500 text-white py-1.5 px-3 rounded-lg font-bold text-xs shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-1.5"
             >
               💰 Comprar Monedas
             </button>
@@ -768,7 +921,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             {cards.map((card) => (
               <div
                 key={card.id}
-                className={`${crackedCards.has(card.id) ? 'obstacle-crack' : ''} ${breakingCards.has(card.id) ? 'obstacle-break' : ''}`}
+                className={`${crackedCards.has(card.id) ? 'obstacle-crack' : ''} ${breakingCards.has(card.id) ? 'obstacle-break' : ''} ${comboCardId === card.id ? 'combo-power-animation' : ''}`}
               >
                 <GameCard
                   card={{ ...card, isFlipped: isPreview || card.isFlipped }}
@@ -904,7 +1057,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
 
       {showCoinShop && (
         <CoinShop
-          onClose={() => setShowCoinShop(false)}
+          onClose={() => {
+            setShowCoinShop(false);
+            setIsTimerPaused(false);
+          }}
         />
       )}
 

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head><title>Upload Audio</title></head>
+<body>
+<h1>Uploading audio files...</h1>
+<pre id="log"></pre>
+<script>
+const log = document.getElementById('log');
+const supabaseUrl = 'https://fdlqyqeobwumyjuqgrpl.supabase.co';
+const apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkbHF5cWVvYnd1bXlqdXFncnBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NjUyNzgsImV4cCI6MjA3ODM0MTI3OH0.8FPhoxYODWFnkileEwT7S5piPX53Hk1YwLoGB5zppPI';
+
+const files = [
+  {id: '11emXBwP8Eh5Ab1-g0iE_6ur9aSd1Mlg0', name: 'start_theme.mp3'},
+  {id: '1_SmRaOJLpStZkeE2CJTwbGc0wl40JHHt', name: 'level_1.mp3'},
+  {id: '1RZJnneed5RDjCFRk_qJTN7vgqSh8l6iq', name: 'level_2.mp3'},
+  {id: '1ROiU_daRdwvFDGyP-7lqjgUGPiu-tNud', name: 'level_3.mp3'},
+  {id: '1z8uc4xwAU6p0ByRagyxtopdRuTSWw6g6', name: 'level_4.mp3'},
+  {id: '1gPF6ZeGedoteadPQ4r1lz7X9tL3k4nf0', name: 'level_5.mp3'},
+  {id: '1ftqAtZtGsUsaXkY1ktkBBmjz7R25uRzG', name: 'level_6.mp3'},
+  {id: '12zL4eFNLBnTdEAKeXdFuaVAwwSmCP7G5', name: 'level_7.mp3'},
+  {id: '1ndIQpNRME0zw8ybqp_UIGE0LYexEgt3-', name: 'level_8.mp3'},
+  {id: '1M5yAgmL23hk78G6Cs9onk2EFtDAxjNDM', name: 'lose.mp3'},
+  {id: '1A7IP2i0yZpRjW-_6pxqYpHkLPXyUn9ee', name: 'win.mp3'},
+  {id: '1KnYkPFe1DBkiaBBt7ddp81XQFsNUC79T', name: 'match.wav'}
+];
+
+async function uploadAll() {
+  for (const file of files) {
+    log.textContent += `Uploading ${file.name}...\n`;
+    try {
+      const res = await fetch(`${supabaseUrl}/functions/v1/upload-audio`, {
+        method: 'POST',
+        headers: {'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json'},
+        body: JSON.stringify({googleDriveId: file.id, fileName: file.name})
+      });
+      const data = await res.json();
+      log.textContent += `✓ ${file.name}: ${data.url || data.error}\n`;
+    } catch (e) {
+      log.textContent += `✗ ${file.name}: ${e.message}\n`;
+    }
+  }
+  log.textContent += '\nDONE!';
+}
+uploadAll();
+</script>
+</body>
+</html>

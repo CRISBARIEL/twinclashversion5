@@ -53,7 +53,6 @@ export async function joinDuelRoom(clientId: string, roomCode: string): Promise<
     .from('duel_rooms')
     .select('*')
     .eq('room_code', roomCode)
-    .eq('status', 'waiting')
     .maybeSingle();
 
   if (fetchError || !room) {
@@ -65,6 +64,16 @@ export async function joinDuelRoom(clientId: string, roomCode: string): Promise<
     return room;
   }
 
+  if (room.status !== 'waiting') {
+    console.error('[joinDuelRoom] Room is not available:', room.status);
+    return null;
+  }
+
+  if (room.guest_client_id && room.guest_client_id !== clientId) {
+    console.error('[joinDuelRoom] Room already has a guest');
+    return null;
+  }
+
   const { data, error } = await supabase
     .from('duel_rooms')
     .update({
@@ -72,11 +81,13 @@ export async function joinDuelRoom(clientId: string, roomCode: string): Promise<
       status: 'playing',
     })
     .eq('id', room.id)
+    .eq('status', 'waiting')
+    .is('guest_client_id', null)
     .select()
     .maybeSingle();
 
-  if (error) {
-    console.error('[joinDuelRoom] Error updating room:', error);
+  if (error || !data) {
+    console.error('[joinDuelRoom] Error updating room or room no longer available:', error);
     return null;
   }
 

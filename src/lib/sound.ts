@@ -20,6 +20,7 @@ class SoundManager {
     this.loadSettings();
     this.preloadAudio();
     this.setupUserInteractionListener();
+    this.setupAppLifecycleListeners();
   }
 
   private loadSettings(): void {
@@ -64,32 +65,59 @@ class SoundManager {
     document.addEventListener('touchstart', markInteraction, { once: true });
   }
 
+  private setupAppLifecycleListeners(): void {
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.stopLevelMusic();
+        this.stopStartMusic();
+      }
+    });
+
+    window.addEventListener('pagehide', () => {
+      this.stopLevelMusic();
+      this.stopStartMusic();
+    });
+
+    window.addEventListener('beforeunload', () => {
+      this.stopLevelMusic();
+      this.stopStartMusic();
+    });
+  }
+
   private preloadAudio(): void {
     try {
-      // Música de inicio
       this.startMusicTrack = new Audio('/audio/start_theme.mp3');
       this.startMusicTrack.loop = true;
       this.startMusicTrack.preload = 'auto';
+      this.startMusicTrack.addEventListener('ended', () => {
+        if (this.startMusicTrack && !this.muted) {
+          this.startMusicTrack.currentTime = 0;
+          this.startMusicTrack.play().catch(err => console.warn('Error restarting start music:', err));
+        }
+      });
 
-      // Músicas de nivel
       for (let i = 1; i <= 10; i++) {
         const track = new Audio(`/audio/level_${i}.mp3`);
         track.loop = true;
         track.preload = 'auto';
+        track.addEventListener('ended', () => {
+          if (!this.muted && track === this.currentLevelTrack) {
+            track.currentTime = 0;
+            track.play().catch(err => console.warn('Error restarting level music:', err));
+          }
+        });
         this.levelTracks.set(i, track);
       }
 
-      // Efectos de sonido
       this.matchSfx = new Audio('/audio/match.wav');
       this.matchSfx.preload = 'auto';
 
-      this.winSfx = new Audio('/audio/win.wav');
+      this.winSfx = new Audio('/audio/win.mp3');
       this.winSfx.preload = 'auto';
 
-      this.loseSfx = new Audio('/audio/lose.wav');
+      this.loseSfx = new Audio('/audio/lose.mp3');
       this.loseSfx.preload = 'auto';
 
-      // Aplicar volumen inicial
       this.applyVolume();
     } catch (error) {
       console.warn('Error preloading audio:', error);
@@ -140,7 +168,8 @@ class SoundManager {
     }
   }
 
-  private async playSafely(audio: HTMLAudioElement): Promise<void> {
+  // Reproducción segura para efectos de sonido (resetea desde el inicio)
+  private async playSfxSafely(audio: HTMLAudioElement): Promise<void> {
     if (!this.userInteracted) {
       console.warn('Cannot play audio before user interaction');
       return;
@@ -160,7 +189,15 @@ class SoundManager {
     if (!this.startMusicTrack || !this.userInteracted) return;
 
     try {
-      this.playSafely(this.startMusicTrack);
+      // Si ya está sonando, no reiniciar
+      if (!this.startMusicTrack.paused) {
+        console.log('Start music already playing, skipping');
+        return;
+      }
+
+      this.startMusicTrack.volume = this.muted ? 0 : this.masterVolume;
+      this.startMusicTrack.currentTime = 0;
+      this.startMusicTrack.play().catch(err => console.warn('Error playing start music:', err));
     } catch (error) {
       console.warn('Error playing start music:', error);
     }
@@ -180,23 +217,33 @@ class SoundManager {
   public playLevelMusic(level: number): void {
     if (!this.userInteracted) return;
 
-    const newTrack = this.levelTracks.get(level);
+    const trackNumber = Math.min(level, 10);
+    const newTrack = this.levelTracks.get(trackNumber);
     if (!newTrack) {
-      console.warn(`Level ${level} music not found`);
+      console.warn(`Level ${level} music not found, using track ${trackNumber}`);
       return;
     }
 
     try {
-      // Si hay música de nivel sonando, hacer crossfade
-      if (this.currentLevelTrack && !this.currentLevelTrack.paused) {
-        this.crossFade(this.currentLevelTrack, newTrack);
-      } else {
-        // Si no hay música sonando, reproducir directamente
-        newTrack.volume = this.muted ? 0 : this.masterVolume;
-        this.playSafely(newTrack);
+      // Si es la MISMA pista y ya está sonando, reiniciarla desde el inicio
+      if (this.currentLevelTrack === newTrack && !this.currentLevelTrack.paused) {
+        console.log(`Level ${level} music already playing, restarting`);
+        newTrack.currentTime = 0;
+        return;
       }
 
+      // Si hay OTRA música sonando, detenerla directamente
+      if (this.currentLevelTrack && !this.currentLevelTrack.paused) {
+        this.currentLevelTrack.pause();
+        this.currentLevelTrack.currentTime = 0;
+      }
+
+      // Reproducir la nueva pista
       this.currentLevelTrack = newTrack;
+      newTrack.volume = this.muted ? 0 : this.masterVolume;
+      newTrack.currentTime = 0;
+      newTrack.play().catch(err => console.warn('Error playing level music:', err));
+
     } catch (error) {
       console.warn(`Error playing level ${level} music:`, error);
     }
@@ -227,17 +274,17 @@ class SoundManager {
 
   public playMatch(): void {
     if (!this.matchSfx || !this.userInteracted) return;
-    this.playSafely(this.matchSfx);
+    this.playSfxSafely(this.matchSfx);
   }
 
   public playWin(): void {
     if (!this.winSfx || !this.userInteracted) return;
-    this.playSafely(this.winSfx);
+    this.playSfxSafely(this.winSfx);
   }
 
   public playLose(): void {
     if (!this.loseSfx || !this.userInteracted) return;
-    this.playSafely(this.loseSfx);
+    this.playSfxSafely(this.loseSfx);
   }
 
   // API Pública - Controles

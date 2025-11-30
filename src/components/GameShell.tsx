@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { GameCore } from './GameCore';
-import { addCoins } from '../lib/progression';
+import { addCoins, setCurrentLevel } from '../lib/progression';
 import { getLevelConfig } from '../lib/levels';
 import { WorldUnlockModal } from './WorldUnlockModal';
 import { WorldIntroScreen } from './WorldIntroScreen';
@@ -31,6 +31,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
   const [worldUnlockEvent, setWorldUnlockEvent] = useState<WorldUnlockEvent | null>(null);
   const [showWorldIntro, setShowWorldIntro] = useState(false);
   const [introWorld, setIntroWorld] = useState(1);
+  const [showCoinAnimation, setShowCoinAnimation] = useState(false);
 
   const completedRef = useRef(false);
   const lastWorldRef = useRef<number>(getLevelConfig(initialLevel)?.world || 1);
@@ -55,7 +56,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
     if (config.level === 5) {
       const nextWorld = config.world + 1;
 
-      if (nextWorld <= 10) {
+      if (nextWorld <= 15) {
         setWorldUnlockEvent({
           completedWorld: config.world,
           unlockedWorld: nextWorld,
@@ -72,9 +73,12 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
       }
     } else {
       const nextLevelId = level + 1;
+      console.log('[GameShell] Setting banner for next level:', nextLevelId);
+      setCurrentLevel(nextLevelId);
       setNextLevel(nextLevelId);
       setBannerType('level');
       setShowBanner(true);
+      setTimeout(() => setShowCoinAnimation(true), 500);
     }
   }, [level]);
 
@@ -90,10 +94,6 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
     }
 
     soundManager.stopStartMusic();
-    soundManager.stopLevelMusic();
-    if (currentConfig) {
-      soundManager.playLevelMusic(currentConfig.world);
-    }
   }, [level]);
 
   const handleNextLevel = useCallback(() => {
@@ -103,6 +103,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
     setNextLevel(null);
     setShowBanner(false);
     setBannerType(null);
+    setShowCoinAnimation(false);
   }, [nextLevel, level]);
 
   const handleWorldUnlockContinue = useCallback(() => {
@@ -121,7 +122,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
     setShowWorldIntro(false);
   }, []);
 
-  console.log('[GameShell] Render', { level, nextLevel, showBanner, bannerType });
+  console.log('[GameShell] Render', { level, nextLevel, showBanner, bannerType, worldUnlockEvent });
 
   return (
     <>
@@ -150,13 +151,43 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
         />
       )}
 
-      {showBanner && nextLevel != null && !worldUnlockEvent && (
+      {showBanner && nextLevel != null && !worldUnlockEvent && (() => {
+        console.log('[GameShell] SHOWING BANNER MODAL');
+        return true;
+      })() && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl pointer-events-auto">
             {bannerType === 'level' ? (
               <>
                 <div className="text-6xl mb-4">🎉</div>
                 <h3 className="text-3xl font-bold text-green-600 mb-2">¡Nivel {level} Completado!</h3>
+
+                <div className="bg-gradient-to-br from-yellow-100 to-amber-100 rounded-xl p-6 mb-4 relative overflow-hidden">
+                  <div className="text-4xl mb-2">💰</div>
+                  <div className="text-2xl font-bold text-amber-700 mb-1">
+                    +{getLevelConfig(level)?.unlockReward || 10} Monedas
+                  </div>
+                  <div className="text-sm text-amber-600">¡Ganadas en este nivel!</div>
+
+                  {showCoinAnimation && (
+                    <div className="absolute inset-0 pointer-events-none">
+                      {[...Array(8)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="absolute text-2xl animate-coin-fall"
+                          style={{
+                            left: `${20 + i * 10}%`,
+                            animationDelay: `${i * 0.1}s`,
+                            animationDuration: '1.2s'
+                          }}
+                        >
+                          🪙
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <p className="text-gray-600 mb-6">Pulsa para continuar.</p>
                 <div className="flex flex-col gap-3">
                   <button
