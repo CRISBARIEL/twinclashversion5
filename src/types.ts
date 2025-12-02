@@ -3,7 +3,7 @@ export interface Card {
   imageIndex: number;
   isFlipped: boolean;
   isMatched: boolean;
-  obstacle?: 'ice' | 'stone' | null;
+  obstacle?: 'ice' | 'stone' | 'iron' | null;
   obstacleHealth?: number;
 }
 

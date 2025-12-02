@@ -201,6 +201,71 @@ export const THEMES: Record<string, Theme> = {
       pattern: '🚗'
     }
   },
+  clothing: {
+    name: 'Ropa',
+    images: [
+      '👕', '👔', '👗', '👘', '👚',
+      '👖', '👙', '🩱', '👠', '👡',
+      '👢', '👞', '🥾', '🧢', '👒',
+      '🎩', '🧣', '🧤'
+    ],
+    background: {
+      gradient: 'from-rose-400 via-pink-500 to-purple-500',
+      pattern: '👗'
+    }
+  },
+  dinosaurs: {
+    name: 'Dinosaurios',
+    images: [
+      '🦕', '🦖', '🦴', '🥚', '🐊',
+      '🦎', '🐢', '🐍', '🦂', '🕷️',
+      '🦗', '🦟', '🐛', '🐜', '🦋',
+      '🌿', '🌴', '🪨'
+    ],
+    background: {
+      gradient: 'from-lime-500 via-green-600 to-emerald-700',
+      pattern: '🦕'
+    }
+  },
+  sweets: {
+    name: 'Dulces',
+    images: [
+      '🍬', '🍭', '🍫', '🍩', '🍪',
+      '🧁', '🍰', '🎂', '🍮', '🍯',
+      '🍡', '🧇', '🥧', '🍦', '🍨',
+      '🍧', '🥤', '🍹'
+    ],
+    background: {
+      gradient: 'from-pink-300 via-rose-400 to-red-400',
+      pattern: '🍭'
+    }
+  },
+  jerseys: {
+    name: 'Camisetas',
+    images: [
+      '🟥', '🟦', '🟩', '🟨', '🟧',
+      '🟪', '🟫', '⬛', '⬜', '🔴',
+      '🔵', '🟢', '🟡', '🟠', '🟣',
+      '⚫', '⚪', '🔶'
+    ],
+    background: {
+      gradient: 'from-green-500 via-emerald-600 to-teal-700',
+      pattern: '⚽'
+    }
+  },
+  eyes: {
+    name: 'Ojos',
+    images: [
+      '👁️', '👀', '🟤', '🔵', '🟢',
+      '🟡', '🔴', '🟣', '⚫', '⚪',
+      '🔷', '🔶', '🟨', '🟦', '🟩',
+      '🟥', '🟪', '🟧'
+    ],
+    background: {
+      gradient: 'from-sky-300 via-blue-400 to-indigo-500',
+      pattern: '👁️'
+    }
+  },
 };
 
 export function getThemeImages(themeName: string): string[] {

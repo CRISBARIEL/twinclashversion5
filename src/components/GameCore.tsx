@@ -108,7 +108,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       const pairsCount = totalCards / 2;
       const gridSize = 4;
 
-      const totalObstacles = (obstacles.ice || 0) + (obstacles.stone || 0);
+      const totalObstacles = (obstacles.ice || 0) + (obstacles.stone || 0) + (obstacles.iron || 0);
       const minFreePairs = Math.max(2, Math.ceil(pairsCount * 0.35));
 
       const pairGroups = new Map<number, number[]>();
@@ -144,7 +144,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         return adjacentIndices.some(adjIdx => !occupiedIndices.has(adjIdx));
       };
 
-      const canPlaceObstacle = (idx: number, occupiedIndices: Set<number>, isStone: boolean) => {
+      const canPlaceObstacle = (idx: number, occupiedIndices: Set<number>, isHeavy: boolean) => {
         const pairCard = shuffled.find(c => c.id !== shuffled[idx].id && c.imageIndex === shuffled[idx].imageIndex);
         if (!pairCard) return false;
 
@@ -157,13 +157,13 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           return false;
         }
 
-        if (isStone) {
+        if (isHeavy) {
           const adjacentIndices = getAdjacentIndices(idx);
-          const hasStoneNeighbor = adjacentIndices.some(adjIdx => {
+          const hasHeavyNeighbor = adjacentIndices.some(adjIdx => {
             const card = shuffled[adjIdx];
-            return card.obstacle === 'stone';
+            return card.obstacle === 'stone' || card.obstacle === 'iron';
           });
-          if (hasStoneNeighbor) return false;
+          if (hasHeavyNeighbor) return false;
         }
 
         return true;
@@ -204,6 +204,19 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           }
         }
       }
+
+      if (obstacles.iron) {
+        let placed = 0;
+        for (let i = 0; i < shuffleIndices.length && placed < obstacles.iron; i++) {
+          const idx = shuffleIndices[i];
+          if (!occupiedIndices.has(idx) && canPlaceObstacle(idx, occupiedIndices, true)) {
+            shuffled[idx].obstacle = 'iron';
+            shuffled[idx].obstacleHealth = 2;
+            occupiedIndices.add(idx);
+            placed++;
+          }
+        }
+      }
     }
     setCards(shuffled);
     setFlippedCards([]);
@@ -224,7 +237,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     setComboCardId(null);
     gameStartTimeRef.current = 0;
 
-    if (config?.obstacles && (config.obstacles.ice || config.obstacles.stone)) {
+    if (config?.obstacles && (config.obstacles.ice || config.obstacles.stone || config.obstacles.iron)) {
       const hasSeenTutorial = localStorage.getItem('obstacle_tutorial_seen');
       if (!hasSeenTutorial) {
         setTimeout(() => setShowObstacleTutorial(true), 1000);
@@ -549,9 +562,16 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                   setShatterTrigger(true);
                   setTimeout(() => setShatterTrigger(false), 100);
                 } else if (c.obstacle === 'stone') {
-                  addCoins(20); // 20 coins for stone
+                  addCoins(20);
                   setCurrentCoins(getLocalCoins());
                   console.log('[GameCore] Stone destroyed! +20 coins');
+                  setShatterTheme('stone');
+                  setShatterTrigger(true);
+                  setTimeout(() => setShatterTrigger(false), 100);
+                } else if (c.obstacle === 'iron') {
+                  addCoins(20);
+                  setCurrentCoins(getLocalCoins());
+                  console.log('[GameCore] Iron destroyed! +20 coins');
                   setShatterTheme('stone');
                   setShatterTrigger(true);
                   setTimeout(() => setShatterTrigger(false), 100);
@@ -572,7 +592,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         setStreakMatches((prev) => {
           const newStreak = prev + 1;
           if (newStreak >= 6) {
-            const hasIceOnly = cards.some(c => c.obstacle === 'ice' && !cards.some(c2 => c2.obstacle === 'stone'));
+            const hasIceOnly = cards.some(c => c.obstacle === 'ice' && !cards.some(c2 => c2.obstacle === 'stone' || c2.obstacle === 'iron'));
             if (hasIceOnly) {
               setTimeout(() => {
                 triggerIceBreakerRef.current?.(secondId);
@@ -717,6 +737,14 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           }
           // Stone with 1 health: remove obstacle completely (card stays face down)
           else if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 1) {
+            return { ...c, obstacle: null, obstacleHealth: 0 };
+          }
+          // Iron: reduce health by 1
+          else if (c.obstacle === 'iron' && (c.obstacleHealth ?? 0) === 2) {
+            return { ...c, obstacleHealth: 1 };
+          }
+          // Iron with 1 health: remove obstacle completely (card stays face down)
+          else if (c.obstacle === 'iron' && (c.obstacleHealth ?? 0) === 1) {
             return { ...c, obstacle: null, obstacleHealth: 0 };
           }
           // Ice: remove obstacle completely (card stays face down)
