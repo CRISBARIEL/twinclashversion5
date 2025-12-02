@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car } from 'lucide-react';
+import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, Trophy as TrophyIcon, Eye } from 'lucide-react';
 import { canEnterWorld, isWorldCompleted, purchaseWorld, ensureWorld, WORLD_COSTS } from '../lib/worldProgress';
 import { getLocalCoins } from '../lib/progression';
 import { soundManager } from '../lib/sound';
 
-const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car];
-const worldNames = ['Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio', 'Océano', 'Comida', 'Música', 'Belleza', 'Tecnología', 'Ciudad', 'Ciencia', 'Granja', 'Arte', 'Transporte'];
+const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, TrophyIcon, Eye];
+const worldNames = ['Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio', 'Océano', 'Comida', 'Música', 'Belleza', 'Tecnología', 'Ciudad', 'Ciencia', 'Granja', 'Arte', 'Transporte', 'Ropa', 'Dinosaurios', 'Dulces', 'Camisetas', 'Ojos'];
 const worldColors = [
   { from: 'from-emerald-500', to: 'to-green-700' },
   { from: 'from-yellow-500', to: 'to-orange-700' },
@@ -22,6 +22,11 @@ const worldColors = [
   { from: 'from-lime-500', to: 'to-green-600' },
   { from: 'from-amber-500', to: 'to-yellow-700' },
   { from: 'from-rose-500', to: 'to-red-600' },
+  { from: 'from-pink-500', to: 'to-rose-700' },
+  { from: 'from-green-600', to: 'to-emerald-800' },
+  { from: 'from-pink-400', to: 'to-red-600' },
+  { from: 'from-emerald-500', to: 'to-teal-700' },
+  { from: 'from-sky-400', to: 'to-blue-600' },
 ];
 
 interface WorldMapProps {
@@ -52,7 +57,7 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
       const access: Record<number, boolean> = { 1: true };
       const complete: Record<number, boolean> = {};
 
-      for (let i = 1; i <= 15; i++) {
+      for (let i = 1; i <= 20; i++) {
         ensureWorld(`world-${i}`, 5);
 
         if (i > 1) {
@@ -111,10 +116,10 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
       </button>
 
       <h1 className="text-4xl font-bold text-white text-center mb-3">Elige tu Mundo</h1>
-      <p className="text-white/80 text-center mb-10 text-lg">15 Mundos · 75 Niveles · Aventura Épica</p>
+      <p className="text-white/80 text-center mb-10 text-lg">20 Mundos · 100 Niveles · Aventura Épica</p>
 
       <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((worldId) => {
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map((worldId) => {
           const isUnlocked = worldAccess[worldId] ?? false;
           const Icon = worldIcons[worldId - 1];
           const colors = worldColors[worldId - 1];
