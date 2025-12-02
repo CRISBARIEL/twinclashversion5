@@ -1,6 +1,10 @@
 export interface Theme {
   name: string;
   images: string[];
+  background: {
+    gradient: string;
+    pattern?: string;
+  };
 }
 
 export const THEMES: Record<string, Theme> = {
@@ -11,6 +15,10 @@ export const THEMES: Record<string, Theme> = {
       '🦋', '🍄', '🌵', '🎋', '🌺', '🌻',
       '🌴', '🌿', '🍀', '🌹', '🌷', '🏵️'
     ],
+    background: {
+      gradient: 'from-green-300 via-emerald-400 to-teal-500',
+      pattern: '🌿'
+    }
   },
   sports: {
     name: 'Deportes',
@@ -19,6 +27,10 @@ export const THEMES: Record<string, Theme> = {
       '🏃', '🚴', '⛳', '🥊', '🛹',
       '🏈', '⚾', '🏓', '🏒', '🎯'
     ],
+    background: {
+      gradient: 'from-orange-400 via-red-500 to-rose-600',
+      pattern: '⚽'
+    }
   },
   arcade: {
     name: 'Juegos',
@@ -28,6 +40,10 @@ export const THEMES: Record<string, Theme> = {
       '🎨', '🎬', '🎤', '🎧', '🎹',
       '🎸', '🥁', '🎺'
     ],
+    background: {
+      gradient: 'from-purple-500 via-pink-500 to-fuchsia-600',
+      pattern: '🎮'
+    }
   },
   animals: {
     name: 'Animalitos',
@@ -37,6 +53,10 @@ export const THEMES: Record<string, Theme> = {
       '🦉', '🐸', '🐢', '🦈', '🐬',
       '🦋', '🐝', '🐞'
     ],
+    background: {
+      gradient: 'from-yellow-300 via-amber-400 to-orange-500',
+      pattern: '🐾'
+    }
   },
   space: {
     name: 'Espacio',
@@ -46,6 +66,10 @@ export const THEMES: Record<string, Theme> = {
       '🌕', '🌞', '🔭', '👽', '🛰️',
       '💫', '✨', '🌟'
     ],
+    background: {
+      gradient: 'from-indigo-900 via-purple-900 to-slate-900',
+      pattern: '✨'
+    }
   },
   ocean: {
     name: 'Océano',
@@ -55,6 +79,10 @@ export const THEMES: Record<string, Theme> = {
       '🦞', '🦐', '🐚', '⛵', '🚢',
       '⚓', '🌊', '🏝️'
     ],
+    background: {
+      gradient: 'from-cyan-400 via-blue-500 to-indigo-600',
+      pattern: '🌊'
+    }
   },
   food: {
     name: 'Comida',
@@ -64,6 +92,10 @@ export const THEMES: Record<string, Theme> = {
       '🍱', '🍣', '🍰', '🍪', '🍩',
       '🍦', '🧁', '🍓'
     ],
+    background: {
+      gradient: 'from-red-400 via-orange-400 to-yellow-400',
+      pattern: '🍕'
+    }
   },
   music: {
     name: 'Música',
@@ -73,6 +105,10 @@ export const THEMES: Record<string, Theme> = {
       '🎤', '🎧', '📻', '🔊', '🎙️',
       '🪘', '🪗', '🎚️'
     ],
+    background: {
+      gradient: 'from-violet-500 via-purple-600 to-indigo-700',
+      pattern: '🎵'
+    }
   },
   beauty: {
     name: 'Belleza',
@@ -82,6 +118,10 @@ export const THEMES: Record<string, Theme> = {
       '🌹', '🌺', '🎀', '✨', '💖',
       '🦋', '🌸', '💝'
     ],
+    background: {
+      gradient: 'from-pink-400 via-rose-400 to-red-400',
+      pattern: '💖'
+    }
   },
   tech: {
     name: 'Tecnología',
@@ -91,6 +131,10 @@ export const THEMES: Record<string, Theme> = {
       '🔋', '🔌', '💾', '💿', '📀',
       '🎮', '🕹️', '⚡'
     ],
+    background: {
+      gradient: 'from-slate-700 via-gray-800 to-zinc-900',
+      pattern: '💻'
+    }
   },
   city: {
     name: 'Ciudad',
@@ -100,6 +144,10 @@ export const THEMES: Record<string, Theme> = {
       '🚇', '🚏', '🏪', '🏨', '🏣',
       '🏤', '🏥', '🗼'
     ],
+    background: {
+      gradient: 'from-gray-600 via-slate-700 to-zinc-800',
+      pattern: '🏙️'
+    }
   },
   science: {
     name: 'Ciencia',
@@ -109,6 +157,10 @@ export const THEMES: Record<string, Theme> = {
       '🧲', '🔋', '⚡', '💡', '🌡️',
       '📡', '🛰️', '🔌'
     ],
+    background: {
+      gradient: 'from-teal-500 via-cyan-600 to-blue-700',
+      pattern: '⚛️'
+    }
   },
   farm: {
     name: 'Granja',
@@ -118,6 +170,10 @@ export const THEMES: Record<string, Theme> = {
       '🚜', '🌻', '🥕', '🥔', '🍅',
       '🐐', '🦃', '🏡'
     ],
+    background: {
+      gradient: 'from-lime-400 via-green-500 to-emerald-600',
+      pattern: '🌾'
+    }
   },
   art: {
     name: 'Arte',
@@ -127,6 +183,10 @@ export const THEMES: Record<string, Theme> = {
       '🗿', '🏛️', '🎪', '🎬', '📸',
       '📷', '🎥', '🖨️'
     ],
+    background: {
+      gradient: 'from-fuchsia-400 via-pink-500 to-rose-600',
+      pattern: '🎨'
+    }
   },
   transport: {
     name: 'Transporte',
@@ -136,6 +196,10 @@ export const THEMES: Record<string, Theme> = {
       '🛻', '🚚', '🚛', '🚜', '🏍️',
       '🛵', '🚲', '✈️'
     ],
+    background: {
+      gradient: 'from-sky-400 via-blue-500 to-cyan-600',
+      pattern: '🚗'
+    }
   },
 };
 
@@ -145,4 +209,8 @@ export function getThemeImages(themeName: string): string[] {
 
 export function getThemeName(themeKey: string): string {
   return THEMES[themeKey]?.name || 'Desconocido';
+}
+
+export function getThemeBackground(themeName: string): { gradient: string; pattern?: string } {
+  return THEMES[themeName]?.background || { gradient: 'from-blue-400 via-purple-500 to-pink-500' };
 }

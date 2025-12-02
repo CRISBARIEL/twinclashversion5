@@ -15,7 +15,7 @@ import { getSeedFromURLorToday, shuffleWithSeed } from '../lib/seed';
 import { submitScoreAndReward, getCrewIdFromURL, setCrewIdInURL } from '../lib/api';
 import { addCoins, getLocalCoins } from '../lib/progression';
 import { getLevelConfig } from '../lib/levels';
-import { getThemeImages } from '../lib/themes';
+import { getThemeImages, getThemeBackground } from '../lib/themes';
 import { soundManager } from '../lib/sound';
 import { useBackExitGuard } from '../hooks/useBackExitGuard';
 
@@ -793,6 +793,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const pairs = config?.pairs || 6;
   const selectedImages = themeImages.slice(0, pairs);
   const timeLimit = config?.timeLimit || 60;
+  const background = getThemeBackground(theme);
 
   const getGridColumns = () => {
     if (pairs <= 10) return 4;
@@ -804,7 +805,24 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const gridCols = getGridColumns();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex flex-col p-4">
+    <div
+      className={`min-h-screen bg-gradient-to-br ${background.gradient} flex flex-col p-4 relative overflow-hidden`}
+      style={{
+        backgroundImage: background.pattern
+          ? `radial-gradient(circle at 20% 50%, rgba(255,255,255,0.1) 0%, transparent 50%),
+             radial-gradient(circle at 80% 80%, rgba(255,255,255,0.15) 0%, transparent 50%)`
+          : undefined
+      }}
+    >
+      {background.pattern && (
+        <div className="absolute inset-0 opacity-5 pointer-events-none text-9xl flex flex-wrap justify-around items-center overflow-hidden">
+          {Array.from({ length: 20 }).map((_, i) => (
+            <span key={i} className="transform rotate-12 scale-150">
+              {background.pattern}
+            </span>
+          ))}
+        </div>
+      )}
       {showCountdown && isPreview && (
         <CountdownOverlay
           initialCount={PREVIEW_TIME}
