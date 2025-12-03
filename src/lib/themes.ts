@@ -243,10 +243,10 @@ export const THEMES: Record<string, Theme> = {
   jerseys: {
     name: 'Camisetas',
     images: [
-      '🔵', '🔴', '⚫', '🟡', '🟢',
-      '⚪', '🟠', '🟣', '🟤', '🟦',
-      '🟥', '🟩', '🟨', '🟧', '🟪',
-      '⚽', '🏆', '⭐'
+      '/argentina.png', '/brasil.png', '/croacia.png', '/españa.png', '/italia.png',
+      '⚽', '🏆', '⭐', '🔵', '🔴',
+      '⚫', '🟡', '🟢', '⚪', '🟠',
+      '🟣', '🟤', '🟦'
     ],
     background: {
       gradient: 'from-green-500 via-emerald-600 to-teal-700',
