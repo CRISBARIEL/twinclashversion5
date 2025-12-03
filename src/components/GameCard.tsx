@@ -65,7 +65,11 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
 
         <div className="absolute w-full h-full backface-hidden rotate-y-180">
           <div className={`w-full h-full bg-white rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} overflow-hidden`}>
-            <div className="text-5xl sm:text-6xl md:text-7xl">{image}</div>
+            {image.startsWith('/') || image.startsWith('http') ? (
+              <img src={image} alt="card" className="w-3/4 h-3/4 object-contain" />
+            ) : (
+              <div className="text-5xl sm:text-6xl md:text-7xl">{image}</div>
+            )}
           </div>
         </div>
       </div>
