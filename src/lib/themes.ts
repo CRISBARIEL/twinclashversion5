@@ -256,10 +256,10 @@ export const THEMES: Record<string, Theme> = {
   eyes: {
     name: 'Ojos',
     images: [
-      '👁️', '👀', '🔵', '🟢', '🟤',
-      '⚫', '🟡', '🟠', '🔴', '🟣',
-      '⬜', '🟦', '🟩', '🟧', '🟥',
-      '🟪', '🟨', '⬛'
+      '/ojo_verde.png', '/agila.png', '/cat.png', '/tigre.png', '/zorro.png',
+      '/marron.png', '/azul.png', '/lila.png', '/manzana.png', '👁️',
+      '👀', '🔵', '🟢', '🟤', '⚫',
+      '🟡', '🟠', '🔴'
     ],
     background: {
       gradient: 'from-sky-300 via-blue-400 to-indigo-500',
