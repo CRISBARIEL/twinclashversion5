@@ -4,6 +4,7 @@ export interface DuelRoom {
   id: string;
   room_code: string;
   world_id: number;
+  level_number: number;
   seed: string;
   host_client_id: string;
   guest_client_id: string | null;
@@ -11,6 +12,10 @@ export interface DuelRoom {
   winner_client_id: string | null;
   host_finished_at: string | null;
   guest_finished_at: string | null;
+  host_time: number | null;
+  host_score: number | null;
+  guest_time: number | null;
+  guest_score: number | null;
   created_at: string;
   expires_at: string;
 }
@@ -24,7 +29,7 @@ function generateRoomCode(): string {
   return code;
 }
 
-export async function createDuelRoom(clientId: string, worldId: number): Promise<DuelRoom | null> {
+export async function createDuelRoom(clientId: string, worldId: number, levelNumber: number): Promise<DuelRoom | null> {
   const roomCode = generateRoomCode();
   const seed = `duel-${Date.now()}-${Math.random().toString(36).substring(7)}`;
 
@@ -33,6 +38,7 @@ export async function createDuelRoom(clientId: string, worldId: number): Promise
     .insert({
       room_code: roomCode,
       world_id: worldId,
+      level_number: levelNumber,
       seed,
       host_client_id: clientId,
       status: 'waiting',
@@ -109,7 +115,7 @@ export async function getDuelRoom(roomCode: string): Promise<DuelRoom | null> {
   return data;
 }
 
-export async function finishDuel(roomId: string, clientId: string): Promise<void> {
+export async function finishDuel(roomId: string, clientId: string, time: number, score: number): Promise<void> {
   const { data: room } = await supabase
     .from('duel_rooms')
     .select('*')
@@ -119,20 +125,21 @@ export async function finishDuel(roomId: string, clientId: string): Promise<void
   if (!room) return;
 
   const isHost = room.host_client_id === clientId;
-  const updateField = isHost ? 'host_finished_at' : 'guest_finished_at';
+  const timeField = isHost ? 'host_time' : 'guest_time';
+  const scoreField = isHost ? 'host_score' : 'guest_score';
+  const finishedAtField = isHost ? 'host_finished_at' : 'guest_finished_at';
 
   const updates: any = {
-    [updateField]: new Date().toISOString(),
+    [timeField]: time,
+    [scoreField]: score,
+    [finishedAtField]: new Date().toISOString(),
   };
 
-  const otherFinishedField = isHost ? 'guest_finished_at' : 'host_finished_at';
-  const otherFinished = room[otherFinishedField];
+  const otherTimeField = isHost ? 'guest_time' : 'host_time';
+  const otherTime = room[otherTimeField];
 
-  if (otherFinished) {
-    const myTime = new Date().toISOString();
-    const otherTime = otherFinished;
-
-    updates.winner_client_id = myTime < otherTime ? clientId : (isHost ? room.guest_client_id : room.host_client_id);
+  if (otherTime !== null && otherTime !== undefined) {
+    updates.winner_client_id = time < otherTime ? clientId : (isHost ? room.guest_client_id : room.host_client_id);
     updates.status = 'finished';
   } else {
     updates.winner_client_id = clientId;

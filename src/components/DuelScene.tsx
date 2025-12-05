@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Clock, Users, ArrowLeft, Copy, MessageCircle } from 'lucide-react';
 import { GameCard } from './GameCard';
 import { DuelInvitePanel } from './DuelInvitePanel';
+import { PowerUpButtons } from './PowerUpButtons';
 import { Card } from '../types';
 import { getImagesForLevel } from '../utils/imageManager';
 import { prng } from '../lib/seed';
@@ -28,16 +29,19 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
   const [winner, setWinner] = useState<'me' | 'opponent' | null>(null);
   const [showResultModal, setShowResultModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isPowerUpModalOpen, setIsPowerUpModalOpen] = useState(false);
+  const [elapsedTime, setElapsedTime] = useState(0);
 
   const clientId = getOrCreateClientId();
   const isCheckingRef = useRef(false);
   const timerRef = useRef<number | null>(null);
+  const elapsedTimerRef = useRef<number | null>(null);
   const channelRef = useRef<any>(null);
   const isHost = room?.host_client_id === clientId;
   const opponentConnected = room?.guest_client_id != null;
 
-  const generateCards = useCallback((gameSeed: string, worldId: number) => {
-    const levelId = getGlobalLevelId(worldId, 1);
+  const generateCards = useCallback((gameSeed: string, worldId: number, levelNumber: number) => {
+    const levelId = getGlobalLevelId(worldId, levelNumber);
     const levelConfig = getLevelConfig(levelId);
     const pairsCount = levelConfig?.pairs || 10;
     const levelImages = getImagesForLevel(levelId);
@@ -105,9 +109,9 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
   }, [room?.room_code, room?.status]);
 
   const startGame = (currentRoom: DuelRoom) => {
-    const levelId = getGlobalLevelId(currentRoom.world_id, 1);
+    const levelId = getGlobalLevelId(currentRoom.world_id, currentRoom.level_number);
     const levelConfig = getLevelConfig(levelId);
-    const generatedCards = generateCards(currentRoom.seed, currentRoom.world_id);
+    const generatedCards = generateCards(currentRoom.seed, currentRoom.world_id, currentRoom.level_number);
 
     setCards(generatedCards);
     setTimeLeft(levelConfig?.timeLimit || 60);
@@ -115,11 +119,17 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
     setMatchedPairs(new Set());
     setFlippedCards([]);
     setGameState('playing');
+    setElapsedTime(0);
+
+    elapsedTimerRef.current = window.setInterval(() => {
+      setElapsedTime((prev) => prev + 1);
+    }, 1000);
 
     timerRef.current = window.setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           if (timerRef.current) clearInterval(timerRef.current);
+          if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
           handleTimeout();
           return 0;
         }
@@ -130,13 +140,21 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
 
   const handleTimeout = async () => {
     if (!room) return;
-    await finishDuel(room.id, clientId);
+    if (elapsedTimerRef.current) {
+      clearInterval(elapsedTimerRef.current);
+      elapsedTimerRef.current = null;
+    }
+    await finishDuel(room.id, clientId, elapsedTime, score);
   };
 
   const handleGameFinished = (finishedRoom: DuelRoom) => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
+    }
+    if (elapsedTimerRef.current) {
+      clearInterval(elapsedTimerRef.current);
+      elapsedTimerRef.current = null;
     }
 
     setGameState('finished');
@@ -156,8 +174,8 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
     setShowResultModal(true);
   };
 
-  const handleCreateRoom = async (worldId: number) => {
-    const newRoom = await createDuelRoom(clientId, worldId);
+  const handleCreateRoom = async (worldId: number, levelNumber: number) => {
+    const newRoom = await createDuelRoom(clientId, worldId, levelNumber);
     if (newRoom) {
       setRoom(newRoom);
       const url = new URL(window.location.href);
@@ -233,12 +251,14 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
           setFlippedCards([]);
           isCheckingRef.current = false;
 
-          const levelId = getGlobalLevelId(room.world_id, 1);
+          const levelId = getGlobalLevelId(room.world_id, room.level_number);
           const levelConfig = getLevelConfig(levelId);
           const totalPairs = levelConfig?.pairs || 10;
 
           if (newScore >= totalPairs) {
-            await finishDuel(room.id, clientId);
+            if (timerRef.current) clearInterval(timerRef.current);
+            if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
+            await finishDuel(room.id, clientId, elapsedTime, newScore);
           }
         } else {
           setTimeout(() => {
@@ -291,8 +311,43 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
     }
   };
 
-  const levelImages = room ? getImagesForLevel(getGlobalLevelId(room.world_id, 1)) : [];
-  const levelConfig = room ? getLevelConfig(getGlobalLevelId(room.world_id, 1)) : null;
+  const handleRevealCards = useCallback((percentage: number) => {
+    if (!room) return;
+
+    const levelId = getGlobalLevelId(room.world_id, room.level_number);
+    const levelConfig = getLevelConfig(levelId);
+    const totalPairs = levelConfig?.pairs || 10;
+
+    const unmatchedPairs = Array.from({ length: totalPairs }, (_, i) => i).filter(idx => !matchedPairs.has(idx));
+    const numToReveal = Math.ceil(unmatchedPairs.length * (percentage / 100));
+
+    const shuffled = [...unmatchedPairs].sort(() => Math.random() - 0.5);
+    const toReveal = new Set(shuffled.slice(0, numToReveal));
+
+    soundManager.playMatch();
+    setMatchedPairs(prev => {
+      const next = new Set(prev);
+      toReveal.forEach(idx => next.add(idx));
+      return next;
+    });
+    setScore(prev => prev + toReveal.size);
+
+    const newScore = score + toReveal.size;
+    if (newScore >= totalPairs) {
+      setTimeout(async () => {
+        if (timerRef.current) clearInterval(timerRef.current);
+        if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
+        await finishDuel(room.id, clientId, elapsedTime, newScore);
+      }, 500);
+    }
+  }, [room, matchedPairs, score, clientId, elapsedTime]);
+
+  const handleFreezeTime = useCallback((seconds: number) => {
+    setTimeLeft(prev => prev + seconds);
+  }, []);
+
+  const levelImages = room ? getImagesForLevel(getGlobalLevelId(room.world_id, room.level_number)) : [];
+  const levelConfig = room ? getLevelConfig(getGlobalLevelId(room.world_id, room.level_number)) : null;
   const currentTheme = levelConfig?.theme || 'nature';
 
   return (
@@ -362,18 +417,26 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
         )}
 
         {gameState === 'playing' && (
-          <div className="flex items-center justify-around text-center">
-            <div>
-              <div className="text-2xl font-bold text-blue-600">{score}</div>
-              <div className="text-xs text-gray-600">Parejas</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Clock size={20} className="text-red-500" />
-              <div className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-red-600 animate-pulse' : 'text-gray-800'}`}>
-                {timeLeft}s
+          <>
+            <div className="flex items-center justify-around text-center mb-3">
+              <div>
+                <div className="text-2xl font-bold text-blue-600">{score}</div>
+                <div className="text-xs text-gray-600">Parejas</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock size={20} className="text-red-500" />
+                <div className={`text-2xl font-bold ${timeLeft <= 10 ? 'text-red-600 animate-pulse' : 'text-gray-800'}`}>
+                  {timeLeft}s
+                </div>
               </div>
             </div>
-          </div>
+            <PowerUpButtons
+              onPowerUpUsed={handleRevealCards}
+              onFreezeTime={handleFreezeTime}
+              disabled={isCheckingRef.current || isPowerUpModalOpen}
+              onModalStateChange={setIsPowerUpModalOpen}
+            />
+          </>
         )}
       </div>
 
@@ -417,6 +480,41 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
             <h3 className={`text-3xl font-bold mb-2 ${winner === 'me' ? 'text-green-600' : 'text-gray-600'}`}>
               {winner === 'me' ? '¡Ganaste!' : 'Perdiste'}
             </h3>
+
+            <div className="bg-gray-100 rounded-xl p-4 mb-4 text-left">
+              <h4 className="text-sm font-bold text-gray-700 mb-3 text-center">Resultados</h4>
+
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-600">Tu tiempo:</span>
+                <span className={`font-bold ${winner === 'me' ? 'text-green-600' : 'text-gray-800'}`}>
+                  {isHost ? room.host_time : room.guest_time}s
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-600">Tus parejas:</span>
+                <span className="font-bold text-blue-600">
+                  {isHost ? room.host_score : room.guest_score}
+                </span>
+              </div>
+
+              <div className="border-t border-gray-300 my-2"></div>
+
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm text-gray-600">Tiempo rival:</span>
+                <span className={`font-bold ${winner === 'opponent' ? 'text-green-600' : 'text-gray-800'}`}>
+                  {isHost ? room.guest_time : room.host_time}s
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-600">Parejas rival:</span>
+                <span className="font-bold text-blue-600">
+                  {isHost ? room.guest_score : room.host_score}
+                </span>
+              </div>
+            </div>
+
             {winner === 'me' && (
               <p className="text-sm text-gray-600 mb-4">
                 +{20 + (room.world_id - 1) * 13} monedas
