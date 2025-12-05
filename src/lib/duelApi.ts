@@ -133,17 +133,20 @@ export async function finishDuel(roomId: string, clientId: string, time: number,
     [timeField]: time,
     [scoreField]: score,
     [finishedAtField]: new Date().toISOString(),
+    status: 'finished',
   };
 
-  const otherTimeField = isHost ? 'guest_time' : 'host_time';
-  const otherTime = room[otherTimeField];
+  const hostScore = isHost ? score : (room.host_score ?? 0);
+  const guestScore = !isHost ? score : (room.guest_score ?? 0);
+  const hostTime = isHost ? time : (room.host_time ?? 999999);
+  const guestTime = !isHost ? time : (room.guest_time ?? 999999);
 
-  if (otherTime !== null && otherTime !== undefined) {
-    updates.winner_client_id = time < otherTime ? clientId : (isHost ? room.guest_client_id : room.host_client_id);
-    updates.status = 'finished';
+  if (hostScore > guestScore) {
+    updates.winner_client_id = room.host_client_id;
+  } else if (guestScore > hostScore) {
+    updates.winner_client_id = room.guest_client_id;
   } else {
-    updates.winner_client_id = clientId;
-    updates.status = 'finished';
+    updates.winner_client_id = hostTime < guestTime ? room.host_client_id : room.guest_client_id;
   }
 
   await supabase

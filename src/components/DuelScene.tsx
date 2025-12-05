@@ -147,7 +147,7 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
     await finishDuel(room.id, clientId, elapsedTime, score);
   };
 
-  const handleGameFinished = (finishedRoom: DuelRoom) => {
+  const handleGameFinished = async (finishedRoom: DuelRoom) => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
@@ -155,6 +155,14 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
     if (elapsedTimerRef.current) {
       clearInterval(elapsedTimerRef.current);
       elapsedTimerRef.current = null;
+    }
+
+    const myScoreField = isHost ? 'host_score' : 'guest_score';
+    const myScore = finishedRoom[myScoreField];
+
+    if (myScore === null || myScore === undefined) {
+      await finishDuel(finishedRoom.id, clientId, elapsedTime, score);
+      return;
     }
 
     setGameState('finished');
@@ -433,7 +441,7 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
             <PowerUpButtons
               onPowerUpUsed={handleRevealCards}
               onFreezeTime={handleFreezeTime}
-              disabled={isCheckingRef.current || isPowerUpModalOpen}
+              disabled={isPowerUpModalOpen}
               onModalStateChange={setIsPowerUpModalOpen}
             />
           </>
