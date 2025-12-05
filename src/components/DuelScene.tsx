@@ -3,6 +3,7 @@ import { Clock, Users, ArrowLeft, Copy, MessageCircle } from 'lucide-react';
 import { GameCard } from './GameCard';
 import { DuelInvitePanel } from './DuelInvitePanel';
 import { PowerUpButtons } from './PowerUpButtons';
+import { CountdownOverlay } from './CountdownOverlay';
 import { Card } from '../types';
 import { getImagesForLevel } from '../utils/imageManager';
 import { prng } from '../lib/seed';
@@ -20,7 +21,7 @@ interface DuelSceneProps {
 export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
   const [showInvitePanel, setShowInvitePanel] = useState(false);
   const [room, setRoom] = useState<DuelRoom | null>(null);
-  const [gameState, setGameState] = useState<'lobby' | 'playing' | 'finished'>('lobby');
+  const [gameState, setGameState] = useState<'lobby' | 'memorizing' | 'playing' | 'finished'>('lobby');
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matchedPairs, setMatchedPairs] = useState<Set<number>>(new Set());
@@ -31,6 +32,7 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
   const [copied, setCopied] = useState(false);
   const [isPowerUpModalOpen, setIsPowerUpModalOpen] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [showCountdown, setShowCountdown] = useState(false);
 
   const clientId = getOrCreateClientId();
   const isCheckingRef = useRef(false);
@@ -93,7 +95,7 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
           startGame(updatedRoom);
         }
 
-        if (updatedRoom.status === 'finished' && gameState === 'playing') {
+        if (updatedRoom.status === 'finished' && (gameState === 'playing' || gameState === 'memorizing')) {
           handleGameFinished(updatedRoom);
         }
       })
@@ -113,13 +115,21 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
     const levelConfig = getLevelConfig(levelId);
     const generatedCards = generateCards(currentRoom.seed, currentRoom.world_id, currentRoom.level_number);
 
-    setCards(generatedCards);
+    const cardsFlipped = generatedCards.map(card => ({ ...card, isFlipped: true }));
+    setCards(cardsFlipped);
     setTimeLeft(levelConfig?.timeLimit || 60);
     setScore(0);
     setMatchedPairs(new Set());
     setFlippedCards([]);
-    setGameState('playing');
+    setGameState('memorizing');
     setElapsedTime(0);
+    setShowCountdown(true);
+  };
+
+  const handleCountdownComplete = () => {
+    setShowCountdown(false);
+    setCards(prev => prev.map(card => ({ ...card, isFlipped: false })));
+    setGameState('playing');
 
     elapsedTimerRef.current = window.setInterval(() => {
       setElapsedTime((prev) => prev + 1);
@@ -460,7 +470,7 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
         </div>
       )}
 
-      {gameState === 'playing' && (
+      {(gameState === 'memorizing' || gameState === 'playing') && (
         <div className="flex-1 flex items-center justify-center">
           <div className="w-full max-w-lg">
             <div className="grid grid-cols-4 gap-3">
@@ -472,7 +482,7 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
                     card={cardWithMatch}
                     image={levelImages[card.imageIndex]}
                     onClick={handleCardClick}
-                    disabled={isCheckingRef.current}
+                    disabled={gameState === 'memorizing' || isCheckingRef.current}
                   />
                 );
               })}
@@ -481,56 +491,64 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
         </div>
       )}
 
+      {showCountdown && <CountdownOverlay initialCount={3} onComplete={handleCountdownComplete} />}
+
       {showResultModal && gameState === 'finished' && room && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
-            <div className="text-6xl mb-4">{winner === 'me' ? '🏆' : '😢'}</div>
-            <h3 className={`text-3xl font-bold mb-2 ${winner === 'me' ? 'text-green-600' : 'text-gray-600'}`}>
-              {winner === 'me' ? '¡Ganaste!' : 'Perdiste'}
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <div className={`rounded-3xl p-8 max-w-md w-full text-center shadow-2xl transform animate-scaleIn ${
+            winner === 'me'
+              ? 'bg-gradient-to-br from-yellow-400 via-green-400 to-green-600'
+              : 'bg-gradient-to-br from-gray-600 via-gray-500 to-gray-700'
+          }`}>
+            <div className="text-8xl mb-4 animate-bounce">{winner === 'me' ? '🏆' : '💔'}</div>
+            <h3 className={`text-4xl font-black mb-4 ${winner === 'me' ? 'text-white drop-shadow-lg' : 'text-gray-200'}`}>
+              {winner === 'me' ? '¡VICTORIA!' : 'DERROTA'}
             </h3>
 
-            <div className="bg-gray-100 rounded-xl p-4 mb-4 text-left">
-              <h4 className="text-sm font-bold text-gray-700 mb-3 text-center">Resultados</h4>
+            <div className="bg-white bg-opacity-95 rounded-xl p-5 mb-4 text-left shadow-lg">
+              <h4 className="text-sm font-bold text-gray-700 mb-3 text-center uppercase tracking-wide">Resultados del Duelo</h4>
 
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">Tu tiempo:</span>
-                <span className={`font-bold ${winner === 'me' ? 'text-green-600' : 'text-gray-800'}`}>
-                  {isHost ? room.host_time : room.guest_time}s
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">Tus parejas:</span>
-                <span className="font-bold text-blue-600">
+              <div className="flex justify-between items-center mb-3 pb-2 border-b border-gray-200">
+                <span className="text-sm text-gray-600 font-semibold">Tus parejas:</span>
+                <span className={`font-black text-xl ${winner === 'me' ? 'text-green-600' : 'text-blue-600'}`}>
                   {isHost ? room.host_score : room.guest_score}
                 </span>
               </div>
 
-              <div className="border-t border-gray-300 my-2"></div>
+              <div className="flex justify-between items-center mb-3 pb-2 border-b border-gray-200">
+                <span className="text-sm text-gray-600 font-semibold">Tu tiempo:</span>
+                <span className="font-bold text-gray-800">
+                  {isHost ? room.host_time : room.guest_time}s
+                </span>
+              </div>
 
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-600">Tiempo rival:</span>
-                <span className={`font-bold ${winner === 'opponent' ? 'text-green-600' : 'text-gray-800'}`}>
-                  {isHost ? room.guest_time : room.host_time}s
+              <div className="border-t-2 border-gray-300 my-3"></div>
+
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-sm text-gray-600 font-semibold">Parejas rival:</span>
+                <span className={`font-black text-xl ${winner === 'opponent' ? 'text-green-600' : 'text-blue-600'}`}>
+                  {isHost ? room.guest_score : room.host_score}
                 </span>
               </div>
 
               <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Parejas rival:</span>
-                <span className="font-bold text-blue-600">
-                  {isHost ? room.guest_score : room.host_score}
+                <span className="text-sm text-gray-600 font-semibold">Tiempo rival:</span>
+                <span className="font-bold text-gray-800">
+                  {isHost ? room.guest_time : room.host_time}s
                 </span>
               </div>
             </div>
 
             {winner === 'me' && (
-              <p className="text-sm text-gray-600 mb-4">
-                +{20 + (room.world_id - 1) * 13} monedas
-              </p>
+              <div className="bg-yellow-300 rounded-xl p-3 mb-4 shadow-md">
+                <p className="text-lg font-bold text-yellow-900">
+                  💰 +{20 + (room.world_id - 1) * 13} monedas
+                </p>
+              </div>
             )}
             <button
               onClick={onBackToMenu}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl transition-all"
+              className="w-full bg-white text-gray-800 py-4 rounded-xl font-black text-lg hover:shadow-2xl hover:scale-105 transition-all shadow-lg"
             >
               Volver al Menú
             </button>
