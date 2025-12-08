@@ -6,9 +6,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Twin Clash ⚡ - Memory Card Game</title>
     <meta name="description" content="Twin Clash - Epic memory card matching game. Challenge yourself, compete in duels, and collect themes!" />
+
+    <!-- ==================== 1. GOOGLE ADSENSE (ya aprobado) ==================== -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2140112688604592"
+         crossorigin="anonymous"></script>
+
+    <!-- ==================== 2. UNITY ADS REWARDED (el que más paga) ==================== -->
+    <script src="https://cdn.unityads.unity3d.com/webview/v4.9.0/unityads.min.js"></script>
+    <script>
+      // ← Cambia este número cuando tengas tu Game ID (te lo sacas en 1 minuto)
+      var unityGameId = "AQUÍ_TU_GAME_ID"; // ejemplo: 5879123
+
+      function showUnityReward() {
+        UnityAds.init(unityGameId, false);
+        UnityAds.show("rewardedVideo", {
+          onComplete: function () {
+            window.dispatchEvent(new CustomEvent('add-coins', { detail: 25000 }));
+            alert("¡+25.000 MONEDAS GRATIS! Gracias por ver el vídeo 🔥");
+          },
+          onError: function () {
+            window.dispatchEvent(new CustomEvent('add-coins', { detail: 25000 }));
+            alert("¡+25.000 monedas de regalo!");
+          }
+        });
+      }
+    </script>
+
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- ==================== BOTÓN FIJO +25.000 MONEDAS ==================== -->
+    <button onclick="showUnityReward()"
+            style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:linear-gradient(45deg,#ff0066,#ff00cc); color:white; font-size:28px; font-weight:bold; padding:22px 50px; border:none; border-radius:30px; cursor:pointer; box-shadow:0 12px 40px rgba(255,0,0,0.5); z-index:9999; animation:pulse 2s infinite;">
+      +25.000 MONEDAS GRATIS → VER VÍDEO
+    </button>
+
+    <style>
+      @keyframes pulse {
+        0%   { transform: translateX(-50%) scale(1); }
+        50%  { transform: translateX(-50%) scale(1.08); }
+        100% { transform: translateX(-50%) scale(1); }
+      }
+    </style>
   </body>
 </html>
