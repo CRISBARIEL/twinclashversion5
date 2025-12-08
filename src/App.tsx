@@ -6,10 +6,11 @@ import { DuelScene } from './components/DuelScene';
 import { ChallengeScene } from './components/ChallengeScene';
 import { WorldMap } from './components/WorldMap';
 import { LevelSelector } from './components/LevelSelector';
+import { AudioUploader } from './components/AudioUploader';
 import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 
-type Screen = 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect';
+type Screen = 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload';
 
 function App() {
   const [screen, setScreen] = useState<Screen>(() => {
@@ -17,6 +18,9 @@ function App() {
     const mode = params.get('mode');
     if (mode === 'duel') {
       return 'duel';
+    }
+    if (mode === 'upload') {
+      return 'upload';
     }
     return 'menu';
   });
@@ -124,6 +128,9 @@ function App() {
       )}
       {screen === 'duel' && (
         <DuelScene onBackToMenu={handleBackToMenu} />
+      )}
+      {screen === 'upload' && (
+        <AudioUploader />
       )}
     </>
   );
