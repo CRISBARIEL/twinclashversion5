@@ -7,41 +7,73 @@
     <title>Twin Clash ⚡ - Memory Card Game</title>
     <meta name="description" content="Twin Clash - Epic memory card matching game. Challenge yourself, compete in duels, and collect themes!" />
 
-    <!-- ==================== 1. GOOGLE ADSENSE (ya aprobado) ==================== -->
+    <!-- ==================== META VERIFICACIÓN ADSENSE ✨ ==================== -->
+    <!-- ⚠️ CUANDO ADSENSE TE DÉ LA ETIQUETA, PÉGALA AQUÍ 👇 -->
+    <!-- <meta name="google-site-verification" content="XXXXXXXXXXX" /> -->
+
+    <!-- ==================== GOOGLE ADSENSE ACTIVADO 💰 ==================== -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2140112688604592"
-         crossorigin="anonymous"></script>
+      crossorigin="anonymous"></script>
 
-    <!-- ==================== 2. UNITY ADS REWARDED (el que más paga) ==================== -->
-    <script src="https://cdn.unityads.unity3d.com/webview/v4.9.0/unityads.min.js"></script>
+    <!-- Auto Ads activado forzado (esto ayuda si AdSense no te deja agregar sitio todavía) -->
     <script>
-      // ← Cambia este número cuando tengas tu Game ID (te lo sacas en 1 minuto)
-      var unityGameId = "AQUÍ_TU_GAME_ID"; // ejemplo: 5879123
-
-      function showUnityReward() {
-        UnityAds.init(unityGameId, false);
-        UnityAds.show("rewardedVideo", {
-          onComplete: function () {
-            window.dispatchEvent(new CustomEvent('add-coins', { detail: 25000 }));
-            alert("¡+25.000 MONEDAS GRATIS! Gracias por ver el vídeo 🔥");
-          },
-          onError: function () {
-            window.dispatchEvent(new CustomEvent('add-coins', { detail: 25000 }));
-            alert("¡+25.000 monedas de regalo!");
-          }
-        });
-      }
+      (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: "ca-pub-2140112688604592",
+        enable_page_level_ads: true
+      });
     </script>
 
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <!-- ==================== SDK ADINPLAY BASE (SE ACTIVARÁ CUANDO TE APRUEBEN) ==================== -->
+    <!-- ⚠️ CUANDO TE DEN TU SCRIPT, SUSTITUYE EL DEBAJO CON TU PUB ID Y DOMINIO -->
+    <script>
+      var aiptag = window.aiptag || {};
+      aiptag.cmd = aiptag.cmd || [];
+      aiptag.cmd.display = aiptag.cmd.display || [];
+    </script>
+    <!-- ESTE ES UN EJEMPLO - LO CAMBIARÁS CUANDO TE DEN EL SCRIPT -->
+    <!-- <script async src="//api.adinplay.com/libs/aiptag/pub/TU_PUB_ID/twinclash.com/tag.min.js"></script> -->
 
-    <!-- ==================== BOTÓN FIJO +25.000 MONEDAS ==================== -->
-    <button onclick="showUnityReward()"
-            style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:linear-gradient(45deg,#ff0066,#ff00cc); color:white; font-size:28px; font-weight:bold; padding:22px 50px; border:none; border-radius:30px; cursor:pointer; box-shadow:0 12px 40px rgba(255,0,0,0.5); z-index:9999; animation:pulse 2s infinite;">
-      +25.000 MONEDAS GRATIS → VER VÍDEO
-    </button>
+    <script>
+      // Nombre del placement rewarded cuando AdinPlay te lo habilite
+      const AIP_REWARDED_PLACEMENT = "twinclash_rewarded";
+
+      let rewardCooldown = false;
+
+      function showRewardedAd() {
+        if (rewardCooldown) {
+          alert("Espera unos segundos antes de ver otro anuncio 🚫");
+          return;
+        }
+
+        rewardCooldown = true;
+        setTimeout(() => {
+          rewardCooldown = false;
+        }, 30000);
+
+        if (typeof aiptag === "undefined" || !window.aipDisplayTag) {
+          console.warn("AdinPlay no está listo. Regala monedas temporalmente.");
+          // Recompensa dummy temporal mientras AdinPlay se activa:
+          window.dispatchEvent(new CustomEvent("add-coins", { detail: 25000 }));
+          alert("¡+25.000 monedas! (modo temporal sin ads)");
+          return;
+        }
+
+        try {
+          aiptag.cmd.display.push(function() {
+            aipDisplayTag.display(AIP_REWARDED_PLACEMENT);
+          });
+        } catch (e) {
+          console.error("Error con rewarded:", e);
+          alert("No se pudo cargar el anuncio. Intenta más tarde 🙏");
+        }
+      }
+
+      // ESTE EVENTO SE USARÁ CUANDO ADINPLAY ACTIVE TUS REWARDED ADS
+      function onRewardedAdCompleted() {
+        window.dispatchEvent(new CustomEvent("add-coins", { detail: 25000 }));
+        alert("¡+25.000 MONEDAS por ver el vídeo! 🔥");
+      }
+    </script>
 
     <style>
       @keyframes pulse {
@@ -49,6 +81,36 @@
         50%  { transform: translateX(-50%) scale(1.08); }
         100% { transform: translateX(-50%) scale(1); }
       }
+
+      .reward-button {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(45deg, #ff0066, #ff00cc);
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        padding: 22px 50px;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        box-shadow: 0 12px 40px rgba(255, 0, 0, 0.5);
+        z-index: 9999;
+        animation: pulse 2s infinite;
+      }
     </style>
+
+  </head>
+  <body>
+
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- ==================== BOTÓN FIJO REWARD ==================== -->
+    <button class="reward-button" onclick="showRewardedAd()">
+      +25.000 MONEDAS GRATIS → VER VÍDEO
+    </button>
+
   </body>
 </html>
