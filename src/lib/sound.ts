@@ -1,7 +1,4 @@
-/**
- * SoundManager - Gestión de música y efectos de sonido del juego
- * No requiere librerías externas, usa HTMLAudioElement nativo
- */
+import { getStartThemeUrl, getLevelAudioUrl, getMatchSfxUrl, getWinSfxUrl, getLoseSfxUrl } from '../utils/audioLoader';
 
 class SoundManager {
   private startMusicTrack: HTMLAudioElement | null = null;
@@ -86,7 +83,7 @@ class SoundManager {
 
   private preloadAudio(): void {
     try {
-      this.startMusicTrack = new Audio('/audio/start_theme.mp3');
+      this.startMusicTrack = new Audio(getStartThemeUrl());
       this.startMusicTrack.loop = true;
       this.startMusicTrack.preload = 'auto';
       this.startMusicTrack.addEventListener('ended', () => {
@@ -97,7 +94,7 @@ class SoundManager {
       });
 
       for (let i = 1; i <= 10; i++) {
-        const track = new Audio(`/audio/level_${i}.mp3`);
+        const track = new Audio(getLevelAudioUrl(i));
         track.loop = true;
         track.preload = 'auto';
         track.addEventListener('ended', () => {
@@ -109,13 +106,13 @@ class SoundManager {
         this.levelTracks.set(i, track);
       }
 
-      this.matchSfx = new Audio('/audio/match.wav');
+      this.matchSfx = new Audio(getMatchSfxUrl());
       this.matchSfx.preload = 'auto';
 
-      this.winSfx = new Audio('/audio/win.mp3');
+      this.winSfx = new Audio(getWinSfxUrl());
       this.winSfx.preload = 'auto';
 
-      this.loseSfx = new Audio('/audio/lose.mp3');
+      this.loseSfx = new Audio(getLoseSfxUrl());
       this.loseSfx.preload = 'auto';
 
       this.applyVolume();
