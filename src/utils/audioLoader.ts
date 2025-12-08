@@ -1,7 +1,12 @@
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
-const AUDIO_BASE = `${SUPABASE_URL}/storage/v1/object/public/twinclash-audio/audio`;
+const USE_LOCAL_AUDIO = true;
 
 export function getAudioUrl(filename: string): string {
+  if (USE_LOCAL_AUDIO) {
+    return `/audio/${filename}`;
+  }
+
+  const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+  const AUDIO_BASE = `${SUPABASE_URL}/storage/v1/object/public/twinclash-audio/audio`;
   return `${AUDIO_BASE}/${filename}`;
 }
 
