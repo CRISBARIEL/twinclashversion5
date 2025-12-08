@@ -10,9 +10,43 @@
     <!-- GOOGLE ADSENSE – Código base (OBLIGATORIO) -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2140112688604592"
          crossorigin="anonymous"></script>
+
+    <!-- Unity Ads SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@unityads/webview@3.0.0/dist/index.js"></script>
+
+    <style>
+      @keyframes pulse {
+        0%, 100% { transform: translateX(-50%) scale(1); }
+        50% { transform: translateX(-50%) scale(1.05); }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Botón de recompensa Unity Ads -->
+    <button onclick="showUnityReward()"
+            style="position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:linear-gradient(45deg,#ff0066,#ff00cc); color:white; font-size:28px; font-weight:bold; padding:22px 50px; border:none; border-radius:30px; cursor:pointer; box-shadow:0 12px 40px rgba(255,0,0,0.5); z-index:9999; animation:pulse 2s infinite;">
+      +25.000 MONEDAS GRATIS → VER VÍDEO
+    </button>
+
+    <script>
+      var unityGameId = "5879123";
+
+      function showUnityReward() {
+        UnityAds.init(unityGameId, false);
+        UnityAds.show("rewardedVideo", {
+          onComplete: function () {
+            window.dispatchEvent(new CustomEvent('add-coins', { detail: 25000 }));
+            alert("¡+25.000 MONEDAS! Gracias por ver el vídeo ❤️");
+          },
+          onError: function () {
+            window.dispatchEvent(new CustomEvent('add-coins', { detail: 25000 }));
+            alert("¡+25.000 monedas de regalo!");
+          }
+        });
+      }
+    </script>
   </body>
 </html>
