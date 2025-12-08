@@ -47,6 +47,79 @@
           }
         });
       }
+
+      window.showInterstitialAd = function() {
+        // respect a 60s cooldown
+        if (!window.__lastAdShown) window.__lastAdShown = 0;
+        if (Date.now() - window.__lastAdShown < 60000) return;
+        window.__lastAdShown = Date.now();
+
+        const overlay = document.getElementById("interstitial-overlay");
+        if (!overlay) return;
+        overlay.style.display = "flex";
+
+        // refresh ad rendering
+        try {
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch(e){}
+      };
+
+      window.closeInterstitial = function() {
+        const overlay = document.getElementById("interstitial-overlay");
+        if (!overlay) return;
+        overlay.style.display = "none";
+      };
     </script>
+
+    <!-- AdSense Interstitial Overlay -->
+    <div id="interstitial-overlay" style="
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      flex-direction: column;
+    ">
+      <div style="
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        max-width: 90%;
+        max-height: 90%;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      ">
+        <!-- Close button -->
+        <button onclick="window.closeInterstitial()" style="
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: #ff4444;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          cursor: pointer;
+          font-size: 18px;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">×</button>
+
+        <!-- AdSense ad unit -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2140112688604592"
+             data-ad-slot="YOUR_AD_SLOT_ID"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
+    </div>
   </body>
 </html>
