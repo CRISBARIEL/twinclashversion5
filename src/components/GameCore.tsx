@@ -378,6 +378,14 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         setShowWinModal(true);
         setTimeout(() => setShowCoinAnimation(true), 500);
       } else {
+        submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: level }).then((result) => {
+          if (result.isPioneer) {
+            setIsPioneer(true);
+          }
+        }).catch((err) => {
+          console.error('[GameCore] Failed to submit score:', err);
+        });
+
         const baseCoins = 10;
         setCoinsEarned(baseCoins);
         addCoins(baseCoins);
