@@ -33,14 +33,28 @@ export function AudioUploader() {
     });
 
     try {
-      const { data, error } = await supabase.storage
-        .from('twinclash-audio')
-        .upload(fileName, file, {
-          contentType: file.type,
-          upsert: true,
-        });
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('fileName', fileName);
 
-      if (error) throw error;
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-audio`,
+        {
+          method: 'POST',
+          body: formData,
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Error al subir archivo');
+      }
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Error al subir archivo');
+      }
 
       setUploadedFiles(prev => new Set([...prev, fileName]));
     } catch (error) {

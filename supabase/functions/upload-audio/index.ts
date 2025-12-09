@@ -12,33 +12,28 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { googleDriveId, fileName } = await req.json();
+    const formData = await req.formData();
+    const file = formData.get('file') as File;
+    const fileName = formData.get('fileName') as string;
 
-    if (!googleDriveId || !fileName) {
+    if (!file || !fileName) {
       return new Response(
-        JSON.stringify({ error: 'Missing googleDriveId or fileName' }),
+        JSON.stringify({ error: 'Missing file or fileName' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const downloadUrl = `https://drive.google.com/uc?export=download&id=${googleDriveId}`;
-    const response = await fetch(downloadUrl);
-
-    if (!response.ok) {
-      throw new Error(`Failed to download from Google Drive: ${response.statusText}`);
-    }
-
-    const audioBlob = await response.blob();
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    const fileBuffer = await file.arrayBuffer();
+
     const { data, error } = await supabase.storage
-      .from('audio')
-      .upload(fileName, audioBlob, {
-        contentType: 'audio/mpeg',
+      .from('twinclash-audio')
+      .upload(fileName, fileBuffer, {
+        contentType: file.type,
         upsert: true,
       });
 
@@ -47,7 +42,7 @@ Deno.serve(async (req: Request) => {
     }
 
     const { data: urlData } = supabase.storage
-      .from('audio')
+      .from('twinclash-audio')
       .getPublicUrl(fileName);
 
     return new Response(
