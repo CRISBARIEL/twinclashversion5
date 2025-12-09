@@ -337,12 +337,12 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       soundManager.stopLevelMusic();
       soundManager.playWin();
 
-      if (isDailyChallenge) {
-        const finalTimeValue = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
-        setTimeElapsed(finalTimeValue);
-        setFinalTime(finalTimeValue);
-        setFinalMoves(moves);
+      const finalTimeValue = Math.floor((Date.now() - gameStartTimeRef.current) / 1000);
+      setTimeElapsed(finalTimeValue);
+      setFinalTime(finalTimeValue);
+      setFinalMoves(moves);
 
+      if (isDailyChallenge) {
         const stored = localStorage.getItem(`best:${seed}`);
         let shouldSave = true;
         if (stored) {
