@@ -1,4 +1,4 @@
-const USE_LOCAL_AUDIO = false;
+const USE_LOCAL_AUDIO = true;
 
 export function getAudioUrl(filename: string): string {
   if (USE_LOCAL_AUDIO) {
