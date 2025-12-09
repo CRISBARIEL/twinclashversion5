@@ -33,7 +33,47 @@
     <!-- ESTE ES UN EJEMPLO - LO CAMBIARÁS CUANDO TE DEN EL SCRIPT -->
     <!-- <script async src="//api.adinplay.com/libs/aiptag/pub/TU_PUB_ID/twinclash.com/tag.min.js"></script> -->
 
+   <script>
+      // Nombre del placement rewarded cuando AdinPlay te lo habilite
+      const AIP_REWARDED_PLACEMENT = "twinclash_rewarded";
 
+      let rewardCooldown = false;
+
+      function showRewardedAd() {
+        if (rewardCooldown) {
+          alert("Espera unos segundos antes de ver otro anuncio 🚫");
+          return;
+        }
+
+        rewardCooldown = true;
+        setTimeout(() => {
+          rewardCooldown = false;
+        }, 30000);
+
+        if (typeof aiptag === "undefined" || !window.aipDisplayTag) {
+          console.warn("AdinPlay no está listo. Regala monedas temporalmente.");
+          // Recompensa dummy temporal mientras AdinPlay se activa:
+          window.dispatchEvent(new CustomEvent("add-coins", { detail: 25000 }));
+          alert("¡+25.000 monedas! (modo temporal sin ads)");
+          return;
+        }
+
+        try {
+          aiptag.cmd.display.push(function() {
+            aipDisplayTag.display(AIP_REWARDED_PLACEMENT);
+          });
+        } catch (e) {
+          console.error("Error con rewarded:", e);
+          alert("No se pudo cargar el anuncio. Intenta más tarde 🙏");
+        }
+      }
+
+      // ESTE EVENTO SE USARÁ CUANDO ADINPLAY ACTIVE TUS REWARDED ADS
+      function onRewardedAdCompleted() {
+        window.dispatchEvent(new CustomEvent("add-coins", { detail: 25000 }));
+        alert("¡+25.000 MONEDAS por ver el vídeo! 🔥");
+      }
+    <script>
 
     <style>
       @keyframes pulse {
