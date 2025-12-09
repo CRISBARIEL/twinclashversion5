@@ -36,6 +36,12 @@ function App() {
 
     initializeApp();
   }, []);
+
+  useEffect(() => {
+    if (screen === 'menu' && !isLoadingProgress) {
+      soundManager.playStartMusic();
+    }
+  }, [screen, isLoadingProgress]);
   // removed custom photo feature
 
   const handleStartGame = (level: number) => {
