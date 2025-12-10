@@ -393,12 +393,8 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         setCoinsEarned(baseCoins);
         addCoins(baseCoins);
         setCurrentCoins(getLocalCoins());
-
-        console.log('[GameCore] Level completed! Calling onComplete in 1s...');
-        setTimeout(() => {
-          console.log('[GameCore] >> NOW CALLING onComplete() <<');
-          onComplete();
-        }, 1000);
+        setShowWinModal(true);
+        setTimeout(() => setShowCoinAnimation(true), 500);
       }
     }
   }, [matchedPairs, level, onComplete, isDailyChallenge, seed, crewId]);
@@ -1074,6 +1070,18 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
               )}
             </div>
             <div className="flex flex-col gap-2">
+              {!isDailyChallenge && (
+                <button
+                  onClick={() => {
+                    console.log('[GameCore] User clicked Siguiente Nivel button');
+                    setShowWinModal(false);
+                    onComplete();
+                  }}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
+                >
+                  Siguiente Nivel 🎯
+                </button>
+              )}
               <div className="flex gap-2">
                 <button
                   onClick={handleShare}
@@ -1097,7 +1105,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                 className="w-full bg-gray-500 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-600 transition-colors"
               >
                 <ArrowLeft size={18} />
-                Salir
+                {isDailyChallenge ? 'Salir' : 'Menú Principal'}
               </button>
             </div>
           </div>
