@@ -5,23 +5,15 @@ interface RewardButtonProps {
   currentLevel: number;
 }
 
-const STORAGE_KEY = 'hideRewardButton';
-
 export function RewardButton({ currentLevel }: RewardButtonProps) {
-  const [isHidden, setIsHidden] = useState(true);
+  const [isClosedThisLevel, setIsClosedThisLevel] = useState(false);
 
   useEffect(() => {
-    const hideButton = localStorage.getItem(STORAGE_KEY) === 'true';
-    if (!hideButton && currentLevel >= 5) {
-      setIsHidden(false);
-    } else {
-      setIsHidden(true);
-    }
+    setIsClosedThisLevel(false);
   }, [currentLevel]);
 
   const handleClose = () => {
-    localStorage.setItem(STORAGE_KEY, 'true');
-    setIsHidden(true);
+    setIsClosedThisLevel(true);
   };
 
   const handleClick = () => {
@@ -32,7 +24,7 @@ export function RewardButton({ currentLevel }: RewardButtonProps) {
     }
   };
 
-  if (isHidden) {
+  if (currentLevel < 5 || isClosedThisLevel) {
     return null;
   }
 
@@ -50,7 +42,7 @@ export function RewardButton({ currentLevel }: RewardButtonProps) {
         <button
           onClick={handleClose}
           className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-lg transition-colors duration-200"
-          title="Cerrar permanentemente"
+          title="Cerrar"
         >
           <X className="w-4 h-4" />
         </button>
