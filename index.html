@@ -41,6 +41,10 @@
 
     await OneSignal.init({
       appId,
+      // CRITICAL: Disable service worker to prevent caching issues
+      serviceWorkerPath: "none",
+      // Alternative options if above doesn't work:
+      // serviceWorkerParam: { scope: "/ignore-sw/" },
       // puedes añadir más opciones aquí si quieres
       // safari_web_id: "...",
       // notifyButton: { enable: false },
