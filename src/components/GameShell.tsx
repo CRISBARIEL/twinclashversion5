@@ -37,24 +37,34 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
   const lastWorldRef = useRef<number>(getLevelConfig(initialLevel)?.world || 1);
 
   const onLevelCompleted = useCallback(async () => {
+    console.log('[GameShell] ===== onLevelCompleted CALLED =====');
+    console.log('[GameShell] Current level:', level);
+    console.log('[GameShell] completedRef.current:', completedRef.current);
+
     if (completedRef.current) {
-      console.log('[GameShell] onLevelCompleted: already completed, skipping');
+      console.log('[GameShell] ⚠️ ALREADY COMPLETED, SKIPPING');
       return;
     }
     completedRef.current = true;
-    console.log('[GameShell] onLevelCompleted START for level:', level);
+    console.log('[GameShell] ✅ Setting completedRef to TRUE');
 
     const config = getLevelConfig(level);
-    if (!config) return;
+    console.log('[GameShell] Config:', config);
+    if (!config) {
+      console.log('[GameShell] ❌ NO CONFIG FOUND');
+      return;
+    }
 
     const worldId = getWorldIdForLevel(level);
     const levelInWorld = getLevelInWorld(level);
+    console.log('[GameShell] World:', worldId, 'Level in world:', levelInWorld);
 
     await completeWorldLevel(worldId, levelInWorld, 3);
 
     addCoins(config.unlockReward);
 
     if (config.level === 5) {
+      console.log('[GameShell] 🎉 END OF WORLD', config.world);
       const nextWorld = config.world + 1;
 
       if (nextWorld <= 15) {
@@ -74,9 +84,10 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
       }
     } else {
       const nextLevelId = level + 1;
-      console.log('[GameShell] Going directly to next level:', nextLevelId);
+      console.log('[GameShell] 🚀 ADVANCING TO LEVEL:', nextLevelId);
       setCurrentLevel(nextLevelId);
       setLevel(nextLevelId);
+      console.log('[GameShell] ✅ setLevel called with:', nextLevelId);
     }
   }, [level]);
 

@@ -1078,9 +1078,12 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
               {!isDailyChallenge && (
                 <button
                   onClick={() => {
-                    console.log('[GameCore] User clicked Siguiente Nivel button');
+                    console.log('[GameCore] ===== CLICK SIGUIENTE NIVEL =====');
+                    console.log('[GameCore] Current level:', level);
+                    console.log('[GameCore] Calling onComplete...');
                     setShowWinModal(false);
                     onComplete();
+                    console.log('[GameCore] onComplete called!');
                   }}
                   className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
                 >
