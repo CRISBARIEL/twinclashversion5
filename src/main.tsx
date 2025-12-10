@@ -1,48 +1,11 @@
-import { StrictMode, useEffect } from 'react';
+import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import { addCoins, getLocalCoins } from './lib/progression';
 
-declare global {
-  interface Window {
-    OneSignalDeferred: any[];
-  }
-}
-
-function OneSignalInit() {
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    console.log('[OneSignal] useEffect montado');
-
-    const appId = import.meta.env.VITE_ONESIGNAL_APP_ID;
-    console.log('[OneSignal] APP ID:', appId);
-
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    window.OneSignalDeferred.push(async (OneSignal: any) => {
-      console.log('[OneSignal] init llamado', OneSignal);
-
-      await OneSignal.init({
-        appId,
-        allowLocalhostAsSecureOrigin: true,
-      });
-
-      console.log('[OneSignal] Service Worker registrado');
-
-      setTimeout(() => {
-        console.log('[OneSignal] Mostrando prompt');
-        OneSignal.Slidedown.promptPush();
-      }, 3000);
-    });
-  }, []);
-
-  return null;
-}
-
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <OneSignalInit />
     <App />
   </StrictMode>
 );
