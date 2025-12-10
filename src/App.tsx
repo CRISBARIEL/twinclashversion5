@@ -100,9 +100,9 @@ function App() {
       )}
       {screen === 'worldmap' && (
         <WorldMap
-          currentWorld={1}
-          currentLevel={1}
-          worldsCompleted={0}
+          currentWorld={Math.ceil(selectedLevel / 5)}
+          currentLevel={selectedLevel}
+          worldsCompleted={Math.max(0, Math.ceil(selectedLevel / 5) - 1)}
           onSelectWorld={(world) => {
             setSelectedWorld(world);
             setScreen('levelselect');
@@ -117,7 +117,7 @@ function App() {
       {screen === 'levelselect' && (
         <LevelSelector
           world={selectedWorld}
-          currentLevel={1}
+          currentLevel={selectedLevel}
           onSelectLevel={(levelId) => {
             setSelectedLevel(levelId);
             setScreen('game');

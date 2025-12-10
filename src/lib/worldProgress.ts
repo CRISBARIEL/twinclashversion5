@@ -79,9 +79,25 @@ async function writeWorld(worldId: string, state: WorldState): Promise<void> {
 
 export async function ensureWorld(worldId: string, totalLevels: number): Promise<void> {
   const existing = await readWorld(worldId);
-  if (existing && existing.levels?.length >= totalLevels) return;
+
+  if (existing && existing.levels?.length >= totalLevels) {
+    return;
+  }
 
   const isPurchased = existing?.purchased ?? (worldId === 'world-1');
+
+  if (existing && existing.levels && existing.levels.length > 0) {
+    while (existing.levels.length < totalLevels) {
+      existing.levels.push({
+        unlocked: false,
+        completed: false,
+        stars: 0,
+      });
+    }
+    await writeWorld(worldId, existing);
+    return;
+  }
+
   const levels: LevelState[] = Array.from({ length: totalLevels }, (_, i) => ({
     unlocked: isPurchased && i === 0,
     completed: false,
