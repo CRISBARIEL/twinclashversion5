@@ -30,20 +30,24 @@
       defer
     ></script>
 
-    <script>
-      // Inicialización de OneSignal usando el sistema Deferred
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      window.OneSignalDeferred.push(async function (OneSignal) {
-        console.log("[OneSignal] init llamado", OneSignal);
+<script>
+  // Inicialización de OneSignal usando el sistema Deferred
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  window.OneSignalDeferred.push(async function (OneSignal) {
+    console.log("[OneSignal] init llamado", OneSignal);
 
-        const appId = "%VITE_ONESIGNAL_APP_ID%";
-        console.log("[OneSignal] APP ID desde Vite:", appId);
+    const appId = "9fe3c7e7-ae44-4bc8-bfe9-c995db3ab4f5";
+    console.log("[OneSignal] APP ID:", appId);
 
-        await OneSignal.init({
-          appId,
-        });
-      });
-    </script>
+    await OneSignal.init({
+      appId,
+      // puedes añadir más opciones aquí si quieres
+      // safari_web_id: "...",
+      // notifyButton: { enable: false },
+    });
+  });
+</script>
+
 
     <!-- Unity Ads SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@unityads/webview@3.0.0/dist/index.js"></script>
