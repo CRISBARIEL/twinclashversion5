@@ -114,10 +114,13 @@ export function equipSkin(skinId: string): boolean {
 
 export function getCurrentLevel(): number {
   const stored = localStorage.getItem(STORAGE_KEY_CURRENT_LEVEL);
-  return stored ? parseInt(stored, 10) : 1;
+  const level = stored ? parseInt(stored, 10) : 1;
+  console.log('[getCurrentLevel]', level, 'from localStorage:', stored);
+  return level;
 }
 
 export function setCurrentLevel(level: number): void {
+  console.log('[setCurrentLevel] Setting level to:', level);
   localStorage.setItem(STORAGE_KEY_CURRENT_LEVEL, level.toString());
   syncToSupabase();
 }
@@ -133,7 +136,14 @@ export async function syncToSupabase(): Promise<void> {
     const currentLevel = getCurrentLevel();
     const currentWorld = Math.ceil(currentLevel / 5);
 
-    await supabase.from('profiles').upsert({
+    console.log('[syncToSupabase] Syncing to DB:', {
+      clientId,
+      coins,
+      currentLevel,
+      currentWorld
+    });
+
+    const result = await supabase.from('profiles').upsert({
       client_id: clientId,
       coins,
       owned_skins: ownedSkins,
@@ -144,6 +154,12 @@ export async function syncToSupabase(): Promise<void> {
       worlds_completed: Math.max(0, currentWorld - 1),
       updated_at: new Date().toISOString(),
     });
+
+    if (result.error) {
+      console.error('[syncToSupabase] Upsert error:', result.error);
+    } else {
+      console.log('[syncToSupabase] Sync successful');
+    }
   } catch (err) {
     console.error('[syncToSupabase] Error:', err);
   }
@@ -151,7 +167,9 @@ export async function syncToSupabase(): Promise<void> {
 
 export async function loadFromSupabase(): Promise<void> {
   try {
+    console.log('[loadFromSupabase] START');
     const clientId = getOrCreateClientId();
+    console.log('[loadFromSupabase] Client ID:', clientId);
 
     const { data, error } = await supabase
       .from('profiles')
@@ -163,6 +181,8 @@ export async function loadFromSupabase(): Promise<void> {
       console.error('[loadFromSupabase] Error:', error);
       return;
     }
+
+    console.log('[loadFromSupabase] Data from DB:', data);
 
     if (data) {
       setLocalCoins(data.coins);
@@ -177,9 +197,16 @@ export async function loadFromSupabase(): Promise<void> {
       }
 
       if (data.current_level) {
+        console.log('[loadFromSupabase] Setting current_level from DB:', data.current_level);
         localStorage.setItem(STORAGE_KEY_CURRENT_LEVEL, data.current_level.toString());
+      } else {
+        console.log('[loadFromSupabase] No current_level in DB, keeping local value');
       }
+    } else {
+      console.log('[loadFromSupabase] No profile data in DB');
     }
+
+    console.log('[loadFromSupabase] COMPLETE');
   } catch (err) {
     console.error('[loadFromSupabase] Exception:', err);
   }
