@@ -58,19 +58,19 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
       const complete: Record<number, boolean> = {};
 
       for (let i = 1; i <= 20; i++) {
-        ensureWorld(`world-${i}`, 5);
+        await ensureWorld(`world-${i}`, 5);
 
         if (i > 1) {
-          canEnterWorld(`world-${i}`).then(canEnter => {
-            setWorldAccess(prev => ({ ...prev, [i]: canEnter }));
-          });
+          const canEnter = await canEnterWorld(`world-${i}`);
+          access[i] = canEnter;
         }
 
-        isWorldCompleted(`world-${i}`).then(completed => {
-          setWorldsComplete(prev => ({ ...prev, [i]: completed }));
-        });
+        const completed = await isWorldCompleted(`world-${i}`);
+        complete[i] = completed;
       }
 
+      setWorldAccess(access);
+      setWorldsComplete(complete);
       setCoins(getLocalCoins());
     };
 
