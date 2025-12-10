@@ -42,6 +42,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
       return;
     }
     completedRef.current = true;
+    console.log('[GameShell] onLevelCompleted START for level:', level);
 
     const config = getLevelConfig(level);
     if (!config) return;
@@ -73,17 +74,14 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
       }
     } else {
       const nextLevelId = level + 1;
-      console.log('[GameShell] Setting banner for next level:', nextLevelId);
+      console.log('[GameShell] Going directly to next level:', nextLevelId);
       setCurrentLevel(nextLevelId);
-      setNextLevel(nextLevelId);
-      setBannerType('level');
-      setShowBanner(true);
-      setTimeout(() => setShowCoinAnimation(true), 500);
+      setLevel(nextLevelId);
     }
   }, [level]);
 
   useEffect(() => {
-    console.log('[GameShell] LEVEL_CHANGED', level);
+    console.log('[GameShell] LEVEL_CHANGED to:', level);
     completedRef.current = false;
 
     const currentConfig = getLevelConfig(level);
