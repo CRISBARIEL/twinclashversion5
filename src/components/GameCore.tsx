@@ -378,8 +378,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         addCoins(baseCoins);
         setCurrentCoins(getLocalCoins());
 
-        setShowWinModal(true);
-        setTimeout(() => setShowCoinAnimation(true), 500);
+        setTimeout(() => {
+          setShowWinModal(true);
+          setTimeout(() => setShowCoinAnimation(true), 500);
+        }, 1500);
       } else {
         submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: level }).then((result) => {
           if (result.isPioneer) {
@@ -393,8 +395,11 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         setCoinsEarned(baseCoins);
         addCoins(baseCoins);
         setCurrentCoins(getLocalCoins());
-        setShowWinModal(true);
-        setTimeout(() => setShowCoinAnimation(true), 500);
+
+        setTimeout(() => {
+          setShowWinModal(true);
+          setTimeout(() => setShowCoinAnimation(true), 500);
+        }, 1500);
       }
     }
   }, [matchedPairs, level, onComplete, isDailyChallenge, seed, crewId]);
@@ -1079,7 +1084,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                   }}
                   className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
                 >
-                  Siguiente Nivel 🎯
+                  Nivel {level + 1} 🎯
                 </button>
               )}
               <div className="flex gap-2">
