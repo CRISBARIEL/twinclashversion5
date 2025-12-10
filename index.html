@@ -24,35 +24,6 @@
     </script>
     <!-- TikTok Pixel Code End -->
 
-    <!-- OneSignal SDK v16 -->
-    <script
-      src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js"
-      defer
-    ></script>
-
-<script>
-  // Inicialización de OneSignal usando el sistema Deferred
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  window.OneSignalDeferred.push(async function (OneSignal) {
-    console.log("[OneSignal] init llamado", OneSignal);
-
-    const appId = "9fe3c7e7-ae44-4bc8-bfe9-c995db3ab4f5";
-    console.log("[OneSignal] APP ID:", appId);
-
-    await OneSignal.init({
-      appId,
-      // CRITICAL: Disable service worker to prevent caching issues
-      serviceWorkerPath: "none",
-      // Alternative options if above doesn't work:
-      // serviceWorkerParam: { scope: "/ignore-sw/" },
-      // puedes añadir más opciones aquí si quieres
-      // safari_web_id: "...",
-      // notifyButton: { enable: false },
-    });
-  });
-</script>
-
-
     <!-- Unity Ads SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@unityads/webview@3.0.0/dist/index.js"></script>
 
