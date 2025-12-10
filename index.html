@@ -27,6 +27,9 @@
     <!-- Unity Ads SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@unityads/webview@3.0.0/dist/index.js"></script>
 
+    <!-- GameMonetize SDK -->
+    <script src="https://api.gamemonetize.com/sdk.js"></script>
+
     <style>
       @keyframes pulse {
         0%, 100% { transform: translateX(-50%) scale(1); }
@@ -75,6 +78,38 @@
         const overlay = document.getElementById("interstitial-overlay");
         if (!overlay) return;
         overlay.style.display = "none";
+      };
+
+      // GameMonetize Rewarded Ad
+      window.showRewardedAd = function() {
+        // Check if GameMonetize SDK is available
+        if (!window.GameMonetize || !window.GameMonetize.game || !window.GameMonetize.game.fn || !window.GameMonetize.game.fn.rewarded) {
+          console.warn('[GameMonetize] SDK not available');
+          // Show non-intrusive message
+          const msg = document.createElement('div');
+          msg.textContent = 'Anuncio no disponible en este momento';
+          msg.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;font-size:14px;';
+          document.body.appendChild(msg);
+          setTimeout(() => msg.remove(), 3000);
+          return;
+        }
+
+        // Show rewarded ad via GameMonetize
+        try {
+          window.GameMonetize.game.fn.rewarded(function() {
+            // Reward: 25,000 coins
+            window.dispatchEvent(new CustomEvent('add-coins', { detail: 25000 }));
+            alert('¡Has ganado +25.000 monedas! 🎉');
+          });
+        } catch (error) {
+          console.error('[GameMonetize] Error showing ad:', error);
+          // Show error message
+          const msg = document.createElement('div');
+          msg.textContent = 'Error al cargar el anuncio';
+          msg.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#ff4444;color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;font-size:14px;';
+          document.body.appendChild(msg);
+          setTimeout(() => msg.remove(), 3000);
+        }
       };
     </script>
 
