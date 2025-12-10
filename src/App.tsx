@@ -25,13 +25,16 @@ function App() {
     }
     return 'menu';
   });
-  const [selectedLevel, setSelectedLevel] = useState(() => getCurrentLevel());
+  const [selectedLevel, setSelectedLevel] = useState(1);
   const [selectedWorld, setSelectedWorld] = useState(1);
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
 
   useEffect(() => {
     const initializeApp = async () => {
       await loadFromSupabase();
+      const currentLevel = getCurrentLevel();
+      console.log('[App] Loaded current level from storage:', currentLevel);
+      setSelectedLevel(currentLevel);
       setIsLoadingProgress(false);
     };
 

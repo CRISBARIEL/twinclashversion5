@@ -92,11 +92,13 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
   }, [level]);
 
   useEffect(() => {
-    console.log('[GameShell] LEVEL_CHANGED to:', level);
+    console.log('[GameShell] ===== LEVEL_CHANGED to:', level, '=====');
     completedRef.current = false;
 
     const currentConfig = getLevelConfig(level);
+    console.log('[GameShell] Current config:', currentConfig);
     if (currentConfig && currentConfig.world !== lastWorldRef.current && currentConfig.level === 1) {
+      console.log('[GameShell] 🌎 SHOWING WORLD INTRO for world:', currentConfig.world);
       setIntroWorld(currentConfig.world);
       setShowWorldIntro(true);
       lastWorldRef.current = currentConfig.world;
