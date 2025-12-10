@@ -22,19 +22,30 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
 
   useEffect(() => {
     const loadLevelStates = async () => {
+      console.log('[LevelSelector] ====================================');
+      console.log('[LevelSelector] Loading level states for world', world);
+
       const worldKey = `world-${world}`;
+      console.log('[LevelSelector] Calling ensureWorld...');
       await ensureWorld(worldKey, 5);
+
+      console.log('[LevelSelector] Calling getWorldState...');
       const state = await getWorldState(worldKey);
+      console.log('[LevelSelector] State received:', JSON.stringify(state, null, 2));
+
       const access: Record<number, boolean> = {};
 
       state.levels.forEach((levelState, idx) => {
         access[idx + 1] = levelState.unlocked;
+        console.log(`[LevelSelector] Level ${idx + 1}: unlocked=${levelState.unlocked}, completed=${levelState.completed}`);
       });
 
       access[1] = true;
 
+      console.log('[LevelSelector] Final levelAccess:', access);
       setLevelAccess(access);
       setCoins(getLocalCoins());
+      console.log('[LevelSelector] ====================================');
     };
 
     loadLevelStates();

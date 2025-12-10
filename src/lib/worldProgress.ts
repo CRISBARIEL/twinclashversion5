@@ -78,20 +78,24 @@ async function writeWorld(worldId: string, state: WorldState): Promise<void> {
 }
 
 export async function ensureWorld(worldId: string, totalLevels: number): Promise<void> {
+  console.log('[ensureWorld] ====================================');
   console.log('[ensureWorld] START', { worldId, totalLevels });
 
   const existing = await readWorld(worldId);
-  console.log('[ensureWorld] Existing state:', existing);
+  console.log('[ensureWorld] Existing state from DB:', JSON.stringify(existing, null, 2));
 
   if (existing && existing.levels?.length >= totalLevels) {
-    console.log('[ensureWorld] World already complete, skipping');
+    console.log('[ensureWorld] ✅ World already has', existing.levels.length, 'levels (need', totalLevels, '), skipping');
+    console.log('[ensureWorld] Current levels state:', existing.levels.map((l, i) => `L${i+1}: ${l.unlocked ? '🔓' : '🔒'} ${l.completed ? '✅' : '⬜'}`).join(' | '));
+    console.log('[ensureWorld] ====================================');
     return;
   }
 
   const isPurchased = existing?.purchased ?? (worldId === 'world-1');
 
   if (existing && existing.levels && existing.levels.length > 0) {
-    console.log('[ensureWorld] Extending existing levels from', existing.levels.length, 'to', totalLevels);
+    console.log('[ensureWorld] 🔧 Extending existing levels from', existing.levels.length, 'to', totalLevels);
+    console.log('[ensureWorld] ⚠️ PRESERVING existing progress!');
     while (existing.levels.length < totalLevels) {
       existing.levels.push({
         unlocked: false,
@@ -99,13 +103,14 @@ export async function ensureWorld(worldId: string, totalLevels: number): Promise
         stars: 0,
       });
     }
-    console.log('[ensureWorld] Extended state:', existing);
+    console.log('[ensureWorld] Extended state:', JSON.stringify(existing, null, 2));
     await writeWorld(worldId, existing);
-    console.log('[ensureWorld] COMPLETE (extended)');
+    console.log('[ensureWorld] ✅ COMPLETE (extended)');
+    console.log('[ensureWorld] ====================================');
     return;
   }
 
-  console.log('[ensureWorld] Creating new world state');
+  console.log('[ensureWorld] 🆕 Creating new world state (no existing data)');
   const levels: LevelState[] = Array.from({ length: totalLevels }, (_, i) => ({
     unlocked: isPurchased && i === 0,
     completed: false,
@@ -117,9 +122,10 @@ export async function ensureWorld(worldId: string, totalLevels: number): Promise
     levels
   };
 
-  console.log('[ensureWorld] New state:', state);
+  console.log('[ensureWorld] New state:', JSON.stringify(state, null, 2));
   await writeWorld(worldId, state);
-  console.log('[ensureWorld] COMPLETE (new)');
+  console.log('[ensureWorld] ✅ COMPLETE (new)');
+  console.log('[ensureWorld] ====================================');
 }
 
 export async function isWorldPurchased(worldId: string): Promise<boolean> {
@@ -195,13 +201,14 @@ export async function canPlayLevel(worldId: string, level: number): Promise<bool
 }
 
 export async function completeWorldLevel(worldId: string, level: number, stars = 0): Promise<void> {
+  console.log('[completeWorldLevel] ====================================');
   console.log('[completeWorldLevel] START', { worldId, level, stars });
 
   const st = await readWorld(worldId);
-  console.log('[completeWorldLevel] Current state:', st);
+  console.log('[completeWorldLevel] Current state from DB:', JSON.stringify(st, null, 2));
 
   if (!st) {
-    console.error('[completeWorldLevel] World not found!', worldId);
+    console.error('[completeWorldLevel] ❌ World not found!', worldId);
     throw new Error('World not found');
   }
 
@@ -209,28 +216,33 @@ export async function completeWorldLevel(worldId: string, level: number, stars =
   const lv = st.levels[idx];
 
   if (!lv) {
-    console.error('[completeWorldLevel] Level not found!', { worldId, level, idx, levelsLength: st.levels.length });
+    console.error('[completeWorldLevel] ❌ Level not found!', { worldId, level, idx, levelsLength: st.levels.length });
     throw new Error('Level not found');
   }
 
-  console.log('[completeWorldLevel] Before update:', { completed: lv.completed, unlocked: lv.unlocked, stars: lv.stars });
+  console.log('[completeWorldLevel] 📍 Target Level:', level, '(array index:', idx, ')');
+  console.log('[completeWorldLevel] 📊 Before update:', { completed: lv.completed, unlocked: lv.unlocked, stars: lv.stars });
 
   lv.completed = true;
   lv.stars = Math.max(lv.stars, Math.max(0, Math.min(3, stars)));
 
+  console.log('[completeWorldLevel] ✅ Marked level', level, 'as completed');
+
   const next = st.levels[idx + 1];
   if (next && !next.unlocked) {
-    console.log('[completeWorldLevel] Unlocking next level:', idx + 2);
+    console.log('[completeWorldLevel] 🔓 Unlocking next level:', idx + 2);
     next.unlocked = true;
   } else if (!next) {
-    console.log('[completeWorldLevel] No next level (end of world)');
+    console.log('[completeWorldLevel] ℹ️ No next level (end of world)');
   } else {
-    console.log('[completeWorldLevel] Next level already unlocked');
+    console.log('[completeWorldLevel] ℹ️ Next level already unlocked');
   }
 
-  console.log('[completeWorldLevel] Writing state to DB...');
+  console.log('[completeWorldLevel] 💾 Writing state to DB...');
+  console.log('[completeWorldLevel] State to write:', JSON.stringify(st, null, 2));
   await writeWorld(worldId, st);
-  console.log('[completeWorldLevel] COMPLETE');
+  console.log('[completeWorldLevel] ✅ COMPLETE');
+  console.log('[completeWorldLevel] ====================================');
 }
 
 export async function getWorldState(worldId: string): Promise<WorldState> {
