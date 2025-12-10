@@ -83,6 +83,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const gameStartTimeRef = useRef<number>(0);
   const hintTimeoutRef = useRef<number | null>(null);
   const triggerIceBreakerRef = useRef<((cardId: number) => void) | null>(null);
+  const levelCompletedRef = useRef(false);
 
   const initializeLevel = useCallback(() => {
     console.log('[GameCore] initializeLevel', { level, seed });
@@ -236,6 +237,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     setStreakMatches(0);
     setComboCardId(null);
     gameStartTimeRef.current = 0;
+    levelCompletedRef.current = false;
 
     if (config?.obstacles && (config.obstacles.ice || config.obstacles.stone || config.obstacles.iron)) {
       const hasSeenTutorial = localStorage.getItem('obstacle_tutorial_seen');
@@ -328,7 +330,8 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
 
   useEffect(() => {
     const totalPairs = levelConfig?.pairs || 6;
-    if (matchedPairs === totalPairs && matchedPairs > 0) {
+    if (matchedPairs === totalPairs && matchedPairs > 0 && !levelCompletedRef.current) {
+      levelCompletedRef.current = true;
       console.log('[GameCore] LEVEL COMPLETED', { level, matchedPairs, moves, timeElapsed });
       if (timerRef.current) clearInterval(timerRef.current);
       if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
@@ -390,11 +393,15 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         setCoinsEarned(baseCoins);
         addCoins(baseCoins);
         setCurrentCoins(getLocalCoins());
-        setShowWinModal(true);
-        setTimeout(() => setShowCoinAnimation(true), 500);
+
+        console.log('[GameCore] Level completed! Calling onComplete in 1s...');
+        setTimeout(() => {
+          console.log('[GameCore] >> NOW CALLING onComplete() <<');
+          onComplete();
+        }, 1000);
       }
     }
-  }, [matchedPairs, level, onComplete, isDailyChallenge, moves, seed, timeElapsed]);
+  }, [matchedPairs, level, onComplete, isDailyChallenge, seed, crewId]);
 
   useEffect(() => {
     triggerIceBreakerRef.current = (centerCardId: number) => {
@@ -1067,17 +1074,6 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
               )}
             </div>
             <div className="flex flex-col gap-2">
-              {!isDailyChallenge && (
-                <button
-                  onClick={() => {
-                    setShowWinModal(false);
-                    onComplete();
-                  }}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
-                >
-                  Siguiente Nivel 🎯
-                </button>
-              )}
               <div className="flex gap-2">
                 <button
                   onClick={handleShare}
@@ -1101,7 +1097,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                 className="w-full bg-gray-500 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-600 transition-colors"
               >
                 <ArrowLeft size={18} />
-                {isDailyChallenge ? 'Salir' : 'Menú Principal'}
+                Salir
               </button>
             </div>
           </div>
