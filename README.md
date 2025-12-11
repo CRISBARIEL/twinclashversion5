@@ -23,9 +23,18 @@ Click the button above to deploy Twin Clash to Netlify in one click!
 When deploying, you'll be asked to configure these environment variables:
 
 ```
-VITE_SUPABASE_URL=https://wjzwkafzvsgmscwijozp.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndqendrYWZ6dnNnbXNjd2lqb3pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4OTgyMjIsImV4cCI6MjA3NzQ3NDIyMn0.2-dgQ_9ATkmRf3c4I5vDKQGRkeRVilldk1isunXVDgs
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
+
+Get these values from your Supabase project at: https://app.supabase.com/project/_/settings/api
+
+### Stripe Configuration (for payments)
+
+To enable real payments, you must configure Stripe:
+1. Get your Stripe Secret Key from https://dashboard.stripe.com/apikeys
+2. Add it to Supabase Edge Functions Secrets (NOT in Vercel)
+3. See [STRIPE_SETUP.md](STRIPE_SETUP.md) for detailed instructions
 
 ## 🎮 Features
 
