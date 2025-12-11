@@ -242,7 +242,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     if (config?.obstacles && (config.obstacles.ice || config.obstacles.stone || config.obstacles.iron)) {
       const hasSeenTutorial = localStorage.getItem('obstacle_tutorial_seen');
       if (!hasSeenTutorial) {
-        setTimeout(() => setShowObstacleTutorial(true), 1000);
+        setTimeout(() => {
+          setShowObstacleTutorial(true);
+          setIsTimerPaused(true);
+        }, 1000);
       }
     }
 
@@ -1198,6 +1201,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             <button
               onClick={() => {
                 setShowObstacleTutorial(false);
+                setIsTimerPaused(false);
                 localStorage.setItem('obstacle_tutorial_seen', 'true');
               }}
               className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-6 rounded-xl font-bold text-lg hover:shadow-lg transition-all"
