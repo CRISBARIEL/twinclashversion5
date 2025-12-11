@@ -73,7 +73,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center p-4">
       <div
         className="fixed top-0 left-0 w-32 h-32 z-40"
         onClick={handleAdminTap}
