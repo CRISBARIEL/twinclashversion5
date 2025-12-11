@@ -44,7 +44,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
   const completedRef = useRef(false);
   const lastWorldRef = useRef<number>(getLevelConfig(initialLevel)?.world || 1);
 
-  const onLevelCompleted = useCallback(async () => {
+  const onLevelCompleted = useCallback(() => {
     console.log('[GameShell] ===== onLevelCompleted CALLED =====');
     console.log('[GameShell] Current level:', level);
     console.log('[GameShell] completedRef.current:', completedRef.current);
@@ -60,6 +60,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
     console.log('[GameShell] Config:', config);
     if (!config) {
       console.log('[GameShell] ❌ NO CONFIG FOUND');
+      completedRef.current = false;
       return;
     }
 
@@ -67,7 +68,9 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
     const levelInWorld = getLevelInWorld(level);
     console.log('[GameShell] World:', worldId, 'Level in world:', levelInWorld);
 
-    await completeWorldLevel(worldId, levelInWorld, 3);
+    completeWorldLevel(worldId, levelInWorld, 3).catch(err => {
+      console.error('[GameShell] Error saving progress:', err);
+    });
 
     addCoins(config.unlockReward);
 
