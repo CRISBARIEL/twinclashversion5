@@ -7,6 +7,14 @@ import { WorldIntroScreen } from './WorldIntroScreen';
 import { soundManager } from '../lib/sound';
 import { completeWorldLevel, getWorldIdForLevel, getLevelInWorld } from '../lib/worldProgress';
 
+declare global {
+  interface Window {
+    ttq?: {
+      track: (event: string) => void;
+    };
+  }
+}
+
 export interface WorldUnlockEvent {
   completedWorld: number;
   unlockedWorld: number;
@@ -106,6 +114,17 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
 
     soundManager.stopStartMusic();
   }, [level]);
+
+  useEffect(() => {
+    if (window.ttq) {
+      try {
+        window.ttq.track('Game_Start');
+        console.log('[TikTok] Game_Start event tracked');
+      } catch (error) {
+        console.error('[TikTok] Error tracking Game_Start:', error);
+      }
+    }
+  }, []);
 
   const handleNextLevel = useCallback(() => {
     console.log('[GameShell] handleNextLevel', { level, nextLevel });
