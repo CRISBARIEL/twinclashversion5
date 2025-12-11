@@ -73,11 +73,62 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center p-4 relative overflow-hidden">
       <div
         className="fixed top-0 left-0 w-32 h-32 z-40"
         onClick={handleAdminTap}
       />
+
+      {/* Decorative card pairs in background */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {/* Pair 1: Nature */}
+        <div className="absolute top-10 left-10 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-12">
+          <span className="text-6xl">🍃</span>
+        </div>
+        <div className="absolute top-24 right-16 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-6">
+          <span className="text-6xl">🍃</span>
+        </div>
+
+        {/* Pair 2: Animals */}
+        <div className="absolute bottom-32 left-20 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-12">
+          <span className="text-6xl">🐱</span>
+        </div>
+        <div className="absolute top-40 right-32 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-6">
+          <span className="text-6xl">🐱</span>
+        </div>
+
+        {/* Pair 3: Space */}
+        <div className="absolute bottom-16 right-10 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-12">
+          <span className="text-6xl">🚀</span>
+        </div>
+        <div className="absolute top-32 left-24 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-6">
+          <span className="text-6xl">🚀</span>
+        </div>
+
+        {/* Pair 4: Ocean */}
+        <div className="absolute bottom-40 right-28 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-12">
+          <span className="text-6xl">🐬</span>
+        </div>
+        <div className="absolute top-16 left-40 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-6">
+          <span className="text-6xl">🐬</span>
+        </div>
+
+        {/* Pair 5: Food */}
+        <div className="absolute bottom-20 left-48 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-12">
+          <span className="text-6xl">🍕</span>
+        </div>
+        <div className="absolute top-48 right-20 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-6">
+          <span className="text-6xl">🍕</span>
+        </div>
+
+        {/* Pair 6: Music */}
+        <div className="absolute bottom-56 right-40 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-6">
+          <span className="text-6xl">🎵</span>
+        </div>
+        <div className="absolute top-56 left-12 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-12">
+          <span className="text-6xl">🎵</span>
+        </div>
+      </div>
       <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
         <div className="flex justify-center mb-6">
           <img
