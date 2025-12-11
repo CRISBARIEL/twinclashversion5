@@ -1082,8 +1082,6 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                     console.log('[GameCore] Current level:', level);
                     console.log('[GameCore] Calling onComplete...');
                     onComplete();
-                    setShowWinModal(false);
-                    console.log('[GameCore] onComplete called!');
                   }}
                   className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
                 >
