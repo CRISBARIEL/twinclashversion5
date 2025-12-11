@@ -86,8 +86,7 @@ function App() {
       {screen === 'menu' && (
         <InitialScreen
           onStartGame={() => {
-            const currentLevel = getCurrentLevel();
-            setSelectedLevel(currentLevel);
+            setSelectedLevel(1);
             setScreen('game');
           }}
           onContinueGame={(level) => {
