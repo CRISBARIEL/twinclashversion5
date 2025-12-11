@@ -80,7 +80,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
       />
 
       {/* Decorative card pairs in background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
         {/* Pair 1: Nature */}
         <div className="absolute top-10 left-10 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-12">
           <span className="text-6xl">🍃</span>
@@ -129,7 +129,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
           <span className="text-6xl">🎵</span>
         </div>
       </div>
-      <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full">
+      <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full relative z-10">
         <div className="flex justify-center mb-6">
           <img
             src="/twinlogo.png"
