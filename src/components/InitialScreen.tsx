@@ -80,53 +80,53 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
       />
 
       {/* Decorative card pairs in background */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        {/* Pair 1: Nature */}
-        <div className="absolute top-10 left-10 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-12">
-          <span className="text-6xl">🍃</span>
+      <div className="absolute inset-0 pointer-events-none overflow-visible z-0">
+        {/* Pair 1: Top Left - Nature */}
+        <div className="absolute top-4 left-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🍃</span>
         </div>
-        <div className="absolute top-24 right-16 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-6">
-          <span className="text-6xl">🍃</span>
-        </div>
-
-        {/* Pair 2: Animals */}
-        <div className="absolute bottom-32 left-20 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-12">
-          <span className="text-6xl">🐱</span>
-        </div>
-        <div className="absolute top-40 right-32 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-6">
-          <span className="text-6xl">🐱</span>
+        <div className="absolute top-16 left-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🍃</span>
         </div>
 
-        {/* Pair 3: Space */}
-        <div className="absolute bottom-16 right-10 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-12">
-          <span className="text-6xl">🚀</span>
+        {/* Pair 2: Top Right - Animals */}
+        <div className="absolute top-4 right-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🐱</span>
         </div>
-        <div className="absolute top-32 left-24 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-6">
-          <span className="text-6xl">🚀</span>
-        </div>
-
-        {/* Pair 4: Ocean */}
-        <div className="absolute bottom-40 right-28 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-12">
-          <span className="text-6xl">🐬</span>
-        </div>
-        <div className="absolute top-16 left-40 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-6">
-          <span className="text-6xl">🐬</span>
+        <div className="absolute top-16 right-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🐱</span>
         </div>
 
-        {/* Pair 5: Food */}
-        <div className="absolute bottom-20 left-48 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-12">
-          <span className="text-6xl">🍕</span>
+        {/* Pair 3: Bottom Right - Space */}
+        <div className="absolute bottom-4 right-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🚀</span>
         </div>
-        <div className="absolute top-48 right-20 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-6">
-          <span className="text-6xl">🍕</span>
+        <div className="absolute bottom-16 right-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🚀</span>
         </div>
 
-        {/* Pair 6: Music */}
-        <div className="absolute bottom-56 right-40 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform rotate-6">
-          <span className="text-6xl">🎵</span>
+        {/* Pair 4: Bottom Left - Ocean */}
+        <div className="absolute bottom-4 left-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🐬</span>
         </div>
-        <div className="absolute top-56 left-12 bg-white/5 backdrop-blur-sm rounded-xl p-6 shadow-lg transform -rotate-12">
-          <span className="text-6xl">🎵</span>
+        <div className="absolute bottom-16 left-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🐬</span>
+        </div>
+
+        {/* Pair 5: Middle Left - Food */}
+        <div className="absolute top-1/3 left-2 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🍕</span>
+        </div>
+        <div className="absolute top-1/2 left-10 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🍕</span>
+        </div>
+
+        {/* Pair 6: Middle Right - Music */}
+        <div className="absolute top-1/3 right-2 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🎵</span>
+        </div>
+        <div className="absolute top-1/2 right-10 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🎵</span>
         </div>
       </div>
       <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full relative z-10">
