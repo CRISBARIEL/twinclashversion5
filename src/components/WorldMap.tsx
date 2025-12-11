@@ -78,17 +78,12 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
   }, []);
 
   const handleWorldClick = async (worldId: number) => {
-    // TEMPORAL: Todos los mundos desbloqueados para pruebas
-    onSelectWorld(worldId);
-    return;
+    if (worldId === 1 || worldAccess[worldId]) {
+      onSelectWorld(worldId);
+      return;
+    }
 
-    // Código original comentado:
-    // if (worldId === 1 || worldAccess[worldId]) {
-    //   onSelectWorld(worldId);
-    //   return;
-    // }
-
-    // setPurchaseModalWorld(worldId);
+    setPurchaseModalWorld(worldId);
   };
 
   const handlePurchaseWorld = async () => {

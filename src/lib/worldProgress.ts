@@ -111,9 +111,8 @@ export async function ensureWorld(worldId: string, totalLevels: number): Promise
   }
 
   console.log('[ensureWorld] 🆕 Creating new world state (no existing data)');
-  // TEMPORAL: Todos los niveles desbloqueados para pruebas
   const levels: LevelState[] = Array.from({ length: totalLevels }, (_, i) => ({
-    unlocked: true, // ANTES: isPurchased && i === 0
+    unlocked: isPurchased && i === 0,
     completed: false,
     stars: 0,
   }));
@@ -141,18 +140,14 @@ export async function isWorldCompleted(worldId: string): Promise<boolean> {
 }
 
 export async function canEnterWorld(worldId: string): Promise<boolean> {
-  // TEMPORAL: Todos los mundos accesibles para pruebas
-  return true;
+  if (worldId === 'world-1') return true;
+  if (await isWorldPurchased(worldId)) return true;
 
-  // Código original comentado:
-  // if (worldId === 'world-1') return true;
-  // if (await isWorldPurchased(worldId)) return true;
+  const idx = WORLD_ORDER.indexOf(worldId);
+  if (idx <= 0) return true;
 
-  // const idx = WORLD_ORDER.indexOf(worldId);
-  // if (idx <= 0) return true;
-
-  // const prevId = WORLD_ORDER[idx - 1];
-  // return await isWorldCompleted(prevId);
+  const prevId = WORLD_ORDER[idx - 1];
+  return await isWorldCompleted(prevId);
 }
 
 export async function purchaseWorld(worldId: string, cost: number): Promise<{ ok: true } | { ok: false; reason: string }> {
@@ -197,16 +192,12 @@ export async function purchaseLevel(worldId: string, level: number, cost: number
 }
 
 export async function canPlayLevel(worldId: string, level: number): Promise<boolean> {
-  // TEMPORAL: Todos los niveles accesibles para pruebas
-  return true;
-
-  // Código original comentado:
-  // if (level === 1) return true;
-  // const st = await readWorld(worldId);
-  // if (!st) return false;
-  // const idx = level - 1;
-  // const lv = st.levels[idx];
-  // return !!lv?.unlocked;
+  if (level === 1) return true;
+  const st = await readWorld(worldId);
+  if (!st) return false;
+  const idx = level - 1;
+  const lv = st.levels[idx];
+  return !!lv?.unlocked;
 }
 
 export async function completeWorldLevel(worldId: string, level: number, stars = 0): Promise<void> {
