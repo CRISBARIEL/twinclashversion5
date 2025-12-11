@@ -14,24 +14,31 @@ interface CoinPackage {
 const coinPackages: CoinPackage[] = [
   {
     id: 'small',
-    coins: 500,
-    price: 1.00,
-    priceLabel: '1€',
+    coins: 100,
+    price: 0.99,
+    priceLabel: '0,99€',
   },
   {
     id: 'medium',
-    coins: 2000,
-    price: 2.50,
-    priceLabel: '2,50€',
+    coins: 550,
+    price: 3.99,
+    priceLabel: '3,99€',
     popular: true,
-    bonus: 500,
+    bonus: 50,
   },
   {
     id: 'large',
-    coins: 10000,
-    price: 6.00,
-    priceLabel: '6€',
-    bonus: 2000,
+    coins: 1200,
+    price: 7.99,
+    priceLabel: '7,99€',
+    bonus: 200,
+  },
+  {
+    id: 'xlarge',
+    coins: 3000,
+    price: 14.99,
+    priceLabel: '14,99€',
+    bonus: 700,
   },
 ];
 
@@ -148,7 +155,7 @@ export function CoinShop({ onClose }: CoinShopProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {coinPackages.map((pkg) => (
             <button
               key={pkg.id}
