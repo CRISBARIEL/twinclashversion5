@@ -65,16 +65,28 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    console.log("Received event:", event.type);
+    console.log("=== STRIPE WEBHOOK EVENT ===");
+    console.log("Event Type:", event.type);
+    console.log("Event ID:", event.id);
+    console.log("===========================");
+
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Handle checkout.session.completed
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const coins = parseInt(session.metadata?.coins || "0");
       const clientId = session.client_reference_id;
+      const sessionId = session.id;
+
+      console.log("Processing checkout.session.completed");
+      console.log("Session ID:", sessionId);
+      console.log("Client ID:", clientId);
+      console.log("Coins to add:", coins);
+      console.log("Payment Status:", session.payment_status);
 
       if (!clientId) {
-        console.error("No client ID in session");
+        console.error("❌ No client ID in session");
         return new Response(
           JSON.stringify({ error: "No client ID" }),
           {
@@ -84,9 +96,19 @@ Deno.serve(async (req: Request) => {
         );
       }
 
-      if (coins > 0) {
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      // Verify payment was successful
+      if (session.payment_status !== "paid") {
+        console.warn("⚠️ Payment not completed yet:", session.payment_status);
+        return new Response(
+          JSON.stringify({ received: true, status: "payment_pending" }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
 
+      if (coins > 0) {
         // Get current coins
         const { data: profile, error: fetchError } = await supabase
           .from("profiles")
@@ -95,7 +117,7 @@ Deno.serve(async (req: Request) => {
           .maybeSingle();
 
         if (fetchError) {
-          console.error("Error fetching profile:", fetchError);
+          console.error("❌ Error fetching profile:", fetchError);
           return new Response(
             JSON.stringify({ error: "Database error" }),
             {
@@ -108,6 +130,8 @@ Deno.serve(async (req: Request) => {
         const currentCoins = profile?.coins || 0;
         const newCoins = currentCoins + coins;
 
+        console.log(`Current coins: ${currentCoins} → Adding: ${coins} → New total: ${newCoins}`);
+
         // Update coins
         const { error: updateError } = await supabase
           .from("profiles")
@@ -115,7 +139,7 @@ Deno.serve(async (req: Request) => {
           .eq("client_id", clientId);
 
         if (updateError) {
-          console.error("Error updating coins:", updateError);
+          console.error("❌ Error updating coins:", updateError);
           return new Response(
             JSON.stringify({ error: "Failed to update coins" }),
             {
@@ -125,8 +149,37 @@ Deno.serve(async (req: Request) => {
           );
         }
 
-        console.log(`Successfully added ${coins} coins to client ${clientId}. New total: ${newCoins}`);
+        console.log(`✅ Successfully added ${coins} coins to client ${clientId}. New total: ${newCoins}`);
+      } else {
+        console.warn("⚠️ No coins in metadata or coins = 0");
       }
+    }
+
+    // Handle checkout.session.expired
+    else if (event.type === "checkout.session.expired") {
+      const session = event.data.object as Stripe.Checkout.Session;
+      console.log("⏰ Checkout session expired:", session.id);
+      console.log("Client ID:", session.client_reference_id);
+    }
+
+    // Handle payment_intent.payment_failed
+    else if (event.type === "payment_intent.payment_failed") {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent;
+      console.log("❌ Payment failed:", paymentIntent.id);
+      console.log("Failure reason:", paymentIntent.last_payment_error?.message);
+    }
+
+    // Handle charge.refunded
+    else if (event.type === "charge.refunded") {
+      const charge = event.data.object as Stripe.Charge;
+      console.log("💰 Charge refunded:", charge.id);
+      console.log("Refund amount:", charge.amount_refunded);
+      // TODO: Implement coin removal logic if needed
+    }
+
+    // Log unhandled events
+    else {
+      console.log("ℹ️ Unhandled event type:", event.type);
     }
 
     return new Response(

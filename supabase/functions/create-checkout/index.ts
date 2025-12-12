@@ -32,7 +32,12 @@ Deno.serve(async (req: Request) => {
   try {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
 
+    console.log("=== CREATE CHECKOUT SESSION ===");
+    console.log("Stripe Key Present:", !!stripeKey);
+    console.log("Stripe Key Type:", stripeKey?.substring(0, 7));
+
     if (!stripeKey) {
+      console.error("❌ STRIPE_SECRET_KEY not configured in Supabase Secrets");
       return new Response(
         JSON.stringify({
           error: "Stripe no está configurado. Por favor, contacta al administrador."
@@ -47,11 +52,32 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Validate it's a LIVE key
+    if (!stripeKey.startsWith("sk_live_") && !stripeKey.startsWith("sk_test_")) {
+      console.error("❌ Invalid Stripe key format");
+      return new Response(
+        JSON.stringify({
+          error: "Configuración de Stripe inválida"
+        }),
+        {
+          status: 503,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    console.log("✅ Stripe configured with", stripeKey.startsWith("sk_live_") ? "LIVE" : "TEST", "key");
+
     const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
 
     const { packageId, coins, price, clientId }: RequestBody = await req.json();
+
+    console.log("Request data:", { packageId, coins, price, clientId: clientId?.substring(0, 8) + "..." });
 
     if (!clientId) {
       return new Response(
@@ -80,6 +106,11 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    const origin = req.headers.get("origin") || "http://localhost:5173";
+
+    console.log("Creating checkout session...");
+    console.log("Origin:", origin);
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -96,17 +127,25 @@ Deno.serve(async (req: Request) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin") || "http://localhost:5173"}?payment=success`,
-      cancel_url: `${req.headers.get("origin") || "http://localhost:5173"}?payment=cancelled`,
+      success_url: `${origin}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}?payment=cancelled`,
       client_reference_id: clientId,
       metadata: {
         coins: coins.toString(),
         packageId: packageId,
+        clientId: clientId,
       },
     });
 
+    console.log("✅ Checkout session created successfully");
+    console.log("Session ID:", session.id);
+    console.log("Session URL:", session.url ? "Generated" : "Missing");
+
     return new Response(
-      JSON.stringify({ url: session.url }),
+      JSON.stringify({
+        url: session.url,
+        sessionId: session.id
+      }),
       {
         status: 200,
         headers: {
