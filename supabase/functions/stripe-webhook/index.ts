@@ -71,12 +71,12 @@ Deno.serve(async (req: Request) => {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const coins = parseInt(session.metadata?.coins || "0");
-      const userId = session.client_reference_id;
+      const clientId = session.client_reference_id;
 
-      if (!userId) {
-        console.error("No user ID in session");
+      if (!clientId) {
+        console.error("No client ID in session");
         return new Response(
-          JSON.stringify({ error: "No user ID" }),
+          JSON.stringify({ error: "No client ID" }),
           {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -91,7 +91,7 @@ Deno.serve(async (req: Request) => {
         const { data: profile, error: fetchError } = await supabase
           .from("profiles")
           .select("coins")
-          .eq("user_id", userId)
+          .eq("client_id", clientId)
           .maybeSingle();
 
         if (fetchError) {
@@ -112,7 +112,7 @@ Deno.serve(async (req: Request) => {
         const { error: updateError } = await supabase
           .from("profiles")
           .update({ coins: newCoins })
-          .eq("user_id", userId);
+          .eq("client_id", clientId);
 
         if (updateError) {
           console.error("Error updating coins:", updateError);
@@ -125,7 +125,7 @@ Deno.serve(async (req: Request) => {
           );
         }
 
-        console.log(`Successfully added ${coins} coins to user ${userId}. New total: ${newCoins}`);
+        console.log(`Successfully added ${coins} coins to client ${clientId}. New total: ${newCoins}`);
       }
     }
 

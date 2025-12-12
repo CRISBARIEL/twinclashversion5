@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Coins, CreditCard, Sparkles, X, ArrowLeft } from 'lucide-react';
-import { getLocalCoins, addCoins } from '../lib/progression';
+import { getLocalCoins, loadFromSupabase } from '../lib/progression';
 
 interface CoinPackage {
   id: string;
@@ -54,18 +54,16 @@ export function CoinShop({ onClose }: CoinShopProps) {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get('payment');
-    const coinsToAdd = urlParams.get('coins');
 
-    if (paymentStatus === 'success' && coinsToAdd) {
-      addCoins(parseInt(coinsToAdd, 10));
-      setCurrentCoins(getLocalCoins());
+    if (paymentStatus === 'success') {
+      loadFromSupabase().then(() => {
+        setCurrentCoins(getLocalCoins());
+        alert('¡Pago exitoso! Tus monedas han sido añadidas a tu cuenta.');
+      });
 
       const url = new URL(window.location.href);
       url.searchParams.delete('payment');
-      url.searchParams.delete('coins');
       window.history.replaceState({}, '', url.toString());
-
-      alert(`¡Pago exitoso! Se han añadido ${coinsToAdd} monedas a tu cuenta.`);
     } else if (paymentStatus === 'cancelled') {
       const url = new URL(window.location.href);
       url.searchParams.delete('payment');
@@ -83,8 +81,16 @@ export function CoinShop({ onClose }: CoinShopProps) {
     setIsProcessing(true);
 
     try {
+      const clientId = localStorage.getItem('client_id');
+      if (!clientId) {
+        alert('Error: No se pudo obtener el ID del cliente');
+        setIsProcessing(false);
+        return;
+      }
+
       console.log('=== INICIO DE COMPRA ===');
       console.log('Paquete seleccionado:', selectedPackage);
+      console.log('Client ID:', clientId);
       console.log('URL:', import.meta.env.VITE_SUPABASE_URL);
       console.log('Anon Key:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Presente' : 'FALTA');
       console.log('========================');
@@ -99,6 +105,7 @@ export function CoinShop({ onClose }: CoinShopProps) {
           packageId: selectedPackage.id,
           coins: selectedPackage.coins + (selectedPackage.bonus || 0),
           price: Math.round(selectedPackage.price * 100),
+          clientId: clientId,
         }),
       });
 

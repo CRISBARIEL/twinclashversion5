@@ -11,6 +11,7 @@ interface RequestBody {
   packageId: string;
   coins: number;
   price: number;
+  clientId: string;
 }
 
 const PACKAGES: Record<string, { coins: number; price: number; name: string }> = {
@@ -50,7 +51,20 @@ Deno.serve(async (req: Request) => {
       apiVersion: "2023-10-16",
     });
 
-    const { packageId, coins, price }: RequestBody = await req.json();
+    const { packageId, coins, price, clientId }: RequestBody = await req.json();
+
+    if (!clientId) {
+      return new Response(
+        JSON.stringify({ error: "Client ID es requerido" }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
 
     const packageInfo = PACKAGES[packageId];
     if (!packageInfo) {
@@ -82,8 +96,9 @@ Deno.serve(async (req: Request) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin") || "http://localhost:5173"}?payment=success&coins=${coins}`,
+      success_url: `${req.headers.get("origin") || "http://localhost:5173"}?payment=success`,
       cancel_url: `${req.headers.get("origin") || "http://localhost:5173"}?payment=cancelled`,
+      client_reference_id: clientId,
       metadata: {
         coins: coins.toString(),
         packageId: packageId,
