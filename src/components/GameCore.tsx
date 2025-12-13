@@ -228,8 +228,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             shuffled[idx].obstacleHealth = 0;
             occupiedIndices.add(idx);
             placed++;
+            console.log('🔥 FUEGO colocado en carta', idx);
           }
         }
+        console.log(`✅ Total FUEGO colocados: ${placed} de ${obstacles.fire}`);
       }
 
       if (obstacles.bomb) {
@@ -241,8 +243,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             shuffled[idx].obstacleHealth = 0;
             occupiedIndices.add(idx);
             placed++;
+            console.log('💣 BOMBA colocada en carta', idx);
           }
         }
+        console.log(`✅ Total BOMBAS colocadas: ${placed} de ${obstacles.bomb}`);
       }
 
       if (obstacles.virus) {
@@ -254,8 +258,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             shuffled[idx].obstacleHealth = 0;
             occupiedIndices.add(idx);
             placed++;
+            console.log('🦠 VIRUS colocado en carta', idx);
           }
         }
+        console.log(`✅ Total VIRUS colocados: ${placed} de ${obstacles.virus}`);
       }
     }
 
