@@ -18,15 +18,6 @@ import { getLevelConfig } from '../lib/levels';
 import { getThemeImages, getThemeBackground } from '../lib/themes';
 import { soundManager } from '../lib/sound';
 import { useBackExitGuard } from '../hooks/useBackExitGuard';
-import {
-  FireTimerData,
-  VirusTimerData,
-  handleFireMismatch,
-  handleFireMatch,
-  handleBombMismatch,
-  handleVirusMismatch,
-  handleVirusMatch
-} from '../lib/advancedObstacles';
 
 interface GameCoreProps {
   level: number;
@@ -73,8 +64,6 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [freezeTimeLeft, setFreezeTimeLeft] = useState(0);
   const [streakMatches, setStreakMatches] = useState(0);
   const [comboCardId, setComboCardId] = useState<number | null>(null);
-  const [fireTimers, setFireTimers] = useState<Map<number, FireTimerData>>(new Map());
-  const [virusTimers, setVirusTimers] = useState<Map<number, VirusTimerData>>(new Map());
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -269,16 +258,6 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         }
       }
     }
-
-    fireTimers.forEach(timer => {
-      if (timer.intervalId) clearInterval(timer.intervalId);
-    });
-    setFireTimers(new Map());
-
-    virusTimers.forEach(timer => {
-      if (timer.intervalId) clearInterval(timer.intervalId);
-    });
-    setVirusTimers(new Map());
 
     setCards(shuffled);
     setFlippedCards([]);
@@ -681,9 +660,6 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           })
         );
 
-        handleFireMatch([firstId, secondId], cards, fireTimers, setFireTimers);
-        handleVirusMatch([firstId, secondId], cards, virusTimers, setVirusTimers, setCards);
-
         setMatchedPairs((prev) => prev + 1);
         setFlippedCards([]);
         setConsecutiveMisses(0);
@@ -708,24 +684,67 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
         setStreakMatches(0);
         setConsecutiveMisses((prev) => prev + 1);
 
-        if (firstCard?.obstacle === 'fire') {
-          handleFireMismatch(firstId, cards, setCards, setTimeLeft, fireTimers, setFireTimers);
-        }
-        if (secondCard?.obstacle === 'fire') {
-          handleFireMismatch(secondId, cards, setCards, setTimeLeft, fireTimers, setFireTimers);
+        if (firstCard?.obstacle === 'fire' || secondCard?.obstacle === 'fire') {
+          setTimeLeft((prev) => Math.max(0, prev - 10));
         }
 
         if (firstCard?.obstacle === 'bomb' || secondCard?.obstacle === 'bomb') {
-          handleBombMismatch(cards, setCards, setFlippedCards);
+          const halfLength = Math.floor(cards.length / 2);
+          const indices = cards.map((_, i) => i).filter(i => !cards[i].isMatched);
+          const shuffled = indices.sort(() => Math.random() - 0.5).slice(0, Math.min(halfLength, indices.length));
+
+          setCards((prev) =>
+            prev.map((c, idx) => {
+              if (shuffled.includes(idx)) {
+                return { ...c, isFlipped: false, bombCountdown: 3 };
+              }
+              return c;
+            })
+          );
+
+          setTimeout(() => {
+            setCards((prev) => prev.map((c) => ({ ...c, bombCountdown: undefined })));
+          }, 3000);
+
+          setFlippedCards([]);
           isCheckingRef.current = false;
           return;
         }
 
-        if (firstCard?.obstacle === 'virus') {
-          handleVirusMismatch(firstId, cards, setCards, virusTimers, setVirusTimers);
-        }
-        if (secondCard?.obstacle === 'virus') {
-          handleVirusMismatch(secondId, cards, setCards, virusTimers, setVirusTimers);
+        if (firstCard?.obstacle === 'virus' || secondCard?.obstacle === 'virus') {
+          const virusIds = [firstId, secondId].filter((id) => {
+            const c = cards.find((card) => card.id === id);
+            return c?.obstacle === 'virus';
+          });
+
+          virusIds.forEach((vId) => {
+            const idx = cards.findIndex((c) => c.id === vId);
+            const gridSize = Math.ceil(Math.sqrt(cards.length));
+            const row = Math.floor(idx / gridSize);
+            const col = idx % gridSize;
+
+            const adjacent: number[] = [];
+            if (col > 0) adjacent.push(idx - 1);
+            if (col < gridSize - 1) adjacent.push(idx + 1);
+            if (row > 0) adjacent.push(idx - gridSize);
+            if (row < gridSize - 1) adjacent.push(idx + gridSize);
+
+            setCards((prev) =>
+              prev.map((c, i) => {
+                if (adjacent.includes(i) && !c.isMatched && !c.isInfected) {
+                  const timer = setTimeout(() => {
+                    setCards((p) =>
+                      p.map((card) =>
+                        card.id === c.id ? { ...card, isWildcard: true, isInfected: false, virusTimer: 0 } : card
+                      )
+                    );
+                  }, 8000);
+                  return { ...c, isInfected: true, virusTimer: 8 };
+                }
+                return c;
+              })
+            );
+          });
         }
 
         setTimeout(() => {
