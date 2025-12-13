@@ -3,8 +3,13 @@ export interface Card {
   imageIndex: number;
   isFlipped: boolean;
   isMatched: boolean;
-  obstacle?: 'ice' | 'stone' | 'iron' | null;
+  obstacle?: 'ice' | 'stone' | 'iron' | 'fire' | 'bomb' | 'virus' | null;
   obstacleHealth?: number;
+  fireTimer?: number;
+  bombCountdown?: number;
+  virusTimer?: number;
+  isInfected?: boolean;
+  isWildcard?: boolean;
 }
 
 export interface GameState {

@@ -266,6 +266,110 @@ export const THEMES: Record<string, Theme> = {
       pattern: '👁️'
     }
   },
+  professions: {
+    name: 'Profesiones',
+    images: [
+      '👨‍⚕️', '👮‍♂️', '👨‍🍳', '👩‍⚕️', '👨‍🚒',
+      '👨‍🏫', '👨‍✈️', '👨‍🚀', '👷‍♂️', '👨‍🌾',
+      '👩‍💼', '👨‍💻', '🧑‍🔬', '👨‍🎨', '👩‍🏭',
+      '👨‍⚖️', '👩‍🔧', '🧑‍🚒'
+    ],
+    background: {
+      gradient: 'from-blue-400 via-indigo-500 to-purple-600',
+      pattern: '👨‍💼'
+    }
+  },
+  emotions: {
+    name: 'Emociones',
+    images: [
+      '😀', '😢', '😡', '😮', '😱',
+      '😍', '😴', '😎', '😒', '😤',
+      '🤗', '😂', '😭', '🤯', '🥳',
+      '😇', '🤔', '😏'
+    ],
+    background: {
+      gradient: 'from-yellow-400 via-orange-500 to-red-500',
+      pattern: '😀'
+    }
+  },
+  pirates: {
+    name: 'Piratas',
+    images: [
+      '🏴‍☠️', '💎', '🏴‍☠️', '⚔️', '🦜',
+      '🗺️', '💣', '🍺', '☠️', '🪝',
+      '⚓', '🏝️', '🪙', '🧭', '⛵',
+      '🔱', '🎯', '👑'
+    ],
+    background: {
+      gradient: 'from-slate-700 via-amber-800 to-orange-900',
+      pattern: '🏴‍☠️'
+    }
+  },
+  jewels: {
+    name: 'Joyas',
+    images: [
+      '💎', '💍', '💠', '🔷', '🔶',
+      '🟣', '📿', '🏅', '👑', '⭐',
+      '✨', '🌟', '💫', '⚜️', '🔱',
+      '🏺', '🎖️', '🥇'
+    ],
+    background: {
+      gradient: 'from-purple-600 via-pink-500 to-rose-400',
+      pattern: '💎'
+    }
+  },
+  videogames: {
+    name: 'Videojuegos',
+    images: [
+      '🎮', '🕹️', '👾', '🎯', '🎲',
+      '🃏', '🎰', '🧩', '🎪', '🎭',
+      '🏆', '⚡', '🔫', '🗡️', '🛡️',
+      '🎨', '🎬', '🎤'
+    ],
+    background: {
+      gradient: 'from-cyan-500 via-blue-600 to-indigo-700',
+      pattern: '🎮'
+    }
+  },
+  insects: {
+    name: 'Insectos',
+    images: [
+      '🦋', '🐝', '🐜', '🪲', '🦗',
+      '🕷️', '🪰', '🪳', '🦟', '🐛',
+      '🐞', '🦂', '🕸️', '🌸', '🍃',
+      '🌿', '🌺', '🌼'
+    ],
+    background: {
+      gradient: 'from-lime-400 via-green-500 to-emerald-600',
+      pattern: '🦋'
+    }
+  },
+  fruits: {
+    name: 'Frutas',
+    images: [
+      '🍎', '🍌', '🍓', '🍊', '🍇',
+      '🥝', '🍍', '🍉', '🍈', '🥭',
+      '🍑', '🍒', '🫐', '🥥', '🍋',
+      '🍐', '🍏', '🫒'
+    ],
+    background: {
+      gradient: 'from-red-400 via-orange-400 to-yellow-400',
+      pattern: '🍎'
+    }
+  },
+  vegetables: {
+    name: 'Verduras',
+    images: [
+      '🥕', '🥦', '🍅', '🥬', '🧅',
+      '🌶️', '🥒', '🥬', '🥔', '🧄',
+      '🌽', '🫑', '🍆', '🥗', '🫛',
+      '🧆', '🥙', '🌮'
+    ],
+    background: {
+      gradient: 'from-green-400 via-lime-500 to-emerald-600',
+      pattern: '🥕'
+    }
+  },
 };
 
 export function getThemeImages(themeName: string): string[] {
