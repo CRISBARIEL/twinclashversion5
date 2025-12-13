@@ -97,7 +97,7 @@ export async function requestNotificationPermission(clientId: string): Promise<s
       console.log('[FCM] Permiso de notificaciones concedido');
 
       const currentToken = await messaging.getToken({
-        vapidKey: 'REEMPLAZAR_CON_LA_CLAVE_PUBLICA_VAPID'
+        vapidKey: 'BIJhA_09TrJnVSR7nfIAbmNmquDaBMH0QNJYMkVMi7SJE6yl6mtdIqSyKXDbUnaO3J4--N6gt5f-GC-J7hKsGto'
       });
 
       if (currentToken) {
