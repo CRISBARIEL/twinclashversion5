@@ -36,7 +36,7 @@ export function initializeFirebase() {
       });
     }
   } catch (error) {
-    console.error('[FCM] Error initializing Firebase:', error);
+    console.warn('[FCM] Error initializing Firebase (no crítico):', error);
   }
 }
 
@@ -85,6 +85,11 @@ export async function requestNotificationPermission(clientId: string): Promise<s
     return null;
   }
 
+  if (!('serviceWorker' in navigator)) {
+    console.warn('[FCM] Service Worker no soportado en este navegador');
+    return null;
+  }
+
   if (!messaging) {
     console.warn('[FCM] Firebase Messaging no inicializado');
     return null;
@@ -96,29 +101,34 @@ export async function requestNotificationPermission(clientId: string): Promise<s
     if (permission === 'granted') {
       console.log('[FCM] Permiso de notificaciones concedido');
 
-      const currentToken = await messaging.getToken({
-        vapidKey: 'BIJhA_09TrJnVSR7nfIAbmNmquDaBMH0QNJYMkVMi7SJE6yl6mtdIqSyKXDbUnaO3J4--N6gt5f-GC-J7hKsGto'
-      });
+      try {
+        const currentToken = await messaging.getToken({
+          vapidKey: 'BIJhA_09TrJnVSR7nfIAbmNmquDaBMH0QNJYMkVMi7SJE6yl6mtdIqSyKXDbUnaO3J4--N6gt5f-GC-J7hKsGto'
+        });
 
-      if (currentToken) {
-        console.log('[FCM] Token FCM obtenido:', currentToken.substring(0, 20) + '...');
+        if (currentToken) {
+          console.log('[FCM] Token FCM obtenido:', currentToken.substring(0, 20) + '...');
 
-        await saveFCMToken(clientId, currentToken);
+          await saveFCMToken(clientId, currentToken);
 
-        return currentToken;
-      } else {
-        console.warn('[FCM] No se pudo obtener el token');
+          return currentToken;
+        } else {
+          console.warn('[FCM] No se pudo obtener el token (puede ser normal si el service worker no está listo)');
+          return null;
+        }
+      } catch (tokenError) {
+        console.warn('[FCM] Error al obtener token FCM (no crítico, puede ser por service worker bloqueado o no disponible):', tokenError);
         return null;
       }
     } else if (permission === 'denied') {
-      console.warn('[FCM] Permiso de notificaciones denegado');
+      console.warn('[FCM] Permiso de notificaciones denegado por el usuario');
       return null;
     } else {
       console.log('[FCM] Permiso de notificaciones no concedido');
       return null;
     }
   } catch (error) {
-    console.error('[FCM] Error al solicitar permiso de notificaciones:', error);
+    console.warn('[FCM] Error al solicitar permiso de notificaciones (no crítico):', error);
     return null;
   }
 }
@@ -138,12 +148,12 @@ async function saveFCMToken(clientId: string, token: string) {
       });
 
     if (error) {
-      console.error('[FCM] Error guardando token en Supabase:', error);
+      console.warn('[FCM] Error guardando token en Supabase (no crítico):', error);
     } else {
       console.log('[FCM] Token guardado exitosamente en Supabase');
     }
   } catch (error) {
-    console.error('[FCM] Error al guardar token:', error);
+    console.warn('[FCM] Error al guardar token (no crítico):', error);
   }
 }
 
