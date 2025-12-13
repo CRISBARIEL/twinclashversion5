@@ -70,6 +70,7 @@ export const ChallengeScene = ({ onBackToMenu }: ChallengeSceneProps) => {
   };
 
   const handleBackFromChallenge = async () => {
+    await new Promise(resolve => setTimeout(resolve, 500));
     await loadChallengeProgress();
     setIsPlaying(false);
   };

@@ -348,64 +348,71 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       setFinalTime(finalTimeValue);
       setFinalMoves(moves);
 
-      if (isDailyChallenge) {
-        const stored = localStorage.getItem(`best:${seed}`);
-        let shouldSave = true;
-        if (stored) {
-          try {
-            const prev: BestScore = JSON.parse(stored);
-            if (finalTimeValue > prev.time || (finalTimeValue === prev.time && moves >= prev.moves)) {
-              shouldSave = false;
+      const handleLevelComplete = async () => {
+        if (isDailyChallenge) {
+          const stored = localStorage.getItem(`best:${seed}`);
+          let shouldSave = true;
+          if (stored) {
+            try {
+              const prev: BestScore = JSON.parse(stored);
+              if (finalTimeValue > prev.time || (finalTimeValue === prev.time && moves >= prev.moves)) {
+                shouldSave = false;
+              }
+            } catch (e) {
+              //
             }
-          } catch (e) {
-            //
           }
+
+          if (shouldSave) {
+            const newBest: BestScore = { time: finalTimeValue, moves, date: new Date().toISOString() };
+            localStorage.setItem(`best:${seed}`, JSON.stringify(newBest));
+            setBestScore(newBest);
+          }
+
+          try {
+            const result = await submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: level });
+            if (result.isPioneer) {
+              setIsPioneer(true);
+            }
+            console.log('[GameCore] Score saved successfully for challenge level', level);
+          } catch (err) {
+            console.error('[GameCore] Failed to submit score:', err);
+          }
+
+          const baseCoins = 10;
+          setCoinsEarned(baseCoins);
+          addCoins(baseCoins);
+          setCurrentCoins(getLocalCoins());
+
+          setTimeout(() => {
+            setShowWinModal(true);
+            setTimeout(() => setShowCoinAnimation(true), 500);
+          }, 1500);
+        } else {
+          try {
+            const result = await submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: level });
+            if (result.isPioneer) {
+              setIsPioneer(true);
+            }
+          } catch (err) {
+            console.error('[GameCore] Failed to submit score:', err);
+          }
+
+          const baseCoins = 10;
+          setCoinsEarned(baseCoins);
+          addCoins(baseCoins);
+          setCurrentCoins(getLocalCoins());
+
+          setTimeout(() => {
+            setShowWinModal(true);
+            setTimeout(() => setShowCoinAnimation(true), 500);
+          }, 1500);
         }
+      };
 
-        if (shouldSave) {
-          const newBest: BestScore = { time: finalTimeValue, moves, date: new Date().toISOString() };
-          localStorage.setItem(`best:${seed}`, JSON.stringify(newBest));
-          setBestScore(newBest);
-        }
-
-        submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: level }).then((result) => {
-          if (result.isPioneer) {
-            setIsPioneer(true);
-          }
-        }).catch((err) => {
-          console.error('[GameCore] Failed to submit score:', err);
-        });
-
-        const baseCoins = 10;
-        setCoinsEarned(baseCoins);
-        addCoins(baseCoins);
-        setCurrentCoins(getLocalCoins());
-
-        setTimeout(() => {
-          setShowWinModal(true);
-          setTimeout(() => setShowCoinAnimation(true), 500);
-        }, 1500);
-      } else {
-        submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: level }).then((result) => {
-          if (result.isPioneer) {
-            setIsPioneer(true);
-          }
-        }).catch((err) => {
-          console.error('[GameCore] Failed to submit score:', err);
-        });
-
-        const baseCoins = 10;
-        setCoinsEarned(baseCoins);
-        addCoins(baseCoins);
-        setCurrentCoins(getLocalCoins());
-
-        setTimeout(() => {
-          setShowWinModal(true);
-          setTimeout(() => setShowCoinAnimation(true), 500);
-        }, 1500);
-      }
+      handleLevelComplete();
     }
-  }, [matchedPairs, level, onComplete, isDailyChallenge, seed, crewId]);
+  }, [matchedPairs, level, onComplete, isDailyChallenge, seed, crewId, moves]);
 
   useEffect(() => {
     triggerIceBreakerRef.current = (centerCardId: number) => {
