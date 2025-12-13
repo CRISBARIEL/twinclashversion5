@@ -482,5 +482,63 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
     );
   }
 
+  if (card.obstacle === 'fire') {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute inset-0 rounded-xl obstacle-fire overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-red-400/90 via-orange-500/90 to-yellow-500/90 backdrop-blur-sm border-2 border-red-300 rounded-xl" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-5xl animate-pulse">🔥</div>
+          </div>
+          {card.fireTimer !== undefined && card.fireTimer > 0 && (
+            <div className="fire-timer-overlay">{card.fireTimer}</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (card.obstacle === 'bomb') {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute inset-0 rounded-xl obstacle-bomb overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-800/90 via-gray-700/90 to-gray-900/90 backdrop-blur-sm border-2 border-gray-600 rounded-xl" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-5xl">💣</div>
+          </div>
+        </div>
+        {card.bombCountdown !== undefined && card.bombCountdown > 0 && (
+          <div className="bomb-countdown-overlay">{card.bombCountdown}</div>
+        )}
+      </div>
+    );
+  }
+
+  if (card.obstacle === 'virus' || card.isInfected || card.isWildcard) {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-10">
+        <div className={`absolute inset-0 rounded-xl overflow-hidden ${
+          card.isWildcard ? 'virus-wildcard' : card.isInfected ? 'virus-infected' : 'obstacle-virus'
+        }`}>
+          <div className={`absolute inset-0 bg-gradient-to-br ${
+            card.isWildcard
+              ? 'from-purple-500/90 via-fuchsia-500/90 to-pink-500/90'
+              : 'from-green-400/90 via-emerald-500/90 to-teal-500/90'
+          } backdrop-blur-sm border-2 ${
+            card.isWildcard ? 'border-purple-300' : 'border-green-300'
+          } rounded-xl`} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-5xl">
+              {card.isWildcard ? '❓' : '🦠'}
+            </div>
+          </div>
+          {card.virusTimer !== undefined && card.virusTimer > 0 && !card.isWildcard && (
+            <div className="virus-timer-overlay">{card.virusTimer}</div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return null;
 };

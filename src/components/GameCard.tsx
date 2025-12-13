@@ -35,13 +35,20 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
   }, []);
 
   const handleClick = () => {
-    if (!disabled && !card.isFlipped && !card.isMatched) {
+    if (!disabled && !card.isFlipped && !card.isMatched && !card.bombCountdown) {
       playSoundFlip();
       onClick(card.id);
     }
   };
 
-  const hasObstacle = card.obstacle && (card.obstacleHealth ?? 0) > 0;
+  const hasObstacle = card.obstacle && (
+    (card.obstacleHealth ?? 0) > 0 ||
+    card.obstacle === 'fire' ||
+    card.obstacle === 'bomb' ||
+    card.obstacle === 'virus' ||
+    card.isInfected ||
+    card.isWildcard
+  );
 
   return (
     <div

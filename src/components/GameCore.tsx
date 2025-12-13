@@ -18,6 +18,15 @@ import { getLevelConfig } from '../lib/levels';
 import { getThemeImages, getThemeBackground } from '../lib/themes';
 import { soundManager } from '../lib/sound';
 import { useBackExitGuard } from '../hooks/useBackExitGuard';
+import {
+  FireTimerData,
+  VirusTimerData,
+  handleFireMismatch,
+  handleFireMatch,
+  handleBombMismatch,
+  handleVirusMismatch,
+  handleVirusMatch
+} from '../lib/advancedObstacles';
 
 interface GameCoreProps {
   level: number;
@@ -64,6 +73,8 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [freezeTimeLeft, setFreezeTimeLeft] = useState(0);
   const [streakMatches, setStreakMatches] = useState(0);
   const [comboCardId, setComboCardId] = useState<number | null>(null);
+  const [fireTimers, setFireTimers] = useState<Map<number, FireTimerData>>(new Map());
+  const [virusTimers, setVirusTimers] = useState<Map<number, VirusTimerData>>(new Map());
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -218,7 +229,57 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           }
         }
       }
+
+      if (obstacles.fire) {
+        let placed = 0;
+        for (let i = 0; i < shuffleIndices.length && placed < obstacles.fire; i++) {
+          const idx = shuffleIndices[i];
+          if (!occupiedIndices.has(idx) && canPlaceObstacle(idx, occupiedIndices, false)) {
+            shuffled[idx].obstacle = 'fire';
+            shuffled[idx].obstacleHealth = 0;
+            occupiedIndices.add(idx);
+            placed++;
+          }
+        }
+      }
+
+      if (obstacles.bomb) {
+        let placed = 0;
+        for (let i = 0; i < shuffleIndices.length && placed < obstacles.bomb; i++) {
+          const idx = shuffleIndices[i];
+          if (!occupiedIndices.has(idx) && canPlaceObstacle(idx, occupiedIndices, false)) {
+            shuffled[idx].obstacle = 'bomb';
+            shuffled[idx].obstacleHealth = 0;
+            occupiedIndices.add(idx);
+            placed++;
+          }
+        }
+      }
+
+      if (obstacles.virus) {
+        let placed = 0;
+        for (let i = 0; i < shuffleIndices.length && placed < obstacles.virus; i++) {
+          const idx = shuffleIndices[i];
+          if (!occupiedIndices.has(idx) && canPlaceObstacle(idx, occupiedIndices, false)) {
+            shuffled[idx].obstacle = 'virus';
+            shuffled[idx].obstacleHealth = 0;
+            occupiedIndices.add(idx);
+            placed++;
+          }
+        }
+      }
     }
+
+    fireTimers.forEach(timer => {
+      if (timer.intervalId) clearInterval(timer.intervalId);
+    });
+    setFireTimers(new Map());
+
+    virusTimers.forEach(timer => {
+      if (timer.intervalId) clearInterval(timer.intervalId);
+    });
+    setVirusTimers(new Map());
+
     setCards(shuffled);
     setFlippedCards([]);
     setMatchedPairs(0);
@@ -498,6 +559,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     const card = cards.find((c) => c.id === id);
     if (!card || card.isMatched || flippedCards.includes(id)) return;
 
+    if (card.bombCountdown && card.bombCountdown > 0) {
+      return;
+    }
+
     if (card.obstacle && (card.obstacleHealth ?? 0) > 0) {
       return;
     }
@@ -517,7 +582,13 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       const firstCard = cards.find((c) => c.id === firstId);
       const secondCard = cards.find((c) => c.id === secondId);
 
-      if (firstCard && secondCard && firstCard.imageIndex === secondCard.imageIndex) {
+      const isMatch = firstCard && secondCard && (
+        firstCard.imageIndex === secondCard.imageIndex ||
+        firstCard.isWildcard ||
+        secondCard.isWildcard
+      );
+
+      if (isMatch) {
         soundManager.playMatch();
 
         const getAdjacentIndices = (cardId: number): number[] => {
@@ -609,6 +680,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             return c;
           })
         );
+
+        handleFireMatch([firstId, secondId], cards, fireTimers, setFireTimers);
+        handleVirusMatch([firstId, secondId], cards, virusTimers, setVirusTimers, setCards);
+
         setMatchedPairs((prev) => prev + 1);
         setFlippedCards([]);
         setConsecutiveMisses(0);
@@ -632,6 +707,27 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       } else {
         setStreakMatches(0);
         setConsecutiveMisses((prev) => prev + 1);
+
+        if (firstCard?.obstacle === 'fire') {
+          handleFireMismatch(firstId, cards, setCards, setTimeLeft, fireTimers, setFireTimers);
+        }
+        if (secondCard?.obstacle === 'fire') {
+          handleFireMismatch(secondId, cards, setCards, setTimeLeft, fireTimers, setFireTimers);
+        }
+
+        if (firstCard?.obstacle === 'bomb' || secondCard?.obstacle === 'bomb') {
+          handleBombMismatch(cards, setCards, setFlippedCards);
+          isCheckingRef.current = false;
+          return;
+        }
+
+        if (firstCard?.obstacle === 'virus') {
+          handleVirusMismatch(firstId, cards, setCards, virusTimers, setVirusTimers);
+        }
+        if (secondCard?.obstacle === 'virus') {
+          handleVirusMismatch(secondId, cards, setCards, virusTimers, setVirusTimers);
+        }
+
         setTimeout(() => {
           setCards((prev) =>
             prev.map((c) =>

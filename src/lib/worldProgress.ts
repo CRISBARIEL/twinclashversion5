@@ -12,7 +12,7 @@ export type WorldState = {
   levels: LevelState[];
 };
 
-const WORLD_ORDER = ['world-1', 'world-2', 'world-3', 'world-4', 'world-5', 'world-6', 'world-7', 'world-8', 'world-9', 'world-10', 'world-11', 'world-12', 'world-13', 'world-14', 'world-15', 'world-16', 'world-17', 'world-18', 'world-19', 'world-20'];
+const WORLD_ORDER = ['world-1', 'world-2', 'world-3', 'world-4', 'world-5', 'world-6', 'world-7', 'world-8', 'world-9', 'world-10', 'world-11', 'world-12', 'world-13', 'world-14', 'world-15', 'world-16', 'world-17', 'world-18', 'world-19', 'world-20', 'world-21', 'world-22', 'world-23', 'world-24', 'world-25', 'world-26', 'world-27', 'world-28'];
 
 async function readWorldSupabase(worldId: string): Promise<WorldState | null> {
   try {
@@ -280,6 +280,14 @@ export const WORLD_COSTS = {
   'world-18': 12000,
   'world-19': 13000,
   'world-20': 14000,
+  'world-21': 15000,
+  'world-22': 16000,
+  'world-23': 17000,
+  'world-24': 18000,
+  'world-25': 19000,
+  'world-26': 20000,
+  'world-27': 21000,
+  'world-28': 22000,
 };
 
 export const LEVEL_UNLOCK_COST = 100;
@@ -305,7 +313,7 @@ export async function unlockWorld(worldNum: number): Promise<void> {
 export async function getUnlockedWorlds(): Promise<number[]> {
   const unlocked: number[] = [];
 
-  for (let i = 1; i <= 20; i++) {
+  for (let i = 1; i <= 28; i++) {
     const worldId = `world-${i}`;
     if (await isWorldPurchased(worldId)) {
       unlocked.push(i);
