@@ -3,6 +3,7 @@ import { Calendar, Swords, ShoppingBag, Gift, Coins, Map } from 'lucide-react';
 import { canClaimDaily, claimDailyReward, getLocalCoins, loadFromSupabase, getCurrentLevel } from '../lib/progression';
 import { Shop } from './Shop';
 import { AdminPanel } from './AdminPanel';
+import { NotificationButton } from './NotificationButton';
 import { playSoundZap } from '../utils/soundManager';
 import { soundManager } from '../lib/sound';
 
@@ -194,6 +195,10 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             <Calendar size={20} />
             <span className="text-sm">Reto Diario</span>
           </button>
+
+          <div className="flex justify-center">
+            <NotificationButton />
+          </div>
 
           {/* DUELO TEMPORALMENTE DESACTIVADO - NO BORRAR
           <button

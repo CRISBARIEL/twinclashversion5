@@ -10,6 +10,7 @@ import { AudioUploader } from './components/AudioUploader';
 import { RewardButton } from './components/RewardButton';
 import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
+import { initializeFirebase } from './lib/firebase';
 
 type Screen = 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload';
 
@@ -36,6 +37,8 @@ function App() {
       console.log('[App] Loaded current level from storage:', currentLevel);
       setSelectedLevel(currentLevel);
       setIsLoadingProgress(false);
+
+      initializeFirebase();
     };
 
     initializeApp();
