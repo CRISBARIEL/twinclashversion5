@@ -66,7 +66,8 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
         status: 'waiting',
       });
 
-      const { data, error } = await supabase
+      // First, do the INSERT without select (avoids PGRST204)
+      const { error: insertError } = await supabase
         .from('duel_rooms')
         .insert({
           room_code: roomCode,
@@ -75,36 +76,42 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
           seed,
           host_client_id: clientId,
           status: 'waiting',
-        })
-        .select();
-
-      if (error) {
-        console.error('[createDuelRoom] ❌ Supabase error:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code,
         });
 
-        if (error.message.toLowerCase().includes('duplicate') || error.code === '23505') {
+      if (insertError) {
+        console.error('[createDuelRoom] ❌ Insert error:', {
+          message: insertError.message,
+          details: insertError.details,
+          hint: insertError.hint,
+          code: insertError.code,
+        });
+
+        if (insertError.message.toLowerCase().includes('duplicate') || insertError.code === '23505') {
           console.log('[createDuelRoom] Duplicate code, retrying...');
           continue;
         }
 
-        throw new Error(`DB_ERROR: ${error.message}`);
+        throw new Error(`DB_ERROR: ${insertError.message}`);
       }
 
-      if (!data || data.length === 0) {
-        console.error('[createDuelRoom] ❌ No data returned');
-        throw new Error('NO_DATA_RETURNED');
+      // Then, fetch the room we just created
+      const { data: room, error: selectError } = await supabase
+        .from('duel_rooms')
+        .select('*')
+        .eq('room_code', roomCode)
+        .maybeSingle();
+
+      if (selectError || !room) {
+        console.error('[createDuelRoom] ❌ Select error after insert:', selectError);
+        throw new Error('CREATED_BUT_NOT_FOUND');
       }
 
       console.log('[createDuelRoom] ✅ Sala creada exitosamente:', roomCode);
-      return data[0];
+      return room;
     } catch (err: any) {
       console.error('[createDuelRoom] ❌ Exception:', err);
 
-      if (err.message?.startsWith('DB_ERROR:') || err.message === 'NO_DATA_RETURNED') {
+      if (err.message?.startsWith('DB_ERROR:') || err.message === 'NO_DATA_RETURNED' || err.message === 'CREATED_BUT_NOT_FOUND') {
         throw err;
       }
 
