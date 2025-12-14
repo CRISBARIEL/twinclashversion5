@@ -326,13 +326,10 @@ export function subscribeToDuelRoom(
     return () => {};
   }
 
-  let alive = true;
-  let intervalId: number | null = null;
   const normalizedCode = roomCode.toUpperCase().trim();
+  let channel: RealtimeChannel | null = null;
 
-  const pollRoom = async () => {
-    if (!alive) return;
-
+  const fetchInitialRoom = async () => {
     try {
       const { data, error } = await supabase
         .from('duel_rooms')
@@ -340,31 +337,50 @@ export function subscribeToDuelRoom(
         .eq('room_code', normalizedCode)
         .maybeSingle();
 
-      if (!alive) return;
-
       if (error) {
-        console.error('[subscribeToDuelRoom] Error:', error);
+        console.error('[subscribeToDuelRoom] Initial fetch error:', error);
         callback(null);
         return;
       }
 
       callback(data);
     } catch (err) {
-      console.error('[subscribeToDuelRoom] Exception:', err);
-      if (alive) {
-        callback(null);
-      }
+      console.error('[subscribeToDuelRoom] Initial fetch exception:', err);
+      callback(null);
     }
   };
 
-  pollRoom();
-  intervalId = window.setInterval(pollRoom, 1200);
+  fetchInitialRoom();
+
+  channel = supabase
+    .channel(`duel-room-${normalizedCode}`)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'duel_rooms',
+        filter: `room_code=eq.${normalizedCode}`,
+      },
+      (payload) => {
+        console.log('[subscribeToDuelRoom] Realtime update:', payload);
+
+        if (payload.eventType === 'DELETE') {
+          callback(null);
+        } else if (payload.new) {
+          callback(payload.new as DuelRoom);
+        }
+      }
+    )
+    .subscribe((status) => {
+      console.log('[subscribeToDuelRoom] Subscription status:', status);
+    });
 
   return () => {
-    alive = false;
-    if (intervalId !== null) {
-      clearInterval(intervalId);
-      intervalId = null;
+    console.log('[subscribeToDuelRoom] Unsubscribing from room:', normalizedCode);
+    if (channel) {
+      supabase.removeChannel(channel);
+      channel = null;
     }
   };
 }
