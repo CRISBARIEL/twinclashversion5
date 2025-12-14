@@ -12,10 +12,65 @@ import { RewardButton } from './components/RewardButton';
 import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 import { initializeFirebase } from './lib/firebase';
+import { AlertCircle } from 'lucide-react';
 
 type Screen = 'simple' | 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload';
 
 function App() {
+  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseKey || supabaseUrl.includes('your_') || supabaseKey.includes('your_')) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-500 via-orange-500 to-yellow-500 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-lg w-full">
+          <div className="flex items-center justify-center mb-6">
+            <div className="bg-red-100 p-4 rounded-full">
+              <AlertCircle size={48} className="text-red-600" />
+            </div>
+          </div>
+          <h1 className="text-3xl font-black text-gray-800 text-center mb-4">
+            Configuración Incompleta
+          </h1>
+          <div className="space-y-4 text-gray-700">
+            <p className="text-center">
+              Faltan las variables de entorno de Supabase. Por favor configura:
+            </p>
+            <div className="bg-gray-100 rounded-lg p-4 font-mono text-sm">
+              <div className="mb-2">
+                <span className="text-red-600 font-bold">VITE_SUPABASE_URL</span>
+                <div className="text-xs text-gray-600 mt-1">
+                  {supabaseUrl ? '✓ Configurada' : '✗ Faltante'}
+                </div>
+              </div>
+              <div>
+                <span className="text-red-600 font-bold">VITE_SUPABASE_ANON_KEY</span>
+                <div className="text-xs text-gray-600 mt-1">
+                  {supabaseKey ? '✓ Configurada' : '✗ Faltante'}
+                </div>
+              </div>
+            </div>
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 text-sm">
+              <p className="font-semibold text-blue-800 mb-2">Para desarrollo local:</p>
+              <ol className="list-decimal list-inside space-y-1 text-blue-700">
+                <li>Crea un archivo <code className="bg-blue-100 px-1 rounded">.env</code></li>
+                <li>Agrega tus credenciales de Supabase</li>
+                <li>Reinicia el servidor de desarrollo</li>
+              </ol>
+            </div>
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 text-sm">
+              <p className="font-semibold text-green-800 mb-2">Para producción:</p>
+              <ol className="list-decimal list-inside space-y-1 text-green-700">
+                <li>Configura las variables en tu plataforma de hosting</li>
+                <li>Verifica que los nombres sean exactos</li>
+                <li>Realiza un nuevo deploy</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const [screen, setScreen] = useState<Screen>(() => {
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode');

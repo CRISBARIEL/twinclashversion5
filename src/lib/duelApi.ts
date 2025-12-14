@@ -343,6 +343,53 @@ export function subscribeToDuelRoom(
   };
 }
 
+export async function finishDuel(
+  roomId: string,
+  clientId: string,
+  timeElapsed: number,
+  score: number
+): Promise<void> {
+  if (!roomId || !clientId) {
+    console.error('[finishDuel] Parámetros inválidos');
+    return;
+  }
+
+  try {
+    const { data: room, error } = await supabase
+      .from('duel_rooms')
+      .select('*')
+      .eq('id', roomId)
+      .maybeSingle();
+
+    if (error || !room) {
+      console.error('[finishDuel] Room not found:', error?.message);
+      return;
+    }
+
+    const isHost = room.host_client_id === clientId;
+    const role = isHost ? 'host' : 'guest';
+
+    const result: DuelResult = {
+      win: true,
+      timeMs: timeElapsed * 1000,
+      moves: 0,
+      pairsFound: score,
+    };
+
+    const { data: roomData } = await supabase
+      .from('duel_rooms')
+      .select('room_code')
+      .eq('id', roomId)
+      .maybeSingle();
+
+    if (roomData?.room_code) {
+      await submitDuelResult(roomData.room_code, role, result);
+    }
+  } catch (err) {
+    console.error('[finishDuel] Exception:', err);
+  }
+}
+
 export function determineWinner(room: DuelRoom): 'host' | 'guest' | 'tie' | null {
   if (!room.host_finished_at || !room.guest_finished_at) {
     return null;

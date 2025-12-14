@@ -50,7 +50,9 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
     card.isWildcard
   );
 
-  const safeImage = typeof image === 'string' ? image : '';
+  const safeImage = typeof image === 'string' && image ? image : '';
+  const isImageUrl = safeImage.length > 0 && (safeImage.startsWith('/') || safeImage.startsWith('http'));
+  const isEmoji = safeImage.length > 0 && !isImageUrl;
 
   return (
     <div
@@ -78,10 +80,26 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
               <div className="w-full h-full bg-gray-300 flex items-center justify-center">
                 <div className="text-6xl text-gray-500 font-bold">?</div>
               </div>
-            ) : safeImage.startsWith('/') || safeImage.startsWith('http') ? (
-              <img src={safeImage} alt="card" className="w-3/4 h-3/4 object-contain" />
-            ) : (
+            ) : isImageUrl ? (
+              <img
+                src={safeImage}
+                alt="card"
+                className="w-3/4 h-3/4 object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<div class="text-6xl text-gray-500 font-bold">?</div>';
+                  }
+                }}
+              />
+            ) : isEmoji ? (
               <div className="text-5xl sm:text-6xl md:text-7xl">{safeImage}</div>
+            ) : (
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                <div className="text-6xl text-gray-500 font-bold">?</div>
+              </div>
             )}
           </div>
         </div>

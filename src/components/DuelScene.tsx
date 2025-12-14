@@ -11,7 +11,7 @@ import { getOrCreateClientId, supabase } from '../lib/supabase';
 import { createConfetti } from '../utils/confetti';
 import { addCoins } from '../lib/progression';
 import { getLevelConfig, getGlobalLevelId } from '../lib/levels';
-import { createDuelRoom, joinDuelRoom, getDuelRoom, finishDuel, cancelDuelRoom, DuelRoom } from '../lib/duelApi';
+import { createDuelRoom, joinDuelRoom, getDuelRoom, finishDuel, cancelDuelRoom, type DuelRoom } from '../lib/duelApi';
 import { soundManager } from '../lib/sound';
 
 interface DuelSceneProps {
