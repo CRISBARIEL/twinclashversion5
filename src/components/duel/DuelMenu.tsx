@@ -66,8 +66,52 @@ export const DuelMenu = ({ onBack, clientId }: DuelMenuProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 p-4">
-      <div className="max-w-md mx-auto pt-8">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 p-4 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none overflow-visible z-0">
+        <div className="absolute top-4 left-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🍃</span>
+        </div>
+        <div className="absolute top-16 left-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🍃</span>
+        </div>
+
+        <div className="absolute top-4 right-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🐱</span>
+        </div>
+        <div className="absolute top-16 right-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🐱</span>
+        </div>
+
+        <div className="absolute bottom-4 right-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🚀</span>
+        </div>
+        <div className="absolute bottom-16 right-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🚀</span>
+        </div>
+
+        <div className="absolute bottom-4 left-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🐬</span>
+        </div>
+        <div className="absolute bottom-16 left-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🐬</span>
+        </div>
+
+        <div className="absolute top-1/3 left-2 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🍕</span>
+        </div>
+        <div className="absolute top-1/2 left-10 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🍕</span>
+        </div>
+
+        <div className="absolute top-1/3 right-2 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🎵</span>
+        </div>
+        <div className="absolute top-1/2 right-10 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🎵</span>
+        </div>
+      </div>
+
+      <div className="max-w-md mx-auto pt-8 relative z-10">
         <button
           onClick={onBack}
           className="mb-4 flex items-center gap-2 text-white font-bold hover:text-purple-200 transition-colors"

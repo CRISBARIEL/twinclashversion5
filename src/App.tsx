@@ -76,7 +76,7 @@ function App() {
   const handleBackToMenu = () => {
     soundManager.stopLevelMusic();
     soundManager.playStartMusic();
-    setScreen('simple');
+    setScreen('menu');
   };
 
 
@@ -135,7 +135,7 @@ function App() {
           onBackToMenu={() => {
             soundManager.stopLevelMusic();
             soundManager.playStartMusic();
-            setScreen('simple');
+            setScreen('menu');
           }}
         />
       )}
