@@ -7,6 +7,13 @@
     <title>Twin Clash ⚡ - Memory Card Game</title>
     <meta name="description" content="Twin Clash - Epic memory card matching game. Challenge yourself, compete in duels, and collect themes!" />
 
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2140112688604592"
+         crossorigin="anonymous"></script>
+
+    <!-- GameMonetize SDK -->
+    <script src="https://api.gamemonetize.com/sdk.js"></script>
+
     <!-- Firebase Cloud Messaging SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-messaging-compat.js"></script>
@@ -14,5 +21,101 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <script>
+      window.showInterstitialAd = function() {
+        if (!window.__lastAdShown) window.__lastAdShown = 0;
+        if (Date.now() - window.__lastAdShown < 60000) return;
+        window.__lastAdShown = Date.now();
+
+        const overlay = document.getElementById("interstitial-overlay");
+        if (!overlay) return;
+        overlay.style.display = "flex";
+
+        try {
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch(e){}
+      };
+
+      window.closeInterstitial = function() {
+        const overlay = document.getElementById("interstitial-overlay");
+        if (!overlay) return;
+        overlay.style.display = "none";
+      };
+
+      window.showRewardedAd = function() {
+        if (!window.GameMonetize || !window.GameMonetize.game || !window.GameMonetize.game.fn || !window.GameMonetize.game.fn.rewarded) {
+          console.warn('[GameMonetize] SDK not available');
+          const msg = document.createElement('div');
+          msg.textContent = 'Anuncio no disponible en este momento';
+          msg.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;font-size:14px;';
+          document.body.appendChild(msg);
+          setTimeout(() => msg.remove(), 3000);
+          return;
+        }
+
+        try {
+          window.GameMonetize.game.fn.rewarded(function() {
+            window.dispatchEvent(new CustomEvent('add-coins', { detail: 25000 }));
+            alert('¡Has ganado +25.000 monedas! 🎉');
+          });
+        } catch (error) {
+          console.error('[GameMonetize] Error showing ad:', error);
+          const msg = document.createElement('div');
+          msg.textContent = 'Error al cargar el anuncio';
+          msg.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#ff4444;color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;font-size:14px;';
+          document.body.appendChild(msg);
+          setTimeout(() => msg.remove(), 3000);
+        }
+      };
+    </script>
+
+    <div id="interstitial-overlay" style="
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      flex-direction: column;
+    ">
+      <div style="
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        max-width: 90%;
+        max-height: 90%;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      ">
+        <button onclick="window.closeInterstitial()" style="
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: #ff4444;
+          color: white;
+          border: none;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          cursor: pointer;
+          font-size: 18px;
+          font-weight: bold;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        ">×</button>
+
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-2140112688604592"
+             data-ad-slot=""
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+      </div>
+    </div>
   </body>
 </html>
