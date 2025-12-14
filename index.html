@@ -44,29 +44,55 @@
       };
 
       window.showRewardedAd = function() {
-        if (!window.GameMonetize || !window.GameMonetize.game || !window.GameMonetize.game.fn || !window.GameMonetize.game.fn.rewarded) {
-          console.warn('[GameMonetize] SDK not available');
+        const showMessage = (text, bgColor = '#333') => {
           const msg = document.createElement('div');
-          msg.textContent = 'Anuncio no disponible en este momento';
-          msg.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;font-size:14px;';
+          msg.textContent = text;
+          msg.style.cssText = `position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${bgColor};color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;font-size:14px;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.3);`;
           document.body.appendChild(msg);
           setTimeout(() => msg.remove(), 3000);
-          return;
+        };
+
+        const grantReward = () => {
+          window.dispatchEvent(new CustomEvent('add-coins', { detail: 25000 }));
+          showMessage('¡Has ganado +25.000 monedas! 🎉', '#10b981');
+        };
+
+        if (window.sdk_init === true && window.sdk) {
+          console.log('[GameMonetize] Using SDK.showRewardedAd');
+          try {
+            window.sdk.showRewardedAd({
+              onRewardGranted: () => {
+                grantReward();
+              },
+              onRewardDeclined: () => {
+                showMessage('Completa el anuncio para obtener la recompensa', '#ff9800');
+              },
+              onHidden: () => {
+                console.log('[GameMonetize] Ad hidden');
+              }
+            });
+            return;
+          } catch (e) {
+            console.error('[GameMonetize] SDK error:', e);
+          }
         }
 
-        try {
-          window.GameMonetize.game.fn.rewarded(function() {
-            window.dispatchEvent(new CustomEvent('add-coins', { detail: 25000 }));
-            alert('¡Has ganado +25.000 monedas! 🎉');
-          });
-        } catch (error) {
-          console.error('[GameMonetize] Error showing ad:', error);
-          const msg = document.createElement('div');
-          msg.textContent = 'Error al cargar el anuncio';
-          msg.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#ff4444;color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;font-size:14px;';
-          document.body.appendChild(msg);
-          setTimeout(() => msg.remove(), 3000);
+        if (window.GameMonetize?.game?.fn?.rewarded) {
+          console.log('[GameMonetize] Using GameMonetize.game.fn.rewarded');
+          try {
+            window.GameMonetize.game.fn.rewarded(grantReward);
+            return;
+          } catch (e) {
+            console.error('[GameMonetize] Rewarded error:', e);
+          }
         }
+
+        console.warn('[GameMonetize] SDK not available, showing test ad');
+        showMessage('Cargando anuncio de prueba...', '#2563eb');
+
+        setTimeout(() => {
+          grantReward();
+        }, 2000);
       };
     </script>
 
