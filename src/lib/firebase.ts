@@ -14,6 +14,7 @@ const firebaseConfig = {
 };
 
 let messaging: any = null;
+let firestore: any = null;
 let isInitialized = false;
 
 export function initializeFirebase() {
@@ -22,18 +23,29 @@ export function initializeFirebase() {
   try {
     if (typeof window !== 'undefined' && window.firebase) {
       window.firebase.initializeApp(firebaseConfig);
-      messaging = window.firebase.messaging();
+
+      if (window.firebase.messaging && window.firebase.messaging.isSupported?.()) {
+        messaging = window.firebase.messaging();
+        console.log('[FCM] Firebase Cloud Messaging initialized');
+      }
+
+      if (window.firebase.firestore) {
+        firestore = window.firebase.firestore();
+        console.log('[Firestore] Firebase Firestore initialized');
+      }
+
       isInitialized = true;
-      console.log('[FCM] Firebase Cloud Messaging initialized');
 
-      messaging.onMessage((payload: any) => {
-        console.log('[FCM] Mensaje recibido en foreground:', payload);
+      if (messaging) {
+        messaging.onMessage((payload: any) => {
+          console.log('[FCM] Mensaje recibido en foreground:', payload);
 
-        const title = payload.notification?.title || '¡Twin Clash!';
-        const body = payload.notification?.body || 'Tienes una nueva notificación';
+          const title = payload.notification?.title || '¡Twin Clash!';
+          const body = payload.notification?.body || 'Tienes una nueva notificación';
 
-        showInAppNotification(title, body);
-      });
+          showInAppNotification(title, body);
+        });
+      }
     }
   } catch (error) {
     console.warn('[FCM] Error initializing Firebase (no crítico):', error);
@@ -166,4 +178,11 @@ export function getNotificationPermissionStatus(): NotificationPermission {
 
 export function isNotificationSupported(): boolean {
   return 'Notification' in window && 'serviceWorker' in navigator;
+}
+
+export function getFirestore() {
+  if (!firestore) {
+    initializeFirebase();
+  }
+  return firestore;
 }

@@ -200,7 +200,6 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             <NotificationButton />
           </div>
 
-          {/* DUELO TEMPORALMENTE DESACTIVADO - NO BORRAR
           <button
             type="button"
             onClick={onStartDuel}
@@ -209,7 +208,6 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             <Swords size={20} />
             <span className="text-sm">Duelo</span>
           </button>
-          */}
         </div>
       </div>
 

@@ -25,11 +25,35 @@ interface GameCoreProps {
   onComplete: () => void;
   onBackToMenu: () => void;
   isDailyChallenge?: boolean;
-  // removed custom photo feature
+  duelCode?: string;
+  duelRole?: 'host' | 'guest';
+  duelSeed?: string;
+  duelLevel?: number;
+  onDuelFinish?: (result: {
+    win: boolean;
+    timeMs: number;
+    moves: number;
+    pairsFound: number;
+    level: number;
+    duelCode: string;
+    duelRole: 'host' | 'guest';
+  }) => void;
 }
 
-export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = false }: GameCoreProps) => {
-  const levelConfig = getLevelConfig(level);
+export const GameCore = ({
+  level,
+  onComplete,
+  onBackToMenu,
+  isDailyChallenge = false,
+  duelCode,
+  duelRole,
+  duelSeed,
+  duelLevel,
+  onDuelFinish,
+}: GameCoreProps) => {
+  const isDuel = !!duelCode && !!duelRole && !!duelSeed && typeof duelLevel === 'number';
+  const activeLevel = isDuel ? (duelLevel as number) : level;
+  const levelConfig = getLevelConfig(activeLevel);
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matchedPairs, setMatchedPairs] = useState(0);
@@ -42,7 +66,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [showWinModal, setShowWinModal] = useState(false);
   const [bestScore, setBestScore] = useState<BestScore | null>(null);
-  const [seed] = useState(() => isDailyChallenge ? getSeedFromURLorToday() : `random-${Date.now()}`);
+  const [seed] = useState(() => {
+    if (isDuel) return duelSeed as string;
+    return isDailyChallenge ? getSeedFromURLorToday() : `random-${Date.now()}`;
+  });
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [isPioneer, setIsPioneer] = useState(false);
   const [crewId, setCrewId] = useState(() => getCrewIdFromURL());
@@ -162,9 +189,9 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   }
 
   const initializeLevel = useCallback(() => {
-    console.log('[GameCore] initializeLevel', { level, seed });
+    console.log('[GameCore] initializeLevel', { level: activeLevel, seed, isDuel, duelCode });
 
-    const config = getLevelConfig(level);
+    const config = getLevelConfig(activeLevel);
     const pairs = config?.pairs || 6;
     const timeLimit = config?.timeLimit || 60;
     const theme = config?.theme || 'nature';
@@ -441,6 +468,22 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
             if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
             soundManager.stopLevelMusic();
             soundManager.playLose();
+
+            if (isDuel && duelCode && duelRole && onDuelFinish) {
+              const elapsedMs = gameStartTimeRef.current > 0
+                ? Date.now() - gameStartTimeRef.current
+                : Date.now();
+              onDuelFinish({
+                win: false,
+                timeMs: elapsedMs,
+                moves,
+                pairsFound: matchedPairs,
+                level: activeLevel,
+                duelCode,
+                duelRole,
+              });
+            }
+
             setGameOver(true);
             return 0;
           }
@@ -518,6 +561,18 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       setFinalTime(finalTimeValue);
       setFinalMoves(moves);
 
+      if (isDuel && duelCode && duelRole && onDuelFinish) {
+        onDuelFinish({
+          win: true,
+          timeMs: finalTimeValue * 1000,
+          moves,
+          pairsFound: matchedPairs,
+          level: activeLevel,
+          duelCode,
+          duelRole,
+        });
+      }
+
       const handleLevelComplete = async () => {
         if (isDailyChallenge) {
           const stored = localStorage.getItem(`best:${seed}`);
@@ -540,7 +595,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           }
 
           try {
-            const result = await submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: level });
+            const result = await submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: activeLevel });
             if (result.isPioneer) {
               setIsPioneer(true);
             }
@@ -560,7 +615,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           }, 1500);
         } else {
           try {
-            const result = await submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: level });
+            const result = await submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: activeLevel });
             if (result.isPioneer) {
               setIsPioneer(true);
             }
@@ -1327,11 +1382,11 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
               )}
             </div>
             <div className="flex flex-col gap-2">
-              {!isDailyChallenge && (
+              {!isDailyChallenge && !isDuel && (
                 <button
                   onClick={() => {
                     console.log('[GameCore] ===== CLICK SIGUIENTE NIVEL =====');
-                    console.log('[GameCore] Current level:', level);
+                    console.log('[GameCore] Current level:', activeLevel);
                     console.log('[GameCore] Calling onComplete...');
                     setShowWinModal(false);
                     setTimeout(() => {
@@ -1340,7 +1395,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
                   }}
                   className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
                 >
-                  Nivel {level + 1} 🎯
+                  Nivel {activeLevel + 1} 🎯
                 </button>
               )}
               <div className="flex gap-2">

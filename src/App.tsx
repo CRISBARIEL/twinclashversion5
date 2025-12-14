@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { InitialScreen } from './components/InitialScreen';
 import { GameShell } from './components/GameShell';
 import { GameCore } from './components/GameCore';
-import { DuelScene } from './components/DuelScene';
+import { DuelMenu } from './components/duel/DuelMenu';
 import { ChallengeScene } from './components/ChallengeScene';
 import { WorldMap } from './components/WorldMap';
 import { LevelSelector } from './components/LevelSelector';
@@ -29,6 +29,14 @@ function App() {
   const [selectedLevel, setSelectedLevel] = useState(1);
   const [selectedWorld, setSelectedWorld] = useState(1);
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
+  const [clientId] = useState(() => {
+    let id = localStorage.getItem('clientId');
+    if (!id) {
+      id = `client-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      localStorage.setItem('clientId', id);
+    }
+    return id;
+  });
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -140,7 +148,7 @@ function App() {
         <ChallengeScene onBackToMenu={handleBackToMenu} />
       )}
       {screen === 'duel' && (
-        <DuelScene onBackToMenu={handleBackToMenu} />
+        <DuelMenu onBack={handleBackToMenu} clientId={clientId} />
       )}
       {screen === 'upload' && (
         <AudioUploader />
