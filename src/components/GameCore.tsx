@@ -1189,6 +1189,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
               disabled={isPreview || gameOver || powerUpUsed}
               hasObstacles={cards.some(c => c.obstacle)}
               onModalStateChange={setIsTimerPaused}
+              timeRemaining={timeLeft}
             />
             {powerUpUsed && (
               <div className="text-xs text-center text-green-600 font-semibold mt-1">

@@ -8,11 +8,14 @@ interface PowerUpButtonsProps {
   disabled: boolean;
   hasObstacles?: boolean;
   onModalStateChange?: (isOpen: boolean) => void;
+  timeRemaining?: number;
 }
 
-export function PowerUpButtons({ onPowerUpUsed, onFreezeTime, disabled, hasObstacles = false, onModalStateChange }: PowerUpButtonsProps) {
+export function PowerUpButtons({ onPowerUpUsed, onFreezeTime, disabled, hasObstacles = false, onModalStateChange, timeRemaining }: PowerUpButtonsProps) {
   const [coins, setCoins] = useState(getLocalCoins());
   const [showConfirm, setShowConfirm] = useState<20 | 40 | 'freeze10' | 'freeze15' | null>(null);
+
+  const shouldPulse = timeRemaining !== undefined && timeRemaining <= 10 && timeRemaining > 0;
 
   const handlePurchase = (type: 20 | 40 | 'freeze10' | 'freeze15') => {
     setShowConfirm(type);
@@ -51,7 +54,7 @@ export function PowerUpButtons({ onPowerUpUsed, onFreezeTime, disabled, hasObsta
             disabled || coins < 600
               ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
               : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-110 active:scale-95'
-          }`}
+          } ${shouldPulse && !(disabled || coins < 600) ? 'animate-heartbeat' : ''}`}
           title="Revelar 20% - 600 monedas"
         >
           <Zap size={14} />
@@ -65,7 +68,7 @@ export function PowerUpButtons({ onPowerUpUsed, onFreezeTime, disabled, hasObsta
             disabled || coins < 1000
               ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
               : 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white hover:scale-110 active:scale-95'
-          }`}
+          } ${shouldPulse && !(disabled || coins < 1000) ? 'animate-heartbeat' : ''}`}
           title="Revelar 40% - 1000 monedas"
         >
           <Sparkles size={14} />
@@ -81,7 +84,7 @@ export function PowerUpButtons({ onPowerUpUsed, onFreezeTime, disabled, hasObsta
                 disabled || coins < 1000
                   ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white hover:scale-110 active:scale-95'
-              }`}
+              } ${shouldPulse && !(disabled || coins < 1000) ? 'animate-heartbeat' : ''}`}
               title="Congelar +10s - 1000 monedas"
             >
               <Clock size={14} />
@@ -95,7 +98,7 @@ export function PowerUpButtons({ onPowerUpUsed, onFreezeTime, disabled, hasObsta
                 disabled || coins < 1400
                   ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                   : 'bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:scale-110 active:scale-95'
-              }`}
+              } ${shouldPulse && !(disabled || coins < 1400) ? 'animate-heartbeat' : ''}`}
               title="Congelar +15s - 1400 monedas"
             >
               <Clock size={14} />
@@ -181,8 +184,24 @@ export function PowerUpButtons({ onPowerUpUsed, onFreezeTime, disabled, hasObsta
           }
         }
 
+        @keyframes heartbeat {
+          0%, 100% {
+            transform: scale(1);
+          }
+          10%, 30% {
+            transform: scale(1.15);
+          }
+          20%, 40% {
+            transform: scale(1);
+          }
+        }
+
         .animate-scale-in {
           animation: scale-in 0.2s ease-out;
+        }
+
+        .animate-heartbeat {
+          animation: heartbeat 1.5s ease-in-out infinite;
         }
       `}</style>
     </>
