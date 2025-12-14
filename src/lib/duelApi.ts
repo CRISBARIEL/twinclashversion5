@@ -38,6 +38,7 @@ function generateRoomCode(): string {
 }
 
 export async function createDuelRoom(clientId: string, levelNumber: number): Promise<DuelRoom> {
+  console.log('[createDuelRoom] Creating room:', { clientId, levelNumber });
   const worldId = Math.ceil(levelNumber / 20);
 
   for (let attempt = 0; attempt < 10; attempt++) {
@@ -45,6 +46,7 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
     const seed = `duel-${roomCode}-${Date.now()}`;
 
     try {
+      console.log('[createDuelRoom] Attempt', attempt + 1, 'with code:', roomCode);
       const { data, error } = await supabase
         .from('duel_rooms')
         .insert({
@@ -59,16 +61,18 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
         .maybeSingle();
 
       if (!error && data) {
-        console.log('[createDuelRoom] Sala creada:', roomCode);
+        console.log('[createDuelRoom] ✅ Sala creada exitosamente:', roomCode);
         return data;
       }
 
-      if (error && !error.message.includes('duplicate')) {
-        console.error('[createDuelRoom] Error:', error.message);
-        throw new Error('FAILED_TO_CREATE_ROOM');
+      if (error) {
+        console.error('[createDuelRoom] ❌ Error:', error);
+        if (!error.message.includes('duplicate')) {
+          throw new Error('FAILED_TO_CREATE_ROOM');
+        }
       }
     } catch (err: any) {
-      console.error('[createDuelRoom] Exception:', err);
+      console.error('[createDuelRoom] ❌ Exception:', err);
       if (attempt === 9) {
         throw new Error('FAILED_TO_CREATE_ROOM');
       }
@@ -81,6 +85,7 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
 export async function joinDuelRoom(clientId: string, roomCode: string): Promise<DuelRoom> {
   try {
     const normalizedCode = roomCode.toUpperCase().trim();
+    console.log('[joinDuelRoom] Joining room:', { clientId, roomCode: normalizedCode });
 
     const { data: room, error: fetchError } = await supabase
       .from('duel_rooms')
@@ -89,14 +94,16 @@ export async function joinDuelRoom(clientId: string, roomCode: string): Promise<
       .maybeSingle();
 
     if (fetchError) {
-      console.error('[joinDuelRoom] Fetch error:', fetchError.message);
+      console.error('[joinDuelRoom] ❌ Fetch error:', fetchError);
       throw new Error('ROOM_NOT_FOUND');
     }
 
     if (!room) {
-      console.error('[joinDuelRoom] Sala no encontrada:', normalizedCode);
+      console.error('[joinDuelRoom] ❌ Sala no encontrada:', normalizedCode);
       throw new Error('ROOM_NOT_FOUND');
     }
+
+    console.log('[joinDuelRoom] Room found:', room);
 
     if (room.host_client_id === clientId) {
       console.log('[joinDuelRoom] Host reconnecting to own room');

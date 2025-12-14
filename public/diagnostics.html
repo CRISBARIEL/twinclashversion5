@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Twin Clash - Diagnósticos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+        }
+        .test h3 {
+            margin-top: 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.ok {
+            background: #10b981;
+        }
+        .status.error {
+            background: #ef4444;
+        }
+        .status.pending {
+            background: #f59e0b;
+        }
+        button {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+        }
+        button:hover {
+            background: #f0f0f0;
+        }
+        pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnósticos de Twin Clash</h1>
+
+        <div class="test">
+            <h3>1. Variables de Entorno <span id="status-env" class="status pending">Pendiente</span></h3>
+            <pre id="env-result">Ejecutando test...</pre>
+        </div>
+
+        <div class="test">
+            <h3>2. Conexión a Supabase <span id="status-supabase" class="status pending">Pendiente</span></h3>
+            <pre id="supabase-result">Ejecutando test...</pre>
+        </div>
+
+        <div class="test">
+            <h3>3. Crear Sala de Duelo <span id="status-create" class="status pending">Pendiente</span></h3>
+            <pre id="create-result">Ejecutando test...</pre>
+        </div>
+
+        <div class="test">
+            <h3>4. Leer Sala de Duelo <span id="status-read" class="status pending">Pendiente</span></h3>
+            <pre id="read-result">Ejecutando test...</pre>
+        </div>
+
+        <button onclick="runTests()">🔄 Ejecutar Tests Nuevamente</button>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        async function runTests() {
+            let supabase;
+            let testRoomCode;
+
+            // Test 1: Variables de Entorno
+            try {
+                const envVars = {
+                    VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+                    VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Configurada ✓' : 'No configurada ✗'
+                };
+
+                document.getElementById('env-result').textContent = JSON.stringify(envVars, null, 2);
+
+                if (import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY) {
+                    document.getElementById('status-env').className = 'status ok';
+                    document.getElementById('status-env').textContent = 'OK';
+                } else {
+                    document.getElementById('status-env').className = 'status error';
+                    document.getElementById('status-env').textContent = 'Error';
+                    return;
+                }
+            } catch (error) {
+                document.getElementById('status-env').className = 'status error';
+                document.getElementById('status-env').textContent = 'Error';
+                document.getElementById('env-result').textContent = error.message;
+                return;
+            }
+
+            // Test 2: Conexión a Supabase
+            try {
+                supabase = createClient(
+                    import.meta.env.VITE_SUPABASE_URL,
+                    import.meta.env.VITE_SUPABASE_ANON_KEY
+                );
+
+                const { data, error } = await supabase.from('duel_rooms').select('count').limit(1);
+
+                if (error) {
+                    throw error;
+                }
+
+                document.getElementById('supabase-result').textContent = 'Conexión exitosa ✓\nPuede acceder a la tabla duel_rooms';
+                document.getElementById('status-supabase').className = 'status ok';
+                document.getElementById('status-supabase').textContent = 'OK';
+            } catch (error) {
+                document.getElementById('status-supabase').className = 'status error';
+                document.getElementById('status-supabase').textContent = 'Error';
+                document.getElementById('supabase-result').textContent = `Error: ${error.message}`;
+                return;
+            }
+
+            // Test 3: Crear Sala de Duelo
+            try {
+                const clientId = crypto.randomUUID();
+                const roomCode = generateRoomCode();
+                testRoomCode = roomCode;
+
+                const { data, error } = await supabase
+                    .from('duel_rooms')
+                    .insert({
+                        room_code: roomCode,
+                        world_id: 1,
+                        level_number: 1,
+                        seed: `test-${Date.now()}`,
+                        host_client_id: clientId,
+                        status: 'waiting',
+                    })
+                    .select()
+                    .single();
+
+                if (error) {
+                    throw error;
+                }
+
+                document.getElementById('create-result').textContent =
+                    `Sala creada exitosamente ✓\nCódigo: ${roomCode}\nID: ${data.id}`;
+                document.getElementById('status-create').className = 'status ok';
+                document.getElementById('status-create').textContent = 'OK';
+            } catch (error) {
+                document.getElementById('status-create').className = 'status error';
+                document.getElementById('status-create').textContent = 'Error';
+                document.getElementById('create-result').textContent = `Error: ${error.message}`;
+                return;
+            }
+
+            // Test 4: Leer Sala de Duelo
+            try {
+                const { data, error } = await supabase
+                    .from('duel_rooms')
+                    .select('*')
+                    .eq('room_code', testRoomCode)
+                    .single();
+
+                if (error) {
+                    throw error;
+                }
+
+                document.getElementById('read-result').textContent =
+                    `Sala leída exitosamente ✓\n${JSON.stringify(data, null, 2)}`;
+                document.getElementById('status-read').className = 'status ok';
+                document.getElementById('status-read').textContent = 'OK';
+
+                // Limpiar sala de prueba
+                await supabase.from('duel_rooms').delete().eq('room_code', testRoomCode);
+            } catch (error) {
+                document.getElementById('status-read').className = 'status error';
+                document.getElementById('status-read').textContent = 'Error';
+                document.getElementById('read-result').textContent = `Error: ${error.message}`;
+            }
+        }
+
+        function generateRoomCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 6; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        // Ejecutar tests al cargar
+        window.runTests = runTests;
+        runTests();
+    </script>
+</body>
+</html>
