@@ -28,7 +28,10 @@ export const DifficultyOverlay = ({ difficulty, levelNumber, onComplete, duratio
   }[difficulty] || 'from-gray-500 to-gray-600';
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 animate-fade-in">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 animate-fade-in cursor-pointer"
+      onClick={onComplete}
+    >
       <div className="text-center animate-scale-pulse">
         <div className={`bg-gradient-to-br ${bgGradient} text-white rounded-3xl px-12 py-8 shadow-2xl`}>
           <div className="text-5xl font-black mb-4">
