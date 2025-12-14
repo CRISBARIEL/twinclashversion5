@@ -30,7 +30,7 @@ createRoot(document.getElementById('root')!).render(
 
 // === CONEXIÓN DEL BOTÓN REWARDED (Unity Ads) ===
 window.addEventListener('add-coins', (event: any) => {
-  const amount = event.detail || 25000;
+  const amount = event.detail || 2000;
 
   const newTotal = addCoins(amount);
 
