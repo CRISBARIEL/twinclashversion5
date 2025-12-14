@@ -64,6 +64,10 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [freezeTimeLeft, setFreezeTimeLeft] = useState(0);
   const [streakMatches, setStreakMatches] = useState(0);
   const [comboCardId, setComboCardId] = useState<number | null>(null);
+  const [enableHazards, setEnableHazards] = useState(false);
+  const [lastAdjacentPairMatchedAtMs, setLastAdjacentPairMatchedAtMs] = useState(0);
+  const [hazardMessage, setHazardMessage] = useState<string | null>(null);
+  const hazardTickRef = useRef<number | null>(null);
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -85,6 +89,76 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const triggerIceBreakerRef = useRef<((cardId: number) => void) | null>(null);
   const levelCompletedRef = useRef(false);
 
+  const BASE_LEVEL_WORLD_21 = 101;
+  const LEVELS_PER_WORLD = 5;
+
+  function shouldEnableHazardsFor(levelNumber: number, worldId: number) {
+    if (worldId < 21 || worldId > 28) return false;
+
+    const worldIndex = worldId - 21;
+    const worldStart = BASE_LEVEL_WORLD_21 + worldIndex * LEVELS_PER_WORLD;
+    const levelIndexInWorld = levelNumber - worldStart;
+
+    return levelIndexInWorld >= 3 && levelIndexInWorld <= 4;
+  }
+
+  function applySafeVirusInfection(prevCards: Card[]): Card[] {
+    const gridSize = Math.ceil(Math.sqrt(prevCards.length));
+
+    const getAdjacent = (idx: number) => {
+      const row = Math.floor(idx / gridSize);
+      const col = idx % gridSize;
+      const adj: number[] = [];
+      if (col > 0) adj.push(idx - 1);
+      if (col < gridSize - 1) adj.push(idx + 1);
+      if (row > 0) adj.push(idx - gridSize);
+      if (row < gridSize - 1) adj.push(idx + gridSize);
+      return adj.filter(i => i >= 0 && i < prevCards.length);
+    };
+
+    const virusIdxs = prevCards
+      .map((c, i) => (c.obstacle === 'virus' ? i : -1))
+      .filter(i => i >= 0);
+
+    if (virusIdxs.length === 0) return prevCards;
+
+    const candidates: number[] = [];
+    for (const vIdx of virusIdxs) {
+      for (const a of getAdjacent(vIdx)) {
+        const c = prevCards[a];
+        if (!c) continue;
+        if (c.isMatched) continue;
+        if (c.isFlipped) continue;
+        if (c.obstacle && (c.obstacleHealth ?? 0) > 0) continue;
+        if (c.obstacle === 'virus' || c.obstacle === 'bomb' || c.obstacle === 'fire') continue;
+        candidates.push(a);
+      }
+    }
+
+    if (candidates.length === 0) return prevCards;
+
+    const MAX_INFECT = 2;
+    const picked: number[] = [];
+    const usedImageIndex = new Set<number>();
+
+    for (const idx of candidates.sort(() => Math.random() - 0.5)) {
+      if (picked.length >= MAX_INFECT) break;
+      const c = prevCards[idx];
+
+      if (usedImageIndex.has(c.imageIndex)) continue;
+
+      usedImageIndex.add(c.imageIndex);
+      picked.push(idx);
+    }
+
+    if (picked.length === 0) return prevCards;
+
+    return prevCards.map((c, idx) => {
+      if (!picked.includes(idx)) return c;
+      return { ...c, obstacle: 'ice', obstacleHealth: 1 };
+    });
+  }
+
   const initializeLevel = useCallback(() => {
     console.log('[GameCore] initializeLevel', { level, seed });
 
@@ -92,6 +166,12 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     const pairs = config?.pairs || 6;
     const timeLimit = config?.timeLimit || 60;
     const theme = config?.theme || 'nature';
+
+    const worldId = config?.world ?? 0;
+    const hazardsOn = shouldEnableHazardsFor(level, worldId);
+    setEnableHazards(hazardsOn);
+    setLastAdjacentPairMatchedAtMs(Date.now());
+    setHazardMessage(null);
 
     const themeImages = getThemeImages(theme);
     const selectedImages = themeImages.slice(0, pairs);
@@ -325,6 +405,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       if (timerRef.current) clearInterval(timerRef.current);
       if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
       if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
+      if (hazardTickRef.current) clearInterval(hazardTickRef.current);
     };
   }, [level, initializeLevel]);
 
@@ -370,6 +451,46 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
     };
   }, [isPreview, gameOver, isTimerPaused]);
+
+  useEffect(() => {
+    const TIMEOUT_MS = 15_000;
+
+    if (!enableHazards || isPreview || gameOver || isTimerPaused) {
+      if (hazardTickRef.current) clearInterval(hazardTickRef.current);
+      return;
+    }
+
+    if (hazardTickRef.current) clearInterval(hazardTickRef.current);
+
+    hazardTickRef.current = window.setInterval(() => {
+      const now = Date.now();
+      const elapsed = now - lastAdjacentPairMatchedAtMs;
+      if (elapsed < TIMEOUT_MS) return;
+
+      const hasBomb = cards.some(c => c.obstacle === 'bomb');
+      const hasVirus = cards.some(c => c.obstacle === 'virus');
+
+      if (hasBomb) {
+        if (hazardTickRef.current) clearInterval(hazardTickRef.current);
+        soundManager.stopLevelMusic();
+        soundManager.playLose();
+        setHazardMessage('💣 La bomba explotó (15s sin pareja adyacente).');
+        setGameOver(true);
+        return;
+      }
+
+      if (hasVirus) {
+        setCards(prev => applySafeVirusInfection(prev));
+        setLastAdjacentPairMatchedAtMs(now);
+      } else {
+        setLastAdjacentPairMatchedAtMs(now);
+      }
+    }, 250);
+
+    return () => {
+      if (hazardTickRef.current) clearInterval(hazardTickRef.current);
+    };
+  }, [enableHazards, isPreview, gameOver, isTimerPaused, lastAdjacentPairMatchedAtMs, cards]);
 
   useEffect(() => {
     const totalPairs = levelConfig?.pairs || 6;
@@ -568,6 +689,28 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       );
 
       if (isMatch) {
+        const idxA = cards.findIndex(c => c.id === firstId);
+        const idxB = cards.findIndex(c => c.id === secondId);
+
+        const isAdjacentPair = (() => {
+          if (idxA < 0 || idxB < 0) return false;
+          const gridSize = Math.ceil(Math.sqrt(cards.length));
+          const rowA = Math.floor(idxA / gridSize);
+          const colA = idxA % gridSize;
+
+          const neighbors: number[] = [];
+          if (colA > 0) neighbors.push(idxA - 1);
+          if (colA < gridSize - 1) neighbors.push(idxA + 1);
+          if (rowA > 0) neighbors.push(idxA - gridSize);
+          if (rowA < gridSize - 1) neighbors.push(idxA + gridSize);
+
+          return neighbors.includes(idxB);
+        })();
+
+        if (enableHazards && isAdjacentPair) {
+          setLastAdjacentPairMatchedAtMs(Date.now());
+        }
+
         soundManager.playMatch();
 
         const getAdjacentIndices = (cardId: number): number[] => {
@@ -1092,7 +1235,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
             <div className="text-6xl mb-4">😢</div>
             <h3 className="text-3xl font-bold text-red-600 mb-2">Game Over</h3>
-            <p className="text-gray-600 mb-6">Se acabó el tiempo</p>
+            <p className="text-gray-600 mb-6">{hazardMessage ?? 'Se acabó el tiempo'}</p>
             <div className="flex gap-3">
               <button
                 onClick={onBackToMenu}
