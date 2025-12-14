@@ -77,7 +77,7 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
           status: 'waiting',
         })
         .select()
-        .maybeSingle();
+        .single();
 
       if (error) {
         console.error('[createDuelRoom] ❌ Supabase error:', {
