@@ -9,6 +9,7 @@ import { SoundGear } from './SoundGear';
 import { ShareModal } from './ShareModal';
 import { ShatterEffect, ShatterTheme } from './ShatterEffect';
 import { CountdownOverlay } from './CountdownOverlay';
+import { DifficultyOverlay } from './DifficultyOverlay';
 import { Card, PREVIEW_TIME, FLIP_DELAY, GameMetrics, BestScore } from '../types';
 import { createConfetti } from '../utils/confetti';
 import { getSeedFromURLorToday, shuffleWithSeed } from '../lib/seed';
@@ -32,6 +33,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matchedPairs, setMatchedPairs] = useState(0);
+  const [showDifficulty, setShowDifficulty] = useState(true);
   const [showCountdown, setShowCountdown] = useState(false);
   const [isPreview, setIsPreview] = useState(true);
   const [timeLeft, setTimeLeft] = useState(levelConfig?.timeLimit || 60);
@@ -343,6 +345,7 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     setFlippedCards([]);
     setMatchedPairs(0);
     setShowCountdown(false);
+    setShowDifficulty(!isDailyChallenge && !!config?.difficulty);
     setIsPreview(true);
     setGameOver(false);
     setTimeLeft(timeLimit);
@@ -369,7 +372,9 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
       }
     }
 
-    setShowCountdown(true);
+    if (isDailyChallenge || !config?.difficulty) {
+      setShowCountdown(true);
+    }
 
     soundManager.stopLevelMusic();
     if (config) {
@@ -377,10 +382,14 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
     }
 
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
+    const totalPreviewTime = (!isDailyChallenge && config?.difficulty)
+      ? 2.5 + PREVIEW_TIME
+      : PREVIEW_TIME;
     previewTimerRef.current = window.setTimeout(() => {
       setIsPreview(false);
       setShowCountdown(false);
-    }, PREVIEW_TIME * 1000);
+      setShowDifficulty(false);
+    }, totalPreviewTime * 1000);
     if (isDailyChallenge) {
       const stored = localStorage.getItem(`best:${seed}`);
       if (stored) {
@@ -1098,7 +1107,17 @@ export const GameCore = ({ level, onComplete, onBackToMenu, isDailyChallenge = f
           ))}
         </div>
       )}
-      {showCountdown && isPreview && (
+      {showDifficulty && isPreview && !isDailyChallenge && (
+        <DifficultyOverlay
+          difficulty={levelConfig?.difficulty}
+          levelNumber={levelConfig?.level || 1}
+          onComplete={() => {
+            setShowDifficulty(false);
+            setShowCountdown(true);
+          }}
+        />
+      )}
+      {showCountdown && isPreview && !showDifficulty && (
         <CountdownOverlay
           initialCount={PREVIEW_TIME}
           onComplete={() => {
