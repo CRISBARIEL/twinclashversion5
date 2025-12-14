@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { SimpleInitialScreen } from './components/SimpleInitialScreen';
 import { InitialScreen } from './components/InitialScreen';
 import { GameShell } from './components/GameShell';
 import { GameCore } from './components/GameCore';
@@ -12,7 +13,7 @@ import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 import { initializeFirebase } from './lib/firebase';
 
-type Screen = 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload';
+type Screen = 'simple' | 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload';
 
 function App() {
   const [screen, setScreen] = useState<Screen>(() => {
@@ -24,7 +25,7 @@ function App() {
     if (mode === 'upload') {
       return 'upload';
     }
-    return 'menu';
+    return 'simple';
   });
   const [selectedLevel, setSelectedLevel] = useState(1);
   const [selectedWorld, setSelectedWorld] = useState(1);
@@ -53,7 +54,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (screen === 'menu' && !isLoadingProgress) {
+    if ((screen === 'simple' || screen === 'menu') && !isLoadingProgress) {
       soundManager.playStartMusic();
     }
   }, [screen, isLoadingProgress]);
@@ -75,7 +76,7 @@ function App() {
   const handleBackToMenu = () => {
     soundManager.stopLevelMusic();
     soundManager.playStartMusic();
-    setScreen('menu');
+    setScreen('simple');
   };
 
 
@@ -94,6 +95,19 @@ function App() {
 
   return (
     <>
+      {screen === 'simple' && (
+        <SimpleInitialScreen
+          onStartLevel1={() => {
+            setSelectedLevel(1);
+            setScreen('game');
+          }}
+          onContinueLevel={(level) => {
+            setSelectedLevel(level);
+            setScreen('game');
+          }}
+          onStartDuel={handleStartDuel}
+        />
+      )}
       {screen === 'menu' && (
         <InitialScreen
           onStartGame={() => {
@@ -121,7 +135,7 @@ function App() {
           onBackToMenu={() => {
             soundManager.stopLevelMusic();
             soundManager.playStartMusic();
-            setScreen('menu');
+            setScreen('simple');
           }}
         />
       )}

@@ -73,7 +73,7 @@ export const DuelMenu = ({ onBack, clientId }: DuelMenuProps) => {
           className="mb-4 flex items-center gap-2 text-white font-bold hover:text-purple-200 transition-colors"
         >
           <ArrowLeft size={24} />
-          Volver al Menú Principal
+          Volver
         </button>
 
         <div className="bg-white rounded-2xl shadow-2xl p-8">

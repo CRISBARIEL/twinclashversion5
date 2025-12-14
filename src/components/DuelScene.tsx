@@ -369,8 +369,51 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
   const currentTheme = levelConfig?.theme || 'nature';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-400 via-pink-500 to-purple-600 flex flex-col p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-4 mb-4">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex flex-col p-4 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none overflow-visible z-0">
+        <div className="absolute top-4 left-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🍃</span>
+        </div>
+        <div className="absolute top-16 left-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🍃</span>
+        </div>
+
+        <div className="absolute top-4 right-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🐱</span>
+        </div>
+        <div className="absolute top-16 right-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🐱</span>
+        </div>
+
+        <div className="absolute bottom-4 right-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🚀</span>
+        </div>
+        <div className="absolute bottom-16 right-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🚀</span>
+        </div>
+
+        <div className="absolute bottom-4 left-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🐬</span>
+        </div>
+        <div className="absolute bottom-16 left-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🐬</span>
+        </div>
+
+        <div className="absolute top-1/3 left-2 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🍕</span>
+        </div>
+        <div className="absolute top-1/2 left-10 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🍕</span>
+        </div>
+
+        <div className="absolute top-1/3 right-2 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🎵</span>
+        </div>
+        <div className="absolute top-1/2 right-10 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🎵</span>
+        </div>
+      </div>
+      <div className="bg-white rounded-2xl shadow-xl p-4 mb-4 relative z-10">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h2 className="text-xl font-bold text-gray-800">Duelo 1v1</h2>
@@ -459,7 +502,7 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
       </div>
 
       {gameState === 'lobby' && room && (
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center relative z-10">
           <div className="text-center text-white">
             <Users size={64} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg font-semibold mb-2">Sala: {room.room_code}</p>
@@ -471,7 +514,7 @@ export const DuelScene = ({ onBackToMenu }: DuelSceneProps) => {
       )}
 
       {(gameState === 'memorizing' || gameState === 'playing') && (
-        <div className="flex-1 flex items-center justify-center">
+        <div className="flex-1 flex items-center justify-center relative z-10">
           <div className="w-full max-w-lg">
             <div className="grid grid-cols-4 gap-3">
               {cards.map((card) => {

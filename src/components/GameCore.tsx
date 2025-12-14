@@ -1444,7 +1444,7 @@ export const GameCore = ({
                 className="w-full bg-gray-500 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-600 transition-colors"
               >
                 <ArrowLeft size={18} />
-                {isDailyChallenge ? 'Salir' : 'Menú Principal'}
+                {isDailyChallenge ? 'Salir' : 'Volver'}
               </button>
             </div>
           </div>
