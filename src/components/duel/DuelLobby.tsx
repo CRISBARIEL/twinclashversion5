@@ -21,7 +21,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!initialRoom) {
+    if (!initialRoom || !initialRoom.room_code) {
       setError('Sala no válida');
       return;
     }
@@ -57,7 +57,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [initialRoom?.room_code, gameStarted]);
+  }, [initialRoom?.room_code]);
 
   const handleDuelFinish = async (result: {
     win: boolean;

@@ -38,6 +38,16 @@ function generateRoomCode(): string {
 }
 
 export async function createDuelRoom(clientId: string, levelNumber: number): Promise<DuelRoom> {
+  if (!clientId || clientId.trim() === '') {
+    console.error('[createDuelRoom] clientId inválido');
+    throw new Error('INVALID_CLIENT_ID');
+  }
+
+  if (!levelNumber || levelNumber < 1) {
+    console.error('[createDuelRoom] levelNumber inválido');
+    throw new Error('INVALID_LEVEL');
+  }
+
   console.log('[createDuelRoom] Creating room:', { clientId, levelNumber });
   const worldId = Math.ceil(levelNumber / 20);
 
@@ -83,6 +93,16 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
 }
 
 export async function joinDuelRoom(clientId: string, roomCode: string): Promise<DuelRoom> {
+  if (!roomCode || roomCode.trim() === '') {
+    console.error('[joinDuelRoom] roomCode inválido');
+    throw new Error('INVALID_ROOM_CODE');
+  }
+
+  if (!clientId || clientId.trim() === '') {
+    console.error('[joinDuelRoom] clientId inválido');
+    throw new Error('INVALID_CLIENT_ID');
+  }
+
   try {
     const normalizedCode = roomCode.toUpperCase().trim();
     console.log('[joinDuelRoom] Joining room:', { clientId, roomCode: normalizedCode });
@@ -151,10 +171,17 @@ export async function joinDuelRoom(clientId: string, roomCode: string): Promise<
 }
 
 export async function getDuelRoom(roomCode: string): Promise<DuelRoom | null> {
+  if (!roomCode || roomCode.trim() === '') {
+    console.error('[getDuelRoom] roomCode inválido');
+    return null;
+  }
+
+  const normalizedCode = roomCode.toUpperCase().trim();
+
   const { data, error } = await supabase
     .from('duel_rooms')
     .select('*')
-    .eq('room_code', roomCode)
+    .eq('room_code', normalizedCode)
     .maybeSingle();
 
   if (error) {
@@ -170,11 +197,23 @@ export async function submitDuelResult(
   role: 'host' | 'guest',
   result: DuelResult
 ): Promise<void> {
+  if (!roomCode || roomCode.trim() === '') {
+    console.error('[submitDuelResult] roomCode inválido');
+    throw new Error('INVALID_ROOM_CODE');
+  }
+
+  if (!role || (role !== 'host' && role !== 'guest')) {
+    console.error('[submitDuelResult] role inválido');
+    throw new Error('INVALID_ROLE');
+  }
+
   try {
+    const normalizedCode = roomCode.toUpperCase().trim();
+
     const { data: room, error: fetchError } = await supabase
       .from('duel_rooms')
       .select('*')
-      .eq('room_code', roomCode.toUpperCase())
+      .eq('room_code', normalizedCode)
       .maybeSingle();
 
     if (fetchError || !room) {
@@ -240,6 +279,11 @@ export async function submitDuelResult(
 }
 
 export async function cancelDuelRoom(roomId: string): Promise<void> {
+  if (!roomId || roomId.trim() === '') {
+    console.error('[cancelDuelRoom] roomId inválido');
+    return;
+  }
+
   await supabase
     .from('duel_rooms')
     .update({ status: 'cancelled' })
@@ -250,8 +294,15 @@ export function subscribeToDuelRoom(
   roomCode: string,
   callback: (room: DuelRoom | null) => void
 ): () => void {
+  if (!roomCode || roomCode.trim() === '') {
+    console.error('[subscribeToDuelRoom] roomCode inválido');
+    callback(null);
+    return () => {};
+  }
+
   let alive = true;
   let intervalId: number | null = null;
+  const normalizedCode = roomCode.toUpperCase().trim();
 
   const pollRoom = async () => {
     if (!alive) return;
@@ -260,7 +311,7 @@ export function subscribeToDuelRoom(
       const { data, error } = await supabase
         .from('duel_rooms')
         .select('*')
-        .eq('room_code', roomCode.toUpperCase())
+        .eq('room_code', normalizedCode)
         .maybeSingle();
 
       if (!alive) return;
