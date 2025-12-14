@@ -36,7 +36,7 @@ export function RewardButton({ currentLevel }: RewardButtonProps) {
           className="flex items-center gap-2 bg-white text-gray-900 font-bold px-4 py-3 rounded-full hover:scale-105 transition-transform duration-200 shadow-lg"
         >
           <Gift className="w-5 h-5 text-yellow-600" />
-          <span className="text-sm whitespace-nowrap">+25.000 monedas</span>
+          <span className="text-sm whitespace-nowrap">+2.000 monedas</span>
         </button>
 
         <button
