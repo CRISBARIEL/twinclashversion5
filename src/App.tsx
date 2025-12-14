@@ -156,13 +156,24 @@ function App() {
       )}
       {screen === 'game' && <RewardButton currentLevel={selectedLevel} />}
 
-      {/* Botón temporal para probar Firestore */}
       <button
-        onClick={() => testFirestoreWrite()}
-        style={{ position: "fixed", bottom: 10, right: 10, zIndex: 9999 }}
-        className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg hover:bg-red-700"
+        onClick={() => {
+          alert("CLICK OK");
+          console.log("CLICK OK");
+        }}
+        style={{
+          position: "fixed",
+          bottom: 10,
+          right: 10,
+          zIndex: 999999,
+          padding: "10px 14px",
+          background: "red",
+          color: "white",
+          borderRadius: 8,
+          border: "none",
+        }}
       >
-        Test Firestore
+        Test Click
       </button>
     </>
   );
