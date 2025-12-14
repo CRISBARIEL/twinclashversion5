@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, Sword, Copy, Check } from 'lucide-react';
-import { createDuel, DuelRoom } from '../../lib/duels';
+import { createDuelRoom, DuelRoom } from '../../lib/duelApi';
 import { getLevelConfig } from '../../lib/levels';
 
 interface DuelCreateProps {
@@ -23,11 +23,14 @@ export const DuelCreate = ({ onBack, onRoomCreated, clientId }: DuelCreateProps)
     setError(null);
 
     try {
-      const room = await createDuel(selectedLevel, clientId);
+      const room = await createDuelRoom(clientId, selectedLevel);
       setCreatedRoom(room);
       onRoomCreated(room);
-    } catch (err) {
-      setError('Error al crear el duelo. Intenta de nuevo.');
+    } catch (err: any) {
+      const errorMsg = err.message === 'FAILED_TO_CREATE_ROOM'
+        ? 'Error al crear el duelo. Verifica tu conexión.'
+        : 'Error al crear el duelo. Intenta de nuevo.';
+      setError(errorMsg);
       console.error('[DuelCreate] Error:', err);
     } finally {
       setCreating(false);
@@ -36,7 +39,7 @@ export const DuelCreate = ({ onBack, onRoomCreated, clientId }: DuelCreateProps)
 
   const handleCopyCode = () => {
     if (createdRoom) {
-      navigator.clipboard.writeText(createdRoom.code);
+      navigator.clipboard.writeText(createdRoom.room_code);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }
@@ -67,7 +70,7 @@ export const DuelCreate = ({ onBack, onRoomCreated, clientId }: DuelCreateProps)
               <div className="text-center">
                 <p className="text-sm text-gray-600 mb-2">Código del Duelo</p>
                 <div className="text-5xl font-black text-purple-600 tracking-wider mb-4">
-                  {createdRoom.code}
+                  {createdRoom.room_code}
                 </div>
                 <button
                   onClick={handleCopyCode}
@@ -91,7 +94,7 @@ export const DuelCreate = ({ onBack, onRoomCreated, clientId }: DuelCreateProps)
             <div className="bg-gray-50 rounded-xl p-4 mb-6">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Nivel:</span>
-                <span className="font-bold text-gray-800">Nivel {createdRoom.level}</span>
+                <span className="font-bold text-gray-800">Nivel {createdRoom.level_number}</span>
               </div>
             </div>
 

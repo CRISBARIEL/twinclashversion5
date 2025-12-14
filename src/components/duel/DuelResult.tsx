@@ -1,5 +1,5 @@
 import { Trophy, Flame, Timer, Target, ArrowLeft } from 'lucide-react';
-import { DuelRoom, determineWinner } from '../../lib/duels';
+import { DuelRoom, determineWinner } from '../../lib/duelApi';
 import { useEffect } from 'react';
 import { createConfetti } from '../../utils/confetti';
 
@@ -14,8 +14,14 @@ export const DuelResult = ({ room, role, onBack }: DuelResultProps) => {
   const isWinner = winner === role;
   const isTie = winner === 'tie';
 
-  const myResult = room.results?.[role];
-  const rivalResult = room.results?.[role === 'host' ? 'guest' : 'host'];
+  const isHost = role === 'host';
+  const myTime = (isHost ? room.host_time : room.guest_time) ?? 0;
+  const myScore = (isHost ? room.host_score : room.guest_score) ?? 0;
+  const rivalTime = (isHost ? room.guest_time : room.host_time) ?? 0;
+  const rivalScore = (isHost ? room.guest_score : room.host_score) ?? 0;
+
+  const myWin = winner === role;
+  const rivalWin = winner === (role === 'host' ? 'guest' : 'host');
 
   useEffect(() => {
     if (isWinner || isTie) {
@@ -23,8 +29,7 @@ export const DuelResult = ({ room, role, onBack }: DuelResultProps) => {
     }
   }, [isWinner, isTie]);
 
-  const formatTime = (ms: number) => {
-    const seconds = Math.floor(ms / 1000);
+  const formatTime = (seconds: number) => {
     return `${seconds}s`;
   };
 
@@ -76,15 +81,15 @@ export const DuelResult = ({ room, role, onBack }: DuelResultProps) => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between bg-white rounded-lg p-3">
                   <div className="flex items-center gap-2">
-                    {myResult?.win ? (
+                    {myWin ? (
                       <Trophy className="text-green-500" size={20} />
                     ) : (
                       <Flame className="text-red-500" size={20} />
                     )}
                     <span className="text-sm text-gray-600">Resultado:</span>
                   </div>
-                  <span className={`font-bold ${myResult?.win ? 'text-green-600' : 'text-red-600'}`}>
-                    {myResult?.win ? 'Ganó' : 'Perdió'}
+                  <span className={`font-bold ${myWin ? 'text-green-600' : 'text-red-600'}`}>
+                    {myWin ? 'Ganó' : isTie ? 'Empate' : 'Perdió'}
                   </span>
                 </div>
 
@@ -94,16 +99,8 @@ export const DuelResult = ({ room, role, onBack }: DuelResultProps) => {
                     <span className="text-sm text-gray-600">Tiempo:</span>
                   </div>
                   <span className="font-bold text-gray-800">
-                    {myResult ? formatTime(myResult.timeMs) : '-'}
+                    {formatTime(myTime)}
                   </span>
-                </div>
-
-                <div className="flex items-center justify-between bg-white rounded-lg p-3">
-                  <div className="flex items-center gap-2">
-                    <Target className="text-purple-500" size={20} />
-                    <span className="text-sm text-gray-600">Movimientos:</span>
-                  </div>
-                  <span className="font-bold text-gray-800">{myResult?.moves || 0}</span>
                 </div>
 
                 <div className="flex items-center justify-between bg-white rounded-lg p-3">
@@ -111,7 +108,7 @@ export const DuelResult = ({ room, role, onBack }: DuelResultProps) => {
                     <Trophy className="text-orange-500" size={20} />
                     <span className="text-sm text-gray-600">Pares:</span>
                   </div>
-                  <span className="font-bold text-gray-800">{myResult?.pairsFound || 0}</span>
+                  <span className="font-bold text-gray-800">{myScore}</span>
                 </div>
               </div>
             </div>
@@ -133,15 +130,15 @@ export const DuelResult = ({ room, role, onBack }: DuelResultProps) => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between bg-white rounded-lg p-3">
                   <div className="flex items-center gap-2">
-                    {rivalResult?.win ? (
+                    {rivalWin ? (
                       <Trophy className="text-green-500" size={20} />
                     ) : (
                       <Flame className="text-red-500" size={20} />
                     )}
                     <span className="text-sm text-gray-600">Resultado:</span>
                   </div>
-                  <span className={`font-bold ${rivalResult?.win ? 'text-green-600' : 'text-red-600'}`}>
-                    {rivalResult?.win ? 'Ganó' : 'Perdió'}
+                  <span className={`font-bold ${rivalWin ? 'text-green-600' : 'text-red-600'}`}>
+                    {rivalWin ? 'Ganó' : isTie ? 'Empate' : 'Perdió'}
                   </span>
                 </div>
 
@@ -151,16 +148,8 @@ export const DuelResult = ({ room, role, onBack }: DuelResultProps) => {
                     <span className="text-sm text-gray-600">Tiempo:</span>
                   </div>
                   <span className="font-bold text-gray-800">
-                    {rivalResult ? formatTime(rivalResult.timeMs) : '-'}
+                    {formatTime(rivalTime)}
                   </span>
-                </div>
-
-                <div className="flex items-center justify-between bg-white rounded-lg p-3">
-                  <div className="flex items-center gap-2">
-                    <Target className="text-purple-500" size={20} />
-                    <span className="text-sm text-gray-600">Movimientos:</span>
-                  </div>
-                  <span className="font-bold text-gray-800">{rivalResult?.moves || 0}</span>
                 </div>
 
                 <div className="flex items-center justify-between bg-white rounded-lg p-3">
@@ -168,7 +157,7 @@ export const DuelResult = ({ room, role, onBack }: DuelResultProps) => {
                     <Trophy className="text-orange-500" size={20} />
                     <span className="text-sm text-gray-600">Pares:</span>
                   </div>
-                  <span className="font-bold text-gray-800">{rivalResult?.pairsFound || 0}</span>
+                  <span className="font-bold text-gray-800">{rivalScore}</span>
                 </div>
               </div>
             </div>

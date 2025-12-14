@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 export interface DuelRoom {
   id: string;
@@ -20,8 +21,15 @@ export interface DuelRoom {
   expires_at: string;
 }
 
+export interface DuelResult {
+  win: boolean;
+  timeMs: number;
+  moves: number;
+  pairsFound: number;
+}
+
 function generateRoomCode(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
   for (let i = 0; i < 6; i++) {
     code += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -29,41 +37,48 @@ function generateRoomCode(): string {
   return code;
 }
 
-export async function createDuelRoom(clientId: string, worldId: number, levelNumber: number): Promise<DuelRoom | null> {
-  const roomCode = generateRoomCode();
-  const seed = `duel-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+export async function createDuelRoom(clientId: string, levelNumber: number): Promise<DuelRoom> {
+  const worldId = Math.ceil(levelNumber / 20);
 
-  const { data, error } = await supabase
-    .from('duel_rooms')
-    .insert({
-      room_code: roomCode,
-      world_id: worldId,
-      level_number: levelNumber,
-      seed,
-      host_client_id: clientId,
-      status: 'waiting',
-    })
-    .select()
-    .maybeSingle();
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const roomCode = generateRoomCode();
+    const seed = `duel-${roomCode}-${Date.now()}`;
 
-  if (error) {
-    console.error('[createDuelRoom] Error:', error);
-    return null;
+    const { data, error } = await supabase
+      .from('duel_rooms')
+      .insert({
+        room_code: roomCode,
+        world_id: worldId,
+        level_number: levelNumber,
+        seed,
+        host_client_id: clientId,
+        status: 'waiting',
+      })
+      .select()
+      .maybeSingle();
+
+    if (!error && data) {
+      return data;
+    }
+
+    if (error && !error.message.includes('duplicate')) {
+      console.error('[createDuelRoom] Error:', error);
+      throw new Error('FAILED_TO_CREATE_ROOM');
+    }
   }
 
-  return data;
+  throw new Error('FAILED_TO_GENERATE_CODE');
 }
 
-export async function joinDuelRoom(clientId: string, roomCode: string): Promise<DuelRoom | null> {
+export async function joinDuelRoom(clientId: string, roomCode: string): Promise<DuelRoom> {
   const { data: room, error: fetchError } = await supabase
     .from('duel_rooms')
     .select('*')
-    .eq('room_code', roomCode)
+    .eq('room_code', roomCode.toUpperCase())
     .maybeSingle();
 
   if (fetchError || !room) {
-    console.error('[joinDuelRoom] Room not found or error:', fetchError);
-    return null;
+    throw new Error('ROOM_NOT_FOUND');
   }
 
   if (room.host_client_id === clientId) {
@@ -71,13 +86,11 @@ export async function joinDuelRoom(clientId: string, roomCode: string): Promise<
   }
 
   if (room.status !== 'waiting') {
-    console.error('[joinDuelRoom] Room is not available:', room.status);
-    return null;
+    throw new Error('ROOM_NOT_WAITING');
   }
 
-  if (room.guest_client_id && room.guest_client_id !== clientId) {
-    console.error('[joinDuelRoom] Room already has a guest');
-    return null;
+  if (room.guest_client_id) {
+    throw new Error('ROOM_FULL');
   }
 
   const { data, error } = await supabase
@@ -93,8 +106,7 @@ export async function joinDuelRoom(clientId: string, roomCode: string): Promise<
     .maybeSingle();
 
   if (error || !data) {
-    console.error('[joinDuelRoom] Error updating room or room no longer available:', error);
-    return null;
+    throw new Error('ROOM_NO_LONGER_AVAILABLE');
   }
 
   return data;
@@ -115,44 +127,63 @@ export async function getDuelRoom(roomCode: string): Promise<DuelRoom | null> {
   return data;
 }
 
-export async function finishDuel(roomId: string, clientId: string, time: number, score: number): Promise<void> {
+export async function submitDuelResult(
+  roomCode: string,
+  role: 'host' | 'guest',
+  result: DuelResult
+): Promise<void> {
   const { data: room } = await supabase
     .from('duel_rooms')
     .select('*')
-    .eq('id', roomId)
+    .eq('room_code', roomCode.toUpperCase())
     .maybeSingle();
 
-  if (!room) return;
+  if (!room) throw new Error('ROOM_NOT_FOUND');
 
-  const isHost = room.host_client_id === clientId;
+  const timeInSeconds = Math.floor(result.timeMs / 1000);
+  const isHost = role === 'host';
   const timeField = isHost ? 'host_time' : 'guest_time';
   const scoreField = isHost ? 'host_score' : 'guest_score';
   const finishedAtField = isHost ? 'host_finished_at' : 'guest_finished_at';
 
   const updates: any = {
-    [timeField]: time,
-    [scoreField]: score,
+    [timeField]: timeInSeconds,
+    [scoreField]: result.pairsFound,
     [finishedAtField]: new Date().toISOString(),
-    status: 'finished',
   };
 
-  const hostScore = isHost ? score : (room.host_score ?? 0);
-  const guestScore = !isHost ? score : (room.guest_score ?? 0);
-  const hostTime = isHost ? time : (room.host_time ?? 999999);
-  const guestTime = !isHost ? time : (room.guest_time ?? 999999);
+  const hostScore = isHost ? result.pairsFound : (room.host_score ?? 0);
+  const guestScore = !isHost ? result.pairsFound : (room.guest_score ?? 0);
+  const hostTime = isHost ? timeInSeconds : (room.host_time ?? 999999);
+  const guestTime = !isHost ? timeInSeconds : (room.guest_time ?? 999999);
+  const hostWin = isHost ? result.win : true;
+  const guestWin = !isHost ? result.win : true;
 
-  if (hostScore > guestScore) {
-    updates.winner_client_id = room.host_client_id;
-  } else if (guestScore > hostScore) {
-    updates.winner_client_id = room.guest_client_id;
-  } else {
-    updates.winner_client_id = hostTime < guestTime ? room.host_client_id : room.guest_client_id;
+  if (room.host_finished_at || room.guest_finished_at) {
+    if (hostWin && !guestWin) {
+      updates.winner_client_id = room.host_client_id;
+    } else if (guestWin && !hostWin) {
+      updates.winner_client_id = room.guest_client_id;
+    } else if (hostWin && guestWin) {
+      if (hostTime !== guestTime) {
+        updates.winner_client_id = hostTime < guestTime ? room.host_client_id : room.guest_client_id;
+      } else if (hostScore !== guestScore) {
+        updates.winner_client_id = hostScore > guestScore ? room.host_client_id : room.guest_client_id;
+      }
+    } else {
+      if (hostScore !== guestScore) {
+        updates.winner_client_id = hostScore > guestScore ? room.host_client_id : room.guest_client_id;
+      } else if (hostTime !== guestTime) {
+        updates.winner_client_id = hostTime < guestTime ? room.host_client_id : room.guest_client_id;
+      }
+    }
+    updates.status = 'finished';
   }
 
   await supabase
     .from('duel_rooms')
     .update(updates)
-    .eq('id', roomId);
+    .eq('id', room.id);
 }
 
 export async function cancelDuelRoom(roomId: string): Promise<void> {
@@ -160,4 +191,72 @@ export async function cancelDuelRoom(roomId: string): Promise<void> {
     .from('duel_rooms')
     .update({ status: 'cancelled' })
     .eq('id', roomId);
+}
+
+export function subscribeToDuelRoom(
+  roomCode: string,
+  callback: (room: DuelRoom | null) => void
+): () => void {
+  let channel: RealtimeChannel;
+
+  const setupSubscription = async () => {
+    const { data: initialRoom } = await supabase
+      .from('duel_rooms')
+      .select('*')
+      .eq('room_code', roomCode.toUpperCase())
+      .maybeSingle();
+
+    if (initialRoom) {
+      callback(initialRoom);
+    }
+
+    channel = supabase
+      .channel(`duel_room:${roomCode}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'duel_rooms',
+          filter: `room_code=eq.${roomCode.toUpperCase()}`,
+        },
+        (payload) => {
+          if (payload.eventType === 'DELETE') {
+            callback(null);
+          } else {
+            callback(payload.new as DuelRoom);
+          }
+        }
+      )
+      .subscribe();
+  };
+
+  setupSubscription();
+
+  return () => {
+    if (channel) {
+      supabase.removeChannel(channel);
+    }
+  };
+}
+
+export function determineWinner(room: DuelRoom): 'host' | 'guest' | 'tie' | null {
+  if (!room.host_finished_at || !room.guest_finished_at) {
+    return null;
+  }
+
+  const hostScore = room.host_score ?? 0;
+  const guestScore = room.guest_score ?? 0;
+  const hostTime = room.host_time ?? 999999;
+  const guestTime = room.guest_time ?? 999999;
+
+  if (hostScore !== guestScore) {
+    return hostScore > guestScore ? 'host' : 'guest';
+  }
+
+  if (hostTime !== guestTime) {
+    return hostTime < guestTime ? 'host' : 'guest';
+  }
+
+  return 'tie';
 }

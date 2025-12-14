@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowLeft, Copy, Check, Trophy } from 'lucide-react';
-import { listenDuel, DuelRoom, submitDuelResult } from '../../lib/duels';
+import { subscribeToDuelRoom, DuelRoom, submitDuelResult } from '../../lib/duelApi';
 import { GameCore } from '../GameCore';
 import { DuelResult } from './DuelResult';
 
@@ -19,7 +19,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
   const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = listenDuel(room.code, (updatedRoom) => {
+    const unsubscribe = subscribeToDuelRoom(room.room_code, (updatedRoom) => {
       if (!updatedRoom) {
         console.error('[DuelLobby] Sala no encontrada');
         return;
@@ -27,14 +27,14 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
 
       setRoom(updatedRoom);
 
-      if (updatedRoom.status === 'started' && updatedRoom.startAt && !gameStarted) {
+      if (updatedRoom.status === 'playing' && updatedRoom.guest_client_id && !gameStarted) {
         console.log('[DuelLobby] ¡El duelo ha comenzado!');
         setTimeout(() => {
           setGameStarted(true);
         }, 1000);
       }
 
-      if (updatedRoom.status === 'finished' && updatedRoom.results?.host && updatedRoom.results?.guest) {
+      if (updatedRoom.status === 'finished' && updatedRoom.host_finished_at && updatedRoom.guest_finished_at) {
         setShowResults(true);
       }
     });
@@ -42,7 +42,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [room.code, gameStarted]);
+  }, [room.room_code, gameStarted]);
 
   const handleDuelFinish = async (result: {
     win: boolean;
@@ -72,7 +72,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
   };
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(room.code);
+    navigator.clipboard.writeText(room.room_code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -106,8 +106,8 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
 
         <GameCore
           level={999}
-          duelLevel={room.level}
-          duelCode={room.code}
+          duelLevel={room.level_number}
+          duelCode={room.room_code}
           duelRole={role}
           duelSeed={room.seed}
           onDuelFinish={handleDuelFinish}
@@ -141,7 +141,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
             <div className="text-center">
               <p className="text-sm text-gray-600 mb-2">Código</p>
               <div className="text-4xl font-black text-purple-600 tracking-wider mb-3">
-                {room.code}
+                {room.room_code}
               </div>
               <button
                 onClick={handleCopyCode}
@@ -166,7 +166,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
             <div className="bg-gray-50 rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Nivel:</span>
-                <span className="font-bold text-gray-800">Nivel {room.level}</span>
+                <span className="font-bold text-gray-800">Nivel {room.level_number}</span>
               </div>
             </div>
 
@@ -181,7 +181,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Guest:</span>
                 <span className="font-bold text-gray-800">
-                  {room.guest ? (role === 'guest' ? '👤 Tú' : '👥 Rival') : '⏳ Esperando...'}
+                  {room.guest_client_id ? (role === 'guest' ? '👤 Tú' : '👥 Rival') : '⏳ Esperando...'}
                 </span>
               </div>
             </div>
@@ -200,7 +200,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
             </div>
           )}
 
-          {room.status === 'started' && !gameStarted && (
+          {room.status === 'playing' && !gameStarted && (
             <div className="text-center">
               <div className="text-2xl font-black text-green-600 mb-2">
                 ¡Preparándose!

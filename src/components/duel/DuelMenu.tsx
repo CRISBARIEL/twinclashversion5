@@ -3,7 +3,7 @@ import { Sword, Plus, LogIn, ArrowLeft } from 'lucide-react';
 import { DuelCreate } from './DuelCreate';
 import { DuelJoin } from './DuelJoin';
 import { DuelLobby } from './DuelLobby';
-import { DuelRoom } from '../../lib/duels';
+import { DuelRoom } from '../../lib/duelApi';
 
 interface DuelMenuProps {
   onBack: () => void;

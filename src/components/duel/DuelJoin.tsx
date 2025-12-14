@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, Sword } from 'lucide-react';
-import { joinDuel, DuelRoom } from '../../lib/duels';
+import { joinDuelRoom, DuelRoom } from '../../lib/duelApi';
 
 interface DuelJoinProps {
   onBack: () => void;
@@ -23,18 +23,22 @@ export const DuelJoin = ({ onBack, onRoomJoined, clientId }: DuelJoinProps) => {
     setError(null);
 
     try {
-      const room = await joinDuel(code.toUpperCase(), clientId);
+      const room = await joinDuelRoom(clientId, code.toUpperCase());
+      onRoomJoined(room);
+    } catch (err: any) {
+      let errorMsg = 'Error al unirse al duelo. Intenta de nuevo.';
 
-      if (!room) {
-        setError('Sala no encontrada o ya no está disponible');
-        setJoining(false);
-        return;
+      if (err.message === 'ROOM_NOT_FOUND') {
+        errorMsg = 'Sala no encontrada. Verifica el código.';
+      } else if (err.message === 'ROOM_NOT_WAITING') {
+        errorMsg = 'Esta sala ya no está disponible.';
+      } else if (err.message === 'ROOM_FULL') {
+        errorMsg = 'Esta sala ya está llena.';
       }
 
-      onRoomJoined(room);
-    } catch (err) {
-      setError('Error al unirse al duelo. Intenta de nuevo.');
+      setError(errorMsg);
       console.error('[DuelJoin] Error:', err);
+    } finally {
       setJoining(false);
     }
   };
