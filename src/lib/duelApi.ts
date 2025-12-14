@@ -51,12 +51,21 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
   console.log('[createDuelRoom] Creating room:', { clientId, levelNumber });
   const worldId = Math.ceil(levelNumber / 20);
 
-  for (let attempt = 0; attempt < 10; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     const roomCode = generateRoomCode();
     const seed = `duel-${roomCode}-${Date.now()}`;
 
     try {
       console.log('[createDuelRoom] Attempt', attempt + 1, 'with code:', roomCode);
+      console.log('[createDuelRoom] Data to insert:', {
+        room_code: roomCode,
+        world_id: worldId,
+        level_number: levelNumber,
+        seed,
+        host_client_id: clientId,
+        status: 'waiting',
+      });
+
       const { data, error } = await supabase
         .from('duel_rooms')
         .insert({
@@ -70,20 +79,37 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
         .select()
         .maybeSingle();
 
-      if (!error && data) {
-        console.log('[createDuelRoom] ✅ Sala creada exitosamente:', roomCode);
-        return data;
+      if (error) {
+        console.error('[createDuelRoom] ❌ Supabase error:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code,
+        });
+
+        if (error.message.toLowerCase().includes('duplicate') || error.code === '23505') {
+          console.log('[createDuelRoom] Duplicate code, retrying...');
+          continue;
+        }
+
+        throw new Error(`DB_ERROR: ${error.message}`);
       }
 
-      if (error) {
-        console.error('[createDuelRoom] ❌ Error:', error);
-        if (!error.message.includes('duplicate')) {
-          throw new Error('FAILED_TO_CREATE_ROOM');
-        }
+      if (!data) {
+        console.error('[createDuelRoom] ❌ No data returned');
+        throw new Error('NO_DATA_RETURNED');
       }
+
+      console.log('[createDuelRoom] ✅ Sala creada exitosamente:', roomCode);
+      return data;
     } catch (err: any) {
       console.error('[createDuelRoom] ❌ Exception:', err);
-      if (attempt === 9) {
+
+      if (err.message?.startsWith('DB_ERROR:') || err.message === 'NO_DATA_RETURNED') {
+        throw err;
+      }
+
+      if (attempt === 2) {
         throw new Error('FAILED_TO_CREATE_ROOM');
       }
     }
