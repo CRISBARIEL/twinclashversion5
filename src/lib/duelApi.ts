@@ -76,8 +76,7 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
           host_client_id: clientId,
           status: 'waiting',
         })
-        .select()
-        .single();
+        .select();
 
       if (error) {
         console.error('[createDuelRoom] ❌ Supabase error:', {
@@ -95,13 +94,13 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
         throw new Error(`DB_ERROR: ${error.message}`);
       }
 
-      if (!data) {
+      if (!data || data.length === 0) {
         console.error('[createDuelRoom] ❌ No data returned');
         throw new Error('NO_DATA_RETURNED');
       }
 
       console.log('[createDuelRoom] ✅ Sala creada exitosamente:', roomCode);
-      return data;
+      return data[0];
     } catch (err: any) {
       console.error('[createDuelRoom] ❌ Exception:', err);
 
