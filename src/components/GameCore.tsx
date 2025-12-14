@@ -54,6 +54,29 @@ export const GameCore = ({
   const isDuel = !!duelCode && !!duelRole && !!duelSeed && typeof duelLevel === 'number';
   const activeLevel = isDuel ? (duelLevel as number) : level;
   const levelConfig = getLevelConfig(activeLevel);
+
+  if (!levelConfig) {
+    console.error('[GameCore] Invalid level config for level:', activeLevel);
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-red-400 via-pink-500 to-orange-500 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md">
+          <div className="text-center">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-2xl font-black text-gray-800 mb-2">Nivel inválido</h2>
+            <p className="text-gray-600 mb-6">
+              No se pudo cargar la configuración del nivel {activeLevel}
+            </p>
+            <button
+              onClick={onBackToMenu}
+              className="w-full py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-xl transition-all"
+            >
+              Volver al Menú
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   const [cards, setCards] = useState<Card[]>([]);
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [matchedPairs, setMatchedPairs] = useState(0);

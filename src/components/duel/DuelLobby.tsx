@@ -130,6 +130,30 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
   }
 
   if (gameStarted) {
+    if (!room || !room.level_number) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 p-4">
+          <div className="max-w-md mx-auto pt-8">
+            <div className="bg-white rounded-2xl shadow-2xl p-8">
+              <div className="text-center mb-6">
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-4">
+                  <AlertCircle className="text-red-600" size={40} />
+                </div>
+                <h2 className="text-2xl font-black text-gray-800 mb-2">Error</h2>
+                <p className="text-gray-600 mb-6">Nivel inválido en sala</p>
+                <button
+                  onClick={onBack}
+                  className="w-full py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-xl transition-all"
+                >
+                  Volver
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500">
         {myResultSubmitted && !showResults && (
@@ -147,7 +171,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
         )}
 
         <GameCore
-          level={999}
+          level={room.level_number}
           duelLevel={room.level_number}
           duelCode={room.room_code}
           duelRole={role}

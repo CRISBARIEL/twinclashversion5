@@ -50,6 +50,8 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
     card.isWildcard
   );
 
+  const safeImage = typeof image === 'string' ? image : '';
+
   return (
     <div
       className="relative aspect-square cursor-pointer perspective-1000"
@@ -72,10 +74,14 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
 
         <div className="absolute w-full h-full backface-hidden rotate-y-180">
           <div className={`w-full h-full bg-white rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} overflow-hidden`}>
-            {image.startsWith('/') || image.startsWith('http') ? (
-              <img src={image} alt="card" className="w-3/4 h-3/4 object-contain" />
+            {safeImage === '' ? (
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                <div className="text-6xl text-gray-500 font-bold">?</div>
+              </div>
+            ) : safeImage.startsWith('/') || safeImage.startsWith('http') ? (
+              <img src={safeImage} alt="card" className="w-3/4 h-3/4 object-contain" />
             ) : (
-              <div className="text-5xl sm:text-6xl md:text-7xl">{image}</div>
+              <div className="text-5xl sm:text-6xl md:text-7xl">{safeImage}</div>
             )}
           </div>
         </div>
