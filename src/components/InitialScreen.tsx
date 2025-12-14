@@ -196,18 +196,18 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             <span className="text-sm">Reto Diario</span>
           </button>
 
-          <div className="flex justify-center">
-            <NotificationButton />
-          </div>
-
           <button
             type="button"
             onClick={onStartDuel}
-            className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl p-3 font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl p-3 font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
           >
             <Swords size={20} />
             <span className="text-sm">Duelo</span>
           </button>
+
+          <div className="flex justify-center">
+            <NotificationButton />
+          </div>
         </div>
       </div>
 
