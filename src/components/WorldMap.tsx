@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, Trophy as TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot } from 'lucide-react';
-import { canEnterWorld, isWorldCompleted, purchaseWorld, ensureWorld, WORLD_COSTS } from '../lib/worldProgress';
-import { getLocalCoins } from '../lib/progression';
+import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, Trophy as TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot, ChevronDown, ChevronUp, Star } from 'lucide-react';
+import { canEnterWorld, isWorldCompleted, purchaseWorld, ensureWorld, WORLD_COSTS, canPlayLevel } from '../lib/worldProgress';
+import { getLocalCoins, getCurrentLevel } from '../lib/progression';
 import { soundManager } from '../lib/sound';
+import { LEVELS, getGlobalLevelId } from '../lib/levels';
 
 const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot];
 const worldNames = ['Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio', 'Océano', 'Comida', 'Música', 'Belleza', 'Tecnología', 'Ciudad', 'Ciencia', 'Granja', 'Arte', 'Transporte', 'Ropa', 'Dinosaurios', 'Dulces', 'Camisetas', 'Ojos', 'Profesiones', 'Emociones', 'Piratas', 'Joyas', 'Videojuegos', 'Insectos', 'Frutas', 'Verduras'];
@@ -55,6 +56,7 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
   const [adminPassword, setAdminPassword] = useState('');
   const [adminWorldTarget, setAdminWorldTarget] = useState<number | null>(null);
   const [showAdminButton, setShowAdminButton] = useState(false);
+  const [expandedWorld, setExpandedWorld] = useState<number | null>(currentWorld || null);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<number | null>(null);
 
@@ -87,11 +89,15 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
 
   const handleWorldClick = async (worldId: number) => {
     if (worldId === 1 || worldAccess[worldId]) {
-      onSelectWorld(worldId);
+      setExpandedWorld(expandedWorld === worldId ? null : worldId);
       return;
     }
 
     setPurchaseModalWorld(worldId);
+  };
+
+  const handleLevelClick = (worldId: number, levelNum: number) => {
+    onSelectWorld(worldId);
   };
 
   const handlePurchaseWorld = async () => {
@@ -123,65 +129,118 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
         ← Volver
       </button>
 
-      <h1 className="text-4xl font-bold text-white text-center mb-3">Elige tu Mundo</h1>
-      <p className="text-white/80 text-center mb-10 text-lg">28 Mundos · 140 Niveles · Aventura Épica</p>
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-white mb-2">Selecciona tu Aventura</h1>
+        <p className="text-white/90 text-lg mb-4">28 Mundos · 140 Niveles</p>
 
-      <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
+        <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 max-w-md mx-auto border-2 border-white/30">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="flex items-center gap-2">
+              <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg shadow-lg">1</div>
+              <span className="text-white font-semibold">Elige Categoría</span>
+            </div>
+            <div className="text-white text-2xl">→</div>
+            <div className="flex items-center gap-2">
+              <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg shadow-lg">2</div>
+              <span className="text-white font-semibold">Elige Nivel</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 max-w-md mx-auto">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28].map((worldId) => {
           const isUnlocked = worldAccess[worldId] ?? false;
           const Icon = worldIcons[worldId - 1];
           const colors = worldColors[worldId - 1];
           const isCurrent = currentWorld === worldId;
           const isCompleted = worldsComplete[worldId] ?? false;
+          const isExpanded = expandedWorld === worldId;
 
           return (
-            <button
-              key={worldId}
-              onClick={() => handleWorldClick(worldId)}
-              className={`relative p-6 rounded-3xl shadow-2xl transition-all transform overflow-hidden ${
-                isUnlocked
-                  ? `bg-gradient-to-br ${colors.from} ${colors.to} hover:scale-105 active:scale-95`
-                  : 'bg-gradient-to-br from-gray-600 to-gray-800'
-              }`}
-            >
-              <div className="absolute top-4 right-4">
-                <div className={`relative ${isUnlocked ? 'animate-bounce-slow' : 'opacity-40'}`}>
-                  <div className={`absolute inset-0 ${isUnlocked ? 'bg-white/30' : 'bg-white/10'} rounded-full blur-xl`}></div>
-                  <Icon size={56} className="relative text-white drop-shadow-lg" strokeWidth={1.5} />
-                </div>
-              </div>
+            <div key={worldId} className="transition-all">
+              <button
+                onClick={() => handleWorldClick(worldId)}
+                className={`w-full relative p-5 rounded-2xl shadow-xl transition-all transform ${
+                  isUnlocked
+                    ? `bg-gradient-to-br ${colors.from} ${colors.to} hover:scale-102 active:scale-98`
+                    : 'bg-gradient-to-br from-gray-600 to-gray-800'
+                } ${isExpanded ? 'rounded-b-none' : ''}`}
+              >
+                <div className="flex items-center justify-between text-white">
+                  <div className="flex items-center gap-4">
+                    <div className={`relative ${isUnlocked ? '' : 'opacity-40'}`}>
+                      <Icon size={40} className="text-white drop-shadow-lg" strokeWidth={2} />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="text-xl font-bold drop-shadow-lg">Mundo {worldId}</h3>
+                      <p className={`text-sm font-medium ${isUnlocked ? 'opacity-90' : 'opacity-60'}`}>
+                        {worldNames[worldId - 1]}
+                      </p>
+                    </div>
+                  </div>
 
-              <div className="flex items-start justify-between text-white relative z-10">
-                <div className="flex flex-col gap-2">
-                  <h3 className="text-2xl font-bold drop-shadow-lg">Mundo {worldId}</h3>
-                  <p className={`text-lg font-semibold ${isUnlocked ? 'opacity-90' : 'opacity-60'}`}>
-                    {worldNames[worldId - 1]}
+                  <div className="flex items-center gap-3">
+                    {isCompleted ? (
+                      <Trophy className="text-yellow-300 drop-shadow-lg" size={28} />
+                    ) : !isUnlocked ? (
+                      <Lock size={28} className="text-white/60" />
+                    ) : isCurrent ? (
+                      <div className="text-xs bg-white/30 rounded-lg px-2 py-1 backdrop-blur-sm font-semibold">
+                        Nivel {currentLevel}/5
+                      </div>
+                    ) : null}
+
+                    {isUnlocked && (
+                      isExpanded ?
+                        <ChevronUp size={24} className="text-white" strokeWidth={3} /> :
+                        <ChevronDown size={24} className="text-white" strokeWidth={3} />
+                    )}
+                  </div>
+                </div>
+              </button>
+
+              {isExpanded && isUnlocked && (
+                <div className={`bg-gradient-to-br ${colors.from} ${colors.to} rounded-b-2xl p-4 shadow-xl border-t-2 border-white/20`}>
+                  <div className="grid grid-cols-5 gap-2">
+                    {[1, 2, 3, 4, 5].map((levelNum) => {
+                      const globalLevelId = getGlobalLevelId(worldId, levelNum);
+                      const userCurrentLevel = getCurrentLevel();
+                      const levelUnlocked = globalLevelId <= userCurrentLevel;
+                      const isCurrentLevel = globalLevelId === userCurrentLevel;
+
+                      return (
+                        <button
+                          key={levelNum}
+                          onClick={() => handleLevelClick(worldId, levelNum)}
+                          className={`relative aspect-square rounded-xl font-bold text-lg transition-all transform ${
+                            levelUnlocked
+                              ? isCurrentLevel
+                                ? 'bg-white text-blue-600 scale-110 shadow-2xl ring-4 ring-yellow-300'
+                                : 'bg-white/90 text-gray-800 hover:scale-110 hover:shadow-xl active:scale-95'
+                              : 'bg-white/20 text-white/40 cursor-not-allowed'
+                          }`}
+                        >
+                          {levelUnlocked ? (
+                            <>
+                              <span className="text-2xl">{levelNum}</span>
+                              {isCurrentLevel && (
+                                <Star className="absolute -top-1 -right-1 text-yellow-400 fill-yellow-400" size={16} />
+                              )}
+                            </>
+                          ) : (
+                            <Lock size={20} className="mx-auto" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-center text-white/80 text-xs mt-3 font-medium">
+                    Toca un nivel para jugar
                   </p>
-                  {isCurrent && !isCompleted && (
-                    <div className="mt-1 text-sm bg-white/30 rounded-lg px-3 py-1.5 inline-block backdrop-blur-sm">
-                      📍 Nivel {currentLevel} / 5
-                    </div>
-                  )}
                 </div>
-                <div className="flex flex-col items-center gap-1 ml-4">
-                  {isCompleted ? (
-                    <>
-                      <Trophy className="text-yellow-300 drop-shadow-lg" size={32} />
-                      <span className="text-xs bg-yellow-300/30 px-2 py-1 rounded-full font-semibold">
-                        Completado
-                      </span>
-                    </>
-                  ) : !isUnlocked ? (
-                    <div className="flex flex-col items-center gap-1">
-                      <Lock size={32} className="text-white/60" />
-                      <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-                        Bloqueado
-                      </span>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </button>
+              )}
+            </div>
           );
         })}
       </div>
