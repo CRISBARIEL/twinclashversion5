@@ -11,7 +11,6 @@ import { RewardButton } from './components/RewardButton';
 import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 import { initializeFirebase } from './lib/firebase';
-import { testFirestoreWrite } from './debug/firestoreTest';
 
 type Screen = 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload';
 
@@ -155,26 +154,6 @@ function App() {
         <AudioUploader />
       )}
       {screen === 'game' && <RewardButton currentLevel={selectedLevel} />}
-
-      <button
-        onClick={() => {
-          alert("CLICK OK");
-          console.log("CLICK OK");
-        }}
-        style={{
-          position: "fixed",
-          bottom: 10,
-          right: 10,
-          zIndex: 999999,
-          padding: "10px 14px",
-          background: "red",
-          color: "white",
-          borderRadius: 8,
-          border: "none",
-        }}
-      >
-        Test Click
-      </button>
     </>
   );
 }
