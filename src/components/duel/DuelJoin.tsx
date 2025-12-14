@@ -14,7 +14,9 @@ export const DuelJoin = ({ onBack, onRoomJoined, clientId }: DuelJoinProps) => {
   const [error, setError] = useState<string | null>(null);
 
   const handleJoinDuel = async () => {
-    if (code.trim().length !== 6) {
+    const normalizedCode = code.toUpperCase().trim();
+
+    if (normalizedCode.length !== 6) {
       setError('El código debe tener 6 caracteres');
       return;
     }
@@ -23,7 +25,7 @@ export const DuelJoin = ({ onBack, onRoomJoined, clientId }: DuelJoinProps) => {
     setError(null);
 
     try {
-      const room = await joinDuelRoom(clientId, code.toUpperCase());
+      const room = await joinDuelRoom(clientId, normalizedCode);
       onRoomJoined(room);
     } catch (err: any) {
       let errorMsg = 'Error al unirse al duelo. Intenta de nuevo.';
@@ -34,6 +36,8 @@ export const DuelJoin = ({ onBack, onRoomJoined, clientId }: DuelJoinProps) => {
         errorMsg = 'Esta sala ya no está disponible.';
       } else if (err.message === 'ROOM_FULL') {
         errorMsg = 'Esta sala ya está llena.';
+      } else if (err.message) {
+        errorMsg = `Error: ${err.message}`;
       }
 
       setError(errorMsg);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowLeft, Copy, Check, Trophy } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Trophy, AlertCircle } from 'lucide-react';
 import { subscribeToDuelRoom, DuelRoom, submitDuelResult } from '../../lib/duelApi';
 import { GameCore } from '../GameCore';
 import { DuelResult } from './DuelResult';
@@ -12,20 +12,35 @@ interface DuelLobbyProps {
 }
 
 export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLobbyProps) => {
-  const [room, setRoom] = useState<DuelRoom>(initialRoom);
+  const [room, setRoom] = useState<DuelRoom | null>(initialRoom);
   const [gameStarted, setGameStarted] = useState(false);
   const [copied, setCopied] = useState(false);
   const [myResultSubmitted, setMyResultSubmitted] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const unsubscribe = subscribeToDuelRoom(room.room_code, (updatedRoom) => {
+    if (!initialRoom) {
+      setError('Sala no válida');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const unsubscribe = subscribeToDuelRoom(initialRoom.room_code, (updatedRoom) => {
+      setLoading(false);
+
       if (!updatedRoom) {
-        console.error('[DuelLobby] Sala no encontrada');
+        console.error('[DuelLobby] Sala no encontrada o sin permisos');
+        setError('Sala no encontrada o sin permisos de acceso');
+        setRoom(null);
         return;
       }
 
       setRoom(updatedRoom);
+      setError(null);
 
       if (updatedRoom.status === 'playing' && updatedRoom.guest_client_id && !gameStarted) {
         console.log('[DuelLobby] ¡El duelo ha comenzado!');
@@ -42,7 +57,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [room.room_code, gameStarted]);
+  }, [initialRoom?.room_code, gameStarted]);
 
   const handleDuelFinish = async (result: {
     win: boolean;
@@ -72,10 +87,37 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
   };
 
   const handleCopyCode = () => {
+    if (!room) return;
     navigator.clipboard.writeText(room.room_code);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  if (error || !room) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 p-4">
+        <div className="max-w-md mx-auto pt-8">
+          <div className="bg-white rounded-2xl shadow-2xl p-8">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-red-100 rounded-full mb-4">
+                <AlertCircle className="text-red-600" size={40} />
+              </div>
+              <h2 className="text-2xl font-black text-gray-800 mb-2">Error</h2>
+              <p className="text-gray-600 mb-6">
+                {error || 'Sala no encontrada o sin permisos de acceso'}
+              </p>
+              <button
+                onClick={onBack}
+                className="w-full py-4 rounded-xl font-bold text-lg bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:shadow-xl transition-all"
+              >
+                Volver
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (showResults) {
     return (
@@ -114,6 +156,21 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
           onComplete={() => {}}
           onBackToMenu={onBack}
         />
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 p-4">
+        <div className="max-w-md mx-auto pt-8">
+          <div className="bg-white rounded-2xl shadow-2xl p-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent mx-auto mb-4"></div>
+              <p className="text-gray-600 font-bold">Cargando sala...</p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

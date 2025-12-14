@@ -44,26 +44,34 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
     const roomCode = generateRoomCode();
     const seed = `duel-${roomCode}-${Date.now()}`;
 
-    const { data, error } = await supabase
-      .from('duel_rooms')
-      .insert({
-        room_code: roomCode,
-        world_id: worldId,
-        level_number: levelNumber,
-        seed,
-        host_client_id: clientId,
-        status: 'waiting',
-      })
-      .select()
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase
+        .from('duel_rooms')
+        .insert({
+          room_code: roomCode,
+          world_id: worldId,
+          level_number: levelNumber,
+          seed,
+          host_client_id: clientId,
+          status: 'waiting',
+        })
+        .select()
+        .maybeSingle();
 
-    if (!error && data) {
-      return data;
-    }
+      if (!error && data) {
+        console.log('[createDuelRoom] Sala creada:', roomCode);
+        return data;
+      }
 
-    if (error && !error.message.includes('duplicate')) {
-      console.error('[createDuelRoom] Error:', error);
-      throw new Error('FAILED_TO_CREATE_ROOM');
+      if (error && !error.message.includes('duplicate')) {
+        console.error('[createDuelRoom] Error:', error.message);
+        throw new Error('FAILED_TO_CREATE_ROOM');
+      }
+    } catch (err: any) {
+      console.error('[createDuelRoom] Exception:', err);
+      if (attempt === 9) {
+        throw new Error('FAILED_TO_CREATE_ROOM');
+      }
     }
   }
 
@@ -71,45 +79,68 @@ export async function createDuelRoom(clientId: string, levelNumber: number): Pro
 }
 
 export async function joinDuelRoom(clientId: string, roomCode: string): Promise<DuelRoom> {
-  const { data: room, error: fetchError } = await supabase
-    .from('duel_rooms')
-    .select('*')
-    .eq('room_code', roomCode.toUpperCase())
-    .maybeSingle();
+  try {
+    const normalizedCode = roomCode.toUpperCase().trim();
 
-  if (fetchError || !room) {
-    throw new Error('ROOM_NOT_FOUND');
+    const { data: room, error: fetchError } = await supabase
+      .from('duel_rooms')
+      .select('*')
+      .eq('room_code', normalizedCode)
+      .maybeSingle();
+
+    if (fetchError) {
+      console.error('[joinDuelRoom] Fetch error:', fetchError.message);
+      throw new Error('ROOM_NOT_FOUND');
+    }
+
+    if (!room) {
+      console.error('[joinDuelRoom] Sala no encontrada:', normalizedCode);
+      throw new Error('ROOM_NOT_FOUND');
+    }
+
+    if (room.host_client_id === clientId) {
+      console.log('[joinDuelRoom] Host reconnecting to own room');
+      return room;
+    }
+
+    if (room.status !== 'waiting') {
+      console.error('[joinDuelRoom] Sala no está esperando:', room.status);
+      throw new Error('ROOM_NOT_WAITING');
+    }
+
+    if (room.guest_client_id) {
+      console.error('[joinDuelRoom] Sala llena');
+      throw new Error('ROOM_FULL');
+    }
+
+    const { data, error } = await supabase
+      .from('duel_rooms')
+      .update({
+        guest_client_id: clientId,
+        status: 'playing',
+      })
+      .eq('id', room.id)
+      .eq('status', 'waiting')
+      .is('guest_client_id', null)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.error('[joinDuelRoom] Update error:', error.message);
+      throw new Error('ROOM_NO_LONGER_AVAILABLE');
+    }
+
+    if (!data) {
+      console.error('[joinDuelRoom] No data after update');
+      throw new Error('ROOM_NO_LONGER_AVAILABLE');
+    }
+
+    console.log('[joinDuelRoom] Guest joined successfully');
+    return data;
+  } catch (err: any) {
+    console.error('[joinDuelRoom] Exception:', err.message || err);
+    throw err;
   }
-
-  if (room.host_client_id === clientId) {
-    return room;
-  }
-
-  if (room.status !== 'waiting') {
-    throw new Error('ROOM_NOT_WAITING');
-  }
-
-  if (room.guest_client_id) {
-    throw new Error('ROOM_FULL');
-  }
-
-  const { data, error } = await supabase
-    .from('duel_rooms')
-    .update({
-      guest_client_id: clientId,
-      status: 'playing',
-    })
-    .eq('id', room.id)
-    .eq('status', 'waiting')
-    .is('guest_client_id', null)
-    .select()
-    .maybeSingle();
-
-  if (error || !data) {
-    throw new Error('ROOM_NO_LONGER_AVAILABLE');
-  }
-
-  return data;
 }
 
 export async function getDuelRoom(roomCode: string): Promise<DuelRoom | null> {
@@ -132,13 +163,17 @@ export async function submitDuelResult(
   role: 'host' | 'guest',
   result: DuelResult
 ): Promise<void> {
-  const { data: room } = await supabase
-    .from('duel_rooms')
-    .select('*')
-    .eq('room_code', roomCode.toUpperCase())
-    .maybeSingle();
+  try {
+    const { data: room, error: fetchError } = await supabase
+      .from('duel_rooms')
+      .select('*')
+      .eq('room_code', roomCode.toUpperCase())
+      .maybeSingle();
 
-  if (!room) throw new Error('ROOM_NOT_FOUND');
+    if (fetchError || !room) {
+      console.error('[submitDuelResult] Room not found:', fetchError?.message);
+      throw new Error('ROOM_NOT_FOUND');
+    }
 
   const timeInSeconds = Math.floor(result.timeMs / 1000);
   const isHost = role === 'host';
@@ -180,10 +215,21 @@ export async function submitDuelResult(
     updates.status = 'finished';
   }
 
-  await supabase
-    .from('duel_rooms')
-    .update(updates)
-    .eq('id', room.id);
+    const { error: updateError } = await supabase
+      .from('duel_rooms')
+      .update(updates)
+      .eq('id', room.id);
+
+    if (updateError) {
+      console.error('[submitDuelResult] Update error:', updateError.message);
+      throw new Error('FAILED_TO_SUBMIT_RESULT');
+    }
+
+    console.log('[submitDuelResult] Result submitted successfully');
+  } catch (err: any) {
+    console.error('[submitDuelResult] Exception:', err.message || err);
+    throw err;
+  }
 }
 
 export async function cancelDuelRoom(roomId: string): Promise<void> {
@@ -197,45 +243,44 @@ export function subscribeToDuelRoom(
   roomCode: string,
   callback: (room: DuelRoom | null) => void
 ): () => void {
-  let channel: RealtimeChannel;
+  let alive = true;
+  let intervalId: number | null = null;
 
-  const setupSubscription = async () => {
-    const { data: initialRoom } = await supabase
-      .from('duel_rooms')
-      .select('*')
-      .eq('room_code', roomCode.toUpperCase())
-      .maybeSingle();
+  const pollRoom = async () => {
+    if (!alive) return;
 
-    if (initialRoom) {
-      callback(initialRoom);
+    try {
+      const { data, error } = await supabase
+        .from('duel_rooms')
+        .select('*')
+        .eq('room_code', roomCode.toUpperCase())
+        .maybeSingle();
+
+      if (!alive) return;
+
+      if (error) {
+        console.error('[subscribeToDuelRoom] Error:', error);
+        callback(null);
+        return;
+      }
+
+      callback(data);
+    } catch (err) {
+      console.error('[subscribeToDuelRoom] Exception:', err);
+      if (alive) {
+        callback(null);
+      }
     }
-
-    channel = supabase
-      .channel(`duel_room:${roomCode}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'duel_rooms',
-          filter: `room_code=eq.${roomCode.toUpperCase()}`,
-        },
-        (payload) => {
-          if (payload.eventType === 'DELETE') {
-            callback(null);
-          } else {
-            callback(payload.new as DuelRoom);
-          }
-        }
-      )
-      .subscribe();
   };
 
-  setupSubscription();
+  pollRoom();
+  intervalId = window.setInterval(pollRoom, 1200);
 
   return () => {
-    if (channel) {
-      supabase.removeChannel(channel);
+    alive = false;
+    if (intervalId !== null) {
+      clearInterval(intervalId);
+      intervalId = null;
     }
   };
 }

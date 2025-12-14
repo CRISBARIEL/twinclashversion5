@@ -27,11 +27,18 @@ export const DuelCreate = ({ onBack, onRoomCreated, clientId }: DuelCreateProps)
       setCreatedRoom(room);
       onRoomCreated(room);
     } catch (err: any) {
-      const errorMsg = err.message === 'FAILED_TO_CREATE_ROOM'
-        ? 'Error al crear el duelo. Verifica tu conexión.'
-        : 'Error al crear el duelo. Intenta de nuevo.';
+      let errorMsg = 'Error al crear el duelo. Intenta de nuevo.';
+
+      if (err.message === 'FAILED_TO_CREATE_ROOM') {
+        errorMsg = 'Error al crear el duelo. Verifica tu conexión.';
+      } else if (err.message === 'FAILED_TO_GENERATE_CODE') {
+        errorMsg = 'No se pudo generar un código único. Intenta de nuevo.';
+      } else if (err.message) {
+        errorMsg = `Error: ${err.message}`;
+      }
+
       setError(errorMsg);
-      console.error('[DuelCreate] Error:', err);
+      console.error('[DuelCreate] Error:', err.message || err);
     } finally {
       setCreating(false);
     }
