@@ -34,11 +34,14 @@
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-messaging-compat.js"></script>
 
-    <!-- Monetization Scripts -->
+    <!-- Monetization Scripts - POPUNDERS/ONCLICK DISABLED -->
+    <!--
+    Scripts intrusivos comentados para evitar popups molestos:
     <script>(function(s){s.dataset.zone='10321430',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     <script src="https://3nbf4.com/act/files/tag.min.js?z=10321431" data-cfasync="false" async></script>
     <script src="https://3nbf4.com/act/files/tag.min.js?z=10321434" data-cfasync="false" async></script>
     <script src="https://quge5.com/88/tag.min.js" data-zone="192862" async data-cfasync="false"></script>
+    -->
 
     <style>
       @keyframes pulse {
@@ -51,6 +54,8 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
+    <!-- Service Workers for ads DISABLED to prevent intrusive popunders -->
+    <!--
     <script>
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/sw_(2).js')
@@ -70,6 +75,7 @@
           });
       }
     </script>
+    -->
 
     <script>
       var unityGameId = "5879123";
