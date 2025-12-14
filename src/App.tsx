@@ -11,6 +11,7 @@ import { RewardButton } from './components/RewardButton';
 import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 import { initializeFirebase } from './lib/firebase';
+import { testFirestoreWrite } from './debug/firestoreTest';
 
 type Screen = 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload';
 
@@ -154,6 +155,15 @@ function App() {
         <AudioUploader />
       )}
       {screen === 'game' && <RewardButton currentLevel={selectedLevel} />}
+
+      {/* Botón temporal para probar Firestore */}
+      <button
+        onClick={() => testFirestoreWrite()}
+        style={{ position: "fixed", bottom: 10, right: 10, zIndex: 9999 }}
+        className="bg-red-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg hover:bg-red-700"
+      >
+        Test Firestore
+      </button>
     </>
   );
 }
