@@ -185,13 +185,18 @@ export function subscribeToDuelRoom(
   let channel: RealtimeChannel | null = null;
 
   const fetchInitialRoom = async () => {
+    console.log(`[subscribeToDuelRoom] Fetching initial room for code: ${normalizedCode}`);
     const { data, error } = await supabase
       .from('duel_rooms')
       .select('*')
       .eq('room_code', normalizedCode)
       .maybeSingle();
 
-    if (error) return callback(null);
+    if (error) {
+      console.error('[subscribeToDuelRoom] Error fetching initial room:', error);
+      return callback(null);
+    }
+    console.log('[subscribeToDuelRoom] Initial room fetched:', data);
     callback((data as DuelRoom) ?? null);
   };
 
@@ -208,13 +213,22 @@ export function subscribeToDuelRoom(
         filter: `room_code=eq.${normalizedCode}`,
       },
       (payload) => {
-        if (payload.eventType === 'DELETE') callback(null);
-        else callback((payload.new as DuelRoom) ?? null);
+        console.log('[subscribeToDuelRoom] Realtime update received:', payload);
+        if (payload.eventType === 'DELETE') {
+          console.log('[subscribeToDuelRoom] Room deleted');
+          callback(null);
+        } else {
+          console.log('[subscribeToDuelRoom] Room updated:', payload.new);
+          callback((payload.new as DuelRoom) ?? null);
+        }
       }
     )
-    .subscribe();
+    .subscribe((status) => {
+      console.log(`[subscribeToDuelRoom] Subscription status: ${status}`);
+    });
 
   return () => {
+    console.log(`[subscribeToDuelRoom] Unsubscribing from room ${normalizedCode}`);
     if (channel) supabase.removeChannel(channel);
     channel = null;
   };

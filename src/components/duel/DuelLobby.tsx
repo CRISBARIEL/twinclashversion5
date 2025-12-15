@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { ArrowLeft, Copy, Check, Trophy, AlertCircle } from 'lucide-react';
 import { subscribeToDuelRoom, DuelRoom, submitDuelResult } from '../../lib/duelApi';
 import { GameCore } from '../GameCore';
@@ -19,6 +19,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
   const [showResults, setShowResults] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const gameStartedRef = useRef(false);
 
   useEffect(() => {
     if (!initialRoom || !initialRoom.room_code) {
@@ -30,6 +31,13 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     setError(null);
 
     const unsubscribe = subscribeToDuelRoom(initialRoom.room_code, (updatedRoom) => {
+      console.log('[DuelLobby] Room update received:', {
+        status: updatedRoom?.status,
+        guest_id: updatedRoom?.guest_client_id,
+        gameStartedRef: gameStartedRef.current,
+        role
+      });
+
       setLoading(false);
 
       if (!updatedRoom) {
@@ -42,14 +50,17 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
       setRoom(updatedRoom);
       setError(null);
 
-      if (updatedRoom.status === 'started' && updatedRoom.guest_client_id && !gameStarted) {
-        console.log('[DuelLobby] ¡El duelo ha comenzado!');
+      if (updatedRoom.status === 'started' && updatedRoom.guest_client_id && !gameStartedRef.current) {
+        console.log('[DuelLobby] ¡El duelo ha comenzado! Iniciando juego...');
+        gameStartedRef.current = true;
         setTimeout(() => {
+          console.log('[DuelLobby] Setting gameStarted to true');
           setGameStarted(true);
         }, 1000);
       }
 
       if (updatedRoom.status === 'finished' && updatedRoom.host_result && updatedRoom.guest_result) {
+        console.log('[DuelLobby] Ambos resultados recibidos, mostrando pantalla de resultados');
         setShowResults(true);
       }
     });
@@ -57,7 +68,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [initialRoom?.room_code]);
+  }, [initialRoom?.room_code, role]);
 
   const handleDuelFinish = async (result: {
     win: boolean;
