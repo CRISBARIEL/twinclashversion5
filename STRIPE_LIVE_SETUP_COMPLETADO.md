@@ -49,7 +49,7 @@ STRIPE_SECRET_KEY=sk_live_tu_clave_aqui
 
 # 2. STRIPE_WEBHOOK_SECRET (CRÍTICO)
 # Obtener de: https://dashboard.stripe.com/webhooks (después de crear endpoint)
-STRIPE_WEBHOOK_SECRET=whsec_tu_secret_aqui
+STRIPE_WEBHOOK_SECRET=whsec_pIfo9OeScRr8Crjz4kypX0Op3zeLaawG
 ```
 
 **⚠️ IMPORTANTE:**
