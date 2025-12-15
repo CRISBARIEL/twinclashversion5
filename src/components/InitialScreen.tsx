@@ -130,7 +130,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
           <span className="text-7xl">🎵</span>
         </div>
       </div>
-      <div className="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full relative z-10">
+      <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 max-w-md w-full relative z-10">
         <div className="flex justify-center mb-6">
           <img
             src="/twinlogo.png"
