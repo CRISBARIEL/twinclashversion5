@@ -17,6 +17,40 @@ export const DuelCreate = ({ onBack, onRoomCreated, clientId }: DuelCreateProps)
   const [createdRoom, setCreatedRoom] = useState<DuelRoom | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const getDifficultyLabel = (difficulty?: string) => {
+    switch (difficulty) {
+      case 'very_easy':
+        return 'Muy Fácil';
+      case 'easy':
+        return 'Fácil';
+      case 'hard':
+        return 'Difícil';
+      case 'very_hard':
+        return 'Muy Difícil';
+      case 'expert':
+        return 'Experto';
+      default:
+        return 'Normal';
+    }
+  };
+
+  const getDifficultyColor = (difficulty?: string) => {
+    switch (difficulty) {
+      case 'very_easy':
+        return 'bg-green-500 text-white';
+      case 'easy':
+        return 'bg-blue-500 text-white';
+      case 'hard':
+        return 'bg-orange-500 text-white';
+      case 'very_hard':
+        return 'bg-red-500 text-white';
+      case 'expert':
+        return 'bg-purple-700 text-white';
+      default:
+        return 'bg-gray-500 text-white';
+    }
+  };
+
   const handleCreateDuel = async () => {
     if (selectedLevel === null) return;
 
@@ -143,6 +177,32 @@ export const DuelCreate = ({ onBack, onRoomCreated, clientId }: DuelCreateProps)
             <p className="text-gray-600">Selecciona un mundo y luego un nivel</p>
           </div>
 
+          <div className="mb-4 p-3 bg-gray-50 rounded-xl">
+            <p className="text-xs text-gray-600 font-bold mb-2 text-center">Dificultad:</p>
+            <div className="flex flex-wrap gap-2 justify-center text-xs">
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                <span className="text-gray-700">Muy Fácil</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                <span className="text-gray-700">Fácil</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                <span className="text-gray-700">Difícil</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                <span className="text-gray-700">Muy Difícil</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-purple-700"></span>
+                <span className="text-gray-700">Experto</span>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-3 mb-6">
             {levels.map(({ world, levels: worldLevels }) => (
               <div key={world} className="border-2 border-gray-200 rounded-xl overflow-hidden">
@@ -166,21 +226,31 @@ export const DuelCreate = ({ onBack, onRoomCreated, clientId }: DuelCreateProps)
                 {expandedWorld === world && (
                   <div className="p-4 bg-gray-50">
                     <div className="grid grid-cols-5 gap-2">
-                      {worldLevels.map((level) => (
-                        <button
-                          key={level}
-                          onClick={() => setSelectedLevel(level)}
-                          className={`
-                            aspect-square rounded-xl font-bold text-lg transition-all
-                            ${selectedLevel === level
-                              ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg scale-105'
-                              : 'bg-white text-gray-700 hover:bg-purple-50 border-2 border-gray-200'
-                            }
-                          `}
-                        >
-                          {level}
-                        </button>
-                      ))}
+                      {worldLevels.map((level) => {
+                        const config = getLevelConfig(level);
+                        const difficultyColor = config?.difficulty
+                          ? getDifficultyColor(config.difficulty).split(' ')[0]
+                          : 'bg-gray-400';
+
+                        return (
+                          <button
+                            key={level}
+                            onClick={() => setSelectedLevel(level)}
+                            className={`
+                              aspect-square rounded-xl font-bold text-lg transition-all relative
+                              ${selectedLevel === level
+                                ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg scale-105'
+                                : 'bg-white text-gray-700 hover:bg-purple-50 border-2 border-gray-200'
+                              }
+                            `}
+                          >
+                            {level}
+                            {config?.difficulty && (
+                              <span className={`absolute top-1 right-1 w-2 h-2 rounded-full ${difficultyColor}`}></span>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
@@ -191,7 +261,20 @@ export const DuelCreate = ({ onBack, onRoomCreated, clientId }: DuelCreateProps)
           {selectedLevel !== null && (
             <div className="mb-4 p-4 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl text-center">
               <p className="text-sm text-gray-600 mb-1">Nivel Seleccionado</p>
-              <p className="text-3xl font-black text-purple-600">{selectedLevel}</p>
+              <p className="text-3xl font-black text-purple-600 mb-2">{selectedLevel}</p>
+              {(() => {
+                const config = getLevelConfig(selectedLevel);
+                if (config?.difficulty) {
+                  return (
+                    <div className="flex justify-center">
+                      <span className={`px-3 py-1 rounded-full text-sm font-bold ${getDifficultyColor(config.difficulty)}`}>
+                        {getDifficultyLabel(config.difficulty)}
+                      </span>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
             </div>
           )}
 
