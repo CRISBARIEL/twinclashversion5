@@ -4,7 +4,7 @@ import type { RealtimeChannel } from '@supabase/supabase-js';
 export interface DuelRoom {
   id: string;
   room_code: string;
-  status: 'waiting' | 'playing' | 'finished' | 'cancelled';
+  status: 'waiting' | 'started' | 'finished';
   level: number;
   seed: string;
   host_client_id: string;
@@ -90,7 +90,7 @@ export async function joinDuelRoom(clientId: string, roomCode: string): Promise<
     .from('duel_rooms')
     .update({
       guest_client_id: clientId,
-      status: 'playing',
+      status: 'started',
       started_at: new Date().toISOString(),
     })
     .eq('id', room.id)
@@ -165,7 +165,10 @@ export async function cancelDuelRoom(roomId: string): Promise<void> {
 
   await supabase
     .from('duel_rooms')
-    .update({ status: 'cancelled' })
+    .update({
+      status: 'finished',
+      finished_at: new Date().toISOString()
+    })
     .eq('id', roomId);
 }
 
