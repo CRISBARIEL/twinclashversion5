@@ -52,10 +52,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     if (updatedRoom.status === 'started' && updatedRoom.guest_client_id && !gameStartedRef.current) {
       console.log('[DuelLobby] ¡El duelo ha comenzado! Iniciando juego...');
       gameStartedRef.current = true;
-      setTimeout(() => {
-        console.log('[DuelLobby] Setting gameStarted to true');
-        setGameStarted(true);
-      }, 1000);
+      setGameStarted(true);
     }
 
     const hostResultValid = hasValidResult(updatedRoom.host_result);
@@ -370,15 +367,6 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
                 <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                 <div className="w-2 h-2 bg-purple-600 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
               </div>
-            </div>
-          )}
-
-          {room.status === 'started' && !gameStarted && (
-            <div className="text-center">
-              <div className="text-2xl font-black text-green-600 mb-2">
-                ¡Preparándose!
-              </div>
-              <p className="text-gray-600">El duelo comenzará en un momento...</p>
             </div>
           )}
         </div>

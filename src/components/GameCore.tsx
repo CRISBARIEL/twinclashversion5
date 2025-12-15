@@ -503,6 +503,7 @@ export const GameCore = ({
                 duelCode,
                 duelRole,
               });
+              return 0;
             }
 
             setGameOver(true);
@@ -592,6 +593,7 @@ export const GameCore = ({
           duelCode,
           duelRole,
         });
+        return;
       }
 
       const handleLevelComplete = async () => {
