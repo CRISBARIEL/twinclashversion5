@@ -133,7 +133,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
       <div className="bg-white/50 backdrop-blur-sm rounded-3xl shadow-2xl p-8 max-w-md w-full relative z-10">
         <div className="flex justify-center mb-6">
           <img
-            src="/twinlogo.png"
+            src="/chatgpt_image_15_dic_2025,_11_02_21.png"
             alt="Twin Clash"
             style={{ width: '75%', maxWidth: '420px', margin: '0 auto', opacity: 0.5 }}
           />
