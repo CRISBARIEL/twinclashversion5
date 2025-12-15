@@ -15,10 +15,10 @@ export const DuelResult = ({ room, role, onBack }: DuelResultProps) => {
   const isTie = winner === 'tie';
 
   const isHost = role === 'host';
-  const myTime = (isHost ? room.host_time : room.guest_time) ?? 0;
-  const myScore = (isHost ? room.host_score : room.guest_score) ?? 0;
-  const rivalTime = (isHost ? room.guest_time : room.host_time) ?? 0;
-  const rivalScore = (isHost ? room.guest_score : room.host_score) ?? 0;
+  const myTime = Math.floor(((isHost ? room.host_result?.timeMs : room.guest_result?.timeMs) ?? 0) / 1000);
+  const myScore = (isHost ? room.host_result?.pairsFound : room.guest_result?.pairsFound) ?? 0;
+  const rivalTime = Math.floor(((isHost ? room.guest_result?.timeMs : room.host_result?.timeMs) ?? 0) / 1000);
+  const rivalScore = (isHost ? room.guest_result?.pairsFound : room.host_result?.pairsFound) ?? 0;
 
   const myWin = winner === role;
   const rivalWin = winner === (role === 'host' ? 'guest' : 'host');

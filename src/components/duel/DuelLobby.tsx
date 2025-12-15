@@ -49,7 +49,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
         }, 1000);
       }
 
-      if (updatedRoom.status === 'finished' && updatedRoom.host_finished_at && updatedRoom.guest_finished_at) {
+      if (updatedRoom.status === 'finished' && updatedRoom.host_result && updatedRoom.guest_result) {
         setShowResults(true);
       }
     });
@@ -130,7 +130,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
   }
 
   if (gameStarted) {
-    if (!room || !room.level_number) {
+    if (!room || !room.level) {
       return (
         <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 p-4">
           <div className="max-w-md mx-auto pt-8">
@@ -171,8 +171,8 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
         )}
 
         <GameCore
-          level={room.level_number}
-          duelLevel={room.level_number}
+          level={room.level}
+          duelLevel={room.level}
           duelCode={room.room_code}
           duelRole={role}
           duelSeed={room.seed}
@@ -247,7 +247,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
             <div className="bg-gray-50 rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Nivel:</span>
-                <span className="font-bold text-gray-800">Nivel {room.level_number}</span>
+                <span className="font-bold text-gray-800">Nivel {room.level}</span>
               </div>
             </div>
 

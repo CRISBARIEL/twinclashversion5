@@ -101,7 +101,7 @@ export const DuelCreate = ({ onBack, onRoomCreated, clientId }: DuelCreateProps)
             <div className="bg-gray-50 rounded-xl p-4 mb-6">
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Nivel:</span>
-                <span className="font-bold text-gray-800">Nivel {createdRoom.level_number}</span>
+                <span className="font-bold text-gray-800">Nivel {createdRoom.level}</span>
               </div>
             </div>
 
