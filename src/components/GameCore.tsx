@@ -100,7 +100,6 @@ export const GameCore = ({
   const [finalMoves, setFinalMoves] = useState(0);
   const [hintCards, setHintCards] = useState<number[]>([]);
   const [consecutiveMisses, setConsecutiveMisses] = useState(0);
-  const [powerUpUsed, setPowerUpUsed] = useState(false);
   const [showCoinShop, setShowCoinShop] = useState(false);
   const [isTimerPaused, setIsTimerPaused] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
@@ -404,7 +403,6 @@ export const GameCore = ({
     setShowWinModal(false);
     setHintCards([]);
     setConsecutiveMisses(0);
-    setPowerUpUsed(false);
     setCrackedCards(new Set());
     setBreakingCards(new Set());
     setStreakMatches(0);
@@ -988,7 +986,6 @@ export const GameCore = ({
 
   const handleFreezeTime = useCallback((seconds: number) => {
     setFreezeTimeLeft(seconds);
-    setPowerUpUsed(true);
   }, []);
 
   const handlePowerUp = useCallback((percentage: number) => {
@@ -1109,7 +1106,6 @@ export const GameCore = ({
       setMatchedPairs(prev => prev + pairsToMatch.length);
     }
 
-    setPowerUpUsed(true);
     createConfetti();
   }, [cards]);
 
@@ -1283,16 +1279,11 @@ export const GameCore = ({
             <PowerUpButtons
               onPowerUpUsed={handlePowerUp}
               onFreezeTime={handleFreezeTime}
-              disabled={isPreview || gameOver || powerUpUsed}
+              disabled={isPreview || gameOver}
               hasObstacles={cards.some(c => c.obstacle)}
               onModalStateChange={setIsTimerPaused}
               timeRemaining={timeLeft}
             />
-            {powerUpUsed && (
-              <div className="text-xs text-center text-green-600 font-semibold mt-1">
-                ✅ Ayuda usada
-              </div>
-            )}
             <button
               onClick={() => {
                 setShowCoinShop(true);
