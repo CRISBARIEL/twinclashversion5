@@ -119,6 +119,33 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
       });
 
       setMyResultSubmitted(true);
+
+      const checkForResults = async () => {
+        console.log('[DuelLobby] Verificando si ambos resultados están listos...');
+        const latestRoom = await getDuelRoom(result.duelCode);
+
+        if (latestRoom && latestRoom.status === 'finished' && latestRoom.host_result && latestRoom.guest_result) {
+          console.log('[DuelLobby] ¡Ambos resultados están listos! Mostrando resultados...');
+          setRoom(latestRoom);
+          setShowResults(true);
+          return true;
+        }
+        return false;
+      };
+
+      let attempts = 0;
+      const maxAttempts = 30;
+      const pollInterval = setInterval(async () => {
+        attempts++;
+        const resultsReady = await checkForResults();
+
+        if (resultsReady || attempts >= maxAttempts) {
+          clearInterval(pollInterval);
+          if (attempts >= maxAttempts) {
+            console.warn('[DuelLobby] Timeout esperando resultados del rival');
+          }
+        }
+      }, 1000);
     } catch (err) {
       console.error('[DuelLobby] Error al enviar resultado:', err);
     }
