@@ -89,7 +89,7 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
           <img
             src="/chatgpt_image_15_dic_2025,_11_02_21.png"
             alt="Twin Clash"
-            style={{ width: '75%', maxWidth: '420px', margin: '0 auto', opacity: 0.5 }}
+            style={{ width: '75%', maxWidth: '420px', margin: '0 auto' }}
           />
         </div>
 

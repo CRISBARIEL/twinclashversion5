@@ -135,7 +135,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
           <img
             src="/chatgpt_image_15_dic_2025,_11_02_21.png"
             alt="Twin Clash"
-            style={{ width: '75%', maxWidth: '420px', margin: '0 auto', opacity: 0.5 }}
+            style={{ width: '75%', maxWidth: '420px', margin: '0 auto' }}
           />
         </div>
         <p className="text-center text-gray-600 mb-6 text-sm font-medium">
