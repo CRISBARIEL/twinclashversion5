@@ -60,7 +60,7 @@ Resolver el problema de pagos en producción verificando claves y desvinculando 
 
 **Pasos:**
 1. Ve a [Supabase Dashboard](https://supabase.com/dashboard)
-2. Selecciona tu proyecto `fdlqyqeobwumyjuqgrpl`
+2. Selecciona tu proyecto `jbqaznerntjlbdhcmodj`
 3. Ve a **Settings > Edge Functions > Secrets**
 4. Verifica que ambas variables existan:
    - ✅ `STRIPE_SECRET_KEY` (la que termina en `...oXLo`)
@@ -77,7 +77,7 @@ Resolver el problema de pagos en producción verificando claves y desvinculando 
 
 **Endpoint del webhook en producción:**
 ```
-https://fdlqyqeobwumyjuqgrpl.supabase.co/functions/v1/stripe-webhook
+https://jbqaznerntjlbdhcmodj.supabase.co/functions/v1/stripe-webhook
 ```
 
 **Eventos requeridos:**

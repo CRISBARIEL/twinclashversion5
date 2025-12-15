@@ -2,8 +2,8 @@ import { createClient } from '@supabase/supabase-js';
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 
-const SUPABASE_URL = "https://fdlqyqeobwumyjuqgrpl.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkbHF5cWVvYnd1bXlqdXFncnBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NjUyNzgsImV4cCI6MjA3ODM0MTI3OH0.8FPhoxYODWFnkileEwT7S5piPX53Hk1YwLoGB5zppPI";
+const SUPABASE_URL = "https://jbqaznerntjlbdhcmodj.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpicWF6bmVybnRqbGJkaGNtb2RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMjIzOTksImV4cCI6MjA3NzY5ODM5OX0.BH2xhvB9EsNqQbKpZV3JErtjNL0TKdNOe7DKj0VQ2pU";
 const BUCKET = "twinclash-audio";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);

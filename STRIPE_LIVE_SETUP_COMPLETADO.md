@@ -68,7 +68,7 @@ STRIPE_WEBHOOK_SECRET=whsec_tu_secret_aqui
 
 2. **Endpoint URL:**
    ```
-   https://fdlqyqeobwumyjuqgrpl.supabase.co/functions/v1/stripe-webhook
+   https://jbqaznerntjlbdhcmodj.supabase.co/functions/v1/stripe-webhook
    ```
 
 3. **Events to send:** Seleccionar estos eventos:
@@ -94,8 +94,8 @@ Tu app está desplegada en Vercel o Netlify. Debes configurar las variables de e
 
 ```bash
 # Variables requeridas (marcar Production ✅)
-VITE_SUPABASE_URL=https://fdlqyqeobwumyjuqgrpl.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZkbHF5cWVvYnd1bXlqdXFncnBsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI3NjUyNzgsImV4cCI6MjA3ODM0MTI3OH0.8FPhoxYODWFnkileEwT7S5piPX53Hk1YwLoGB5zppPI
+VITE_SUPABASE_URL=https://jbqaznerntjlbdhcmodj.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpicWF6bmVybnRqbGJkaGNtb2RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMjIzOTksImV4cCI6MjA3NzY5ODM5OX0.BH2xhvB9EsNqQbKpZV3JErtjNL0TKdNOe7DKj0VQ2pU
 ```
 
 **⚠️ NO agregues** `STRIPE_SECRET_KEY` en Vercel (debe estar solo en Supabase)
@@ -105,8 +105,8 @@ VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFz
 
 ```bash
 # Mismas variables que Vercel
-VITE_SUPABASE_URL=https://fdlqyqeobwumyjuqgrpl.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGc...
+VITE_SUPABASE_URL=https://jbqaznerntjlbdhcmodj.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpicWF6bmVybnRqbGJkaGNtb2RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxMjIzOTksImV4cCI6MjA3NzY5ODM5OX0.BH2xhvB9EsNqQbKpZV3JErtjNL0TKdNOe7DKj0VQ2pU
 ```
 
 ---
@@ -204,7 +204,7 @@ CVC: Cualquier 3 dígitos
 ```bash
 # En Stripe Dashboard → Webhooks
 # Deberías ver un endpoint con:
-✅ URL: https://fdlqyqeobwumyjuqgrpl.supabase.co/functions/v1/stripe-webhook
+✅ URL: https://jbqaznerntjlbdhcmodj.supabase.co/functions/v1/stripe-webhook
 ✅ Status: Active
 ✅ Events: checkout.session.completed, etc.
 ```
