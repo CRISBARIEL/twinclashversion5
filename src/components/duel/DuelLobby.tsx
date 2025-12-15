@@ -11,6 +11,10 @@ interface DuelLobbyProps {
   onBack: () => void;
 }
 
+const hasValidResult = (result: any): boolean => {
+  return !!(result && typeof result === 'object' && 'pairsFound' in result);
+};
+
 export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLobbyProps) => {
   const [room, setRoom] = useState<DuelRoom | null>(initialRoom);
   const [gameStarted, setGameStarted] = useState(false);
@@ -25,6 +29,10 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     console.log('[DuelLobby] Room update received:', {
       status: updatedRoom?.status,
       guest_id: updatedRoom?.guest_client_id,
+      host_result: updatedRoom?.host_result,
+      guest_result: updatedRoom?.guest_result,
+      host_valid: hasValidResult(updatedRoom?.host_result),
+      guest_valid: hasValidResult(updatedRoom?.guest_result),
       gameStartedRef: gameStartedRef.current,
       role
     });
@@ -50,8 +58,11 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
       }, 1000);
     }
 
-    if (updatedRoom.status === 'finished' && updatedRoom.host_result && updatedRoom.guest_result) {
-      console.log('[DuelLobby] Ambos resultados recibidos, mostrando pantalla de resultados');
+    const hostResultValid = hasValidResult(updatedRoom.host_result);
+    const guestResultValid = hasValidResult(updatedRoom.guest_result);
+
+    if (updatedRoom.status === 'finished' && hostResultValid && guestResultValid) {
+      console.log('[DuelLobby] Ambos resultados recibidos y válidos, mostrando pantalla de resultados');
       setShowResults(true);
     }
   }, [role]);
@@ -124,7 +135,23 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
         console.log('[DuelLobby] Verificando si ambos resultados están listos...');
         const latestRoom = await getDuelRoom(result.duelCode);
 
-        if (latestRoom && latestRoom.status === 'finished' && latestRoom.host_result && latestRoom.guest_result) {
+        if (!latestRoom) {
+          console.log('[DuelLobby] No se pudo obtener la sala');
+          return false;
+        }
+
+        const hostValid = hasValidResult(latestRoom.host_result);
+        const guestValid = hasValidResult(latestRoom.guest_result);
+
+        console.log('[DuelLobby] Estado de resultados:', {
+          status: latestRoom.status,
+          hostValid,
+          guestValid,
+          host_result: latestRoom.host_result,
+          guest_result: latestRoom.guest_result
+        });
+
+        if (latestRoom.status === 'finished' && hostValid && guestValid) {
           console.log('[DuelLobby] ¡Ambos resultados están listos! Mostrando resultados...');
           setRoom(latestRoom);
           setShowResults(true);
