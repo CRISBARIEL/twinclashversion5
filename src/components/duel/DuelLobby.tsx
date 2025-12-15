@@ -1,6 +1,6 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { ArrowLeft, Copy, Check, Trophy, AlertCircle } from 'lucide-react';
-import { subscribeToDuelRoom, DuelRoom, submitDuelResult } from '../../lib/duelApi';
+import { subscribeToDuelRoom, DuelRoom, submitDuelResult, getDuelRoom } from '../../lib/duelApi';
 import { GameCore } from '../GameCore';
 import { DuelResult } from './DuelResult';
 
@@ -21,6 +21,41 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
   const [loading, setLoading] = useState(false);
   const gameStartedRef = useRef(false);
 
+  const handleRoomUpdate = useCallback((updatedRoom: DuelRoom | null) => {
+    console.log('[DuelLobby] Room update received:', {
+      status: updatedRoom?.status,
+      guest_id: updatedRoom?.guest_client_id,
+      gameStartedRef: gameStartedRef.current,
+      role
+    });
+
+    setLoading(false);
+
+    if (!updatedRoom) {
+      console.error('[DuelLobby] Sala no encontrada o sin permisos');
+      setError('Sala no encontrada o sin permisos de acceso');
+      setRoom(null);
+      return;
+    }
+
+    setRoom(updatedRoom);
+    setError(null);
+
+    if (updatedRoom.status === 'started' && updatedRoom.guest_client_id && !gameStartedRef.current) {
+      console.log('[DuelLobby] ¡El duelo ha comenzado! Iniciando juego...');
+      gameStartedRef.current = true;
+      setTimeout(() => {
+        console.log('[DuelLobby] Setting gameStarted to true');
+        setGameStarted(true);
+      }, 1000);
+    }
+
+    if (updatedRoom.status === 'finished' && updatedRoom.host_result && updatedRoom.guest_result) {
+      console.log('[DuelLobby] Ambos resultados recibidos, mostrando pantalla de resultados');
+      setShowResults(true);
+    }
+  }, [role]);
+
   useEffect(() => {
     if (!initialRoom || !initialRoom.room_code) {
       setError('Sala no válida');
@@ -30,45 +65,37 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     setLoading(true);
     setError(null);
 
-    const unsubscribe = subscribeToDuelRoom(initialRoom.room_code, (updatedRoom) => {
-      console.log('[DuelLobby] Room update received:', {
-        status: updatedRoom?.status,
-        guest_id: updatedRoom?.guest_client_id,
-        gameStartedRef: gameStartedRef.current,
-        role
-      });
-
-      setLoading(false);
-
-      if (!updatedRoom) {
-        console.error('[DuelLobby] Sala no encontrada o sin permisos');
-        setError('Sala no encontrada o sin permisos de acceso');
-        setRoom(null);
-        return;
-      }
-
-      setRoom(updatedRoom);
-      setError(null);
-
-      if (updatedRoom.status === 'started' && updatedRoom.guest_client_id && !gameStartedRef.current) {
-        console.log('[DuelLobby] ¡El duelo ha comenzado! Iniciando juego...');
-        gameStartedRef.current = true;
-        setTimeout(() => {
-          console.log('[DuelLobby] Setting gameStarted to true');
-          setGameStarted(true);
-        }, 1000);
-      }
-
-      if (updatedRoom.status === 'finished' && updatedRoom.host_result && updatedRoom.guest_result) {
-        console.log('[DuelLobby] Ambos resultados recibidos, mostrando pantalla de resultados');
-        setShowResults(true);
-      }
-    });
+    const unsubscribe = subscribeToDuelRoom(initialRoom.room_code, handleRoomUpdate);
 
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [initialRoom?.room_code, role]);
+  }, [initialRoom?.room_code, handleRoomUpdate]);
+
+  useEffect(() => {
+    if (!initialRoom?.room_code || gameStarted || showResults) return;
+
+    console.log('[DuelLobby] Starting polling fallback');
+
+    const pollInterval = setInterval(async () => {
+      if (gameStartedRef.current) {
+        clearInterval(pollInterval);
+        return;
+      }
+
+      console.log('[DuelLobby] Polling room status...');
+      const latestRoom = await getDuelRoom(initialRoom.room_code);
+
+      if (latestRoom) {
+        handleRoomUpdate(latestRoom);
+      }
+    }, 2000);
+
+    return () => {
+      console.log('[DuelLobby] Clearing polling interval');
+      clearInterval(pollInterval);
+    };
+  }, [initialRoom?.room_code, gameStarted, showResults, handleRoomUpdate]);
 
   const handleDuelFinish = async (result: {
     win: boolean;
