@@ -85,7 +85,7 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
       </div>
 
       <div className="bg-white/50 backdrop-blur-sm rounded-3xl shadow-2xl p-8 max-w-md w-full relative z-10">
-        <div className="flex justify-center mb-6 bg-white/50 backdrop-blur-sm p-4 rounded-2xl">
+        <div className="flex justify-center mb-6">
           <img
             src="/twinlogo.png"
             alt="Twin Clash"
