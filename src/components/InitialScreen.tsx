@@ -135,7 +135,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
           <img
             src="/twinlogo.png"
             alt="Twin Clash"
-            style={{ width: '75%', maxWidth: '420px', margin: '0 auto' }}
+            style={{ width: '75%', maxWidth: '420px', margin: '0 auto', opacity: 0.5 }}
           />
         </div>
         <p className="text-center text-gray-600 mb-6 text-sm font-medium">
