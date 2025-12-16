@@ -16,9 +16,9 @@ interface RequestBody {
 
 const PACKAGES: Record<string, { coins: number; price: number; name: string }> = {
   small: { coins: 100, price: 99, name: "100 Monedas" },
-  medium: { coins: 600, price: 399, name: "550 Monedas (550 + 50 Bonus)" },
-  large: { coins: 1400, price: 799, name: "1400 Monedas (1200+200 bonus)" },
-  xlarge: { coins: 3700, price: 1499, name: "3700 Monedas (3000+700 bonus)" },
+  medium: { coins: 550, price: 399, name: "550 Monedas (+50 Bonus)" },
+  large: { coins: 1200, price: 799, name: "1200 Monedas (+200 Bonus)" },
+  xlarge: { coins: 3000, price: 1499, name: "3000 Monedas (+700 Bonus)" },
 };
 
 Deno.serve(async (req: Request) => {
