@@ -494,6 +494,13 @@ export const GameCore = ({
               const elapsedMs = gameStartTimeRef.current > 0
                 ? Date.now() - gameStartTimeRef.current
                 : Date.now();
+              console.log('[GameCore] Time out! Calling onDuelFinish with:', {
+                win: false,
+                timeMs: elapsedMs,
+                moves,
+                pairsFound: matchedPairs,
+                level: activeLevel,
+              });
               onDuelFinish({
                 win: false,
                 timeMs: elapsedMs,
@@ -570,7 +577,7 @@ export const GameCore = ({
     const totalPairs = levelConfig?.pairs || 6;
     if (matchedPairs === totalPairs && matchedPairs > 0 && !levelCompletedRef.current) {
       levelCompletedRef.current = true;
-      console.log('[GameCore] LEVEL COMPLETED', { level, matchedPairs, moves, timeElapsed });
+      console.log('[GameCore] LEVEL COMPLETED', { level, matchedPairs, moves, timeElapsed, totalPairs });
       if (timerRef.current) clearInterval(timerRef.current);
       if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
       if (elapsedTimerRef.current) clearInterval(elapsedTimerRef.current);
@@ -584,11 +591,18 @@ export const GameCore = ({
       setFinalMoves(moves);
 
       if (isDuel && duelCode && duelRole && onDuelFinish) {
+        console.log('[GameCore] Calling onDuelFinish with:', {
+          win: true,
+          timeMs: finalTimeValue * 1000,
+          moves,
+          pairsFound: totalPairs,
+          level: activeLevel,
+        });
         onDuelFinish({
           win: true,
           timeMs: finalTimeValue * 1000,
           moves,
-          pairsFound: matchedPairs,
+          pairsFound: totalPairs,
           level: activeLevel,
           duelCode,
           duelRole,
