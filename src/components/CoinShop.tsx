@@ -14,13 +14,13 @@ interface CoinPackage {
 const coinPackages: CoinPackage[] = [
   {
     id: 'small',
-    coins: 100,
+    coins: 1000,
     price: 0.99,
     priceLabel: '0,99€',
   },
   {
     id: 'medium',
-    coins: 550,
+    coins: 1550,
     price: 3.99,
     priceLabel: '3,99€',
     popular: true,
@@ -28,14 +28,14 @@ const coinPackages: CoinPackage[] = [
   },
   {
     id: 'large',
-    coins: 1200,
+    coins: 2400,
     price: 7.99,
     priceLabel: '7,99€',
     bonus: 200,
   },
   {
     id: 'xlarge',
-    coins: 3000,
+    coins: 4000,
     price: 14.99,
     priceLabel: '14,99€',
     bonus: 700,
