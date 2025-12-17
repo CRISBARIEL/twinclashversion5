@@ -34,6 +34,8 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
       host_valid: hasValidResult(updatedRoom?.host_result),
       guest_valid: hasValidResult(updatedRoom?.guest_result),
       gameStartedRef: gameStartedRef.current,
+      myResultSubmitted,
+      showResults,
       role
     });
 
@@ -62,7 +64,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
       console.log('[DuelLobby] Ambos resultados recibidos y válidos, mostrando pantalla de resultados');
       setShowResults(true);
     }
-  }, [role]);
+  }, [role, myResultSubmitted, showResults]);
 
   useEffect(() => {
     if (!initialRoom || !initialRoom.room_code) {
@@ -156,6 +158,14 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
         }
         return false;
       };
+
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const initialCheck = await checkForResults();
+      if (initialCheck) {
+        console.log('[DuelLobby] Resultados listos inmediatamente después de enviar');
+        return;
+      }
 
       let attempts = 0;
       const maxAttempts = 30;
