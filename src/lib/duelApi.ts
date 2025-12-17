@@ -122,6 +122,8 @@ export async function submitDuelResult(
   role: 'host' | 'guest',
   result: DuelResult
 ): Promise<void> {
+  console.log('[submitDuelResult] Called with:', { roomCode, role, result });
+
   if (!roomCode || roomCode.trim() === '') throw new Error('INVALID_ROOM_CODE');
   if (role !== 'host' && role !== 'guest') throw new Error('INVALID_ROLE');
 
@@ -137,11 +139,15 @@ export async function submitDuelResult(
 
   const resultField = role === 'host' ? 'host_result' : 'guest_result';
 
+  const resultToSave = {
+    ...result,
+    submittedAt: new Date().toISOString(),
+  };
+
+  console.log('[submitDuelResult] Saving result:', { resultField, resultToSave });
+
   const updates: any = {
-    [resultField]: {
-      ...result,
-      submittedAt: new Date().toISOString(),
-    },
+    [resultField]: resultToSave,
   };
 
   const otherField = role === 'host' ? 'guest_result' : 'host_result';
@@ -152,10 +158,14 @@ export async function submitDuelResult(
     updates.finished_at = new Date().toISOString();
   }
 
-  const { error: updateError } = await supabase
+  const { data: updatedRoom, error: updateError } = await supabase
     .from('duel_rooms')
     .update(updates)
-    .eq('id', room.id);
+    .eq('id', room.id)
+    .select()
+    .maybeSingle();
+
+  console.log('[submitDuelResult] Update result:', { updatedRoom, updateError });
 
   if (updateError) throw new Error('FAILED_TO_SUBMIT_RESULT');
 }
