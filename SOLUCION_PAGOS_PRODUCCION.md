@@ -3,7 +3,7 @@
 ## Problema Identificado
 
 Tu proyecto usa **DOS URLs de Supabase diferentes**:
-- **App (.env)**: `fdlqyqeobwumyjuqgrpl.supabase.co`
+- **App (.env)**: `https://jbqaznerntjlbdhcmodj.supabase.co`
 - **Docs de Stripe**: `jbqaznerntjlbdhcmodj.supabase.co`
 
 Esto causa que los Edge Functions de pagos estén en un proyecto diferente.
