@@ -1,32 +1,20 @@
 # Solución de Pagos en Producción - twinclash.org
 
-## Problema Identificado
+## Proyecto Correcto de Supabase
 
-Tu proyecto usa **DOS URLs de Supabase diferentes**:
-- **App (.env)**: `https://jbqaznerntjlbdhcmodj.supabase.co`
-- **Docs de Stripe**: `jbqaznerntjlbdhcmodj.supabase.co`
+Tu proyecto de Supabase es: **`jbqaznerntjlbdhcmodj.supabase.co`**
 
-Esto causa que los Edge Functions de pagos estén en un proyecto diferente.
+Todas las configuraciones deben hacerse en este proyecto.
 
 ---
 
 ## Solución Rápida (3 pasos)
 
-### 1. Verificar qué proyecto de Supabase usar
+### 1. Configurar Secrets en Supabase
 
-Abre tu app en `https://twinclash.org`, abre la consola del navegador (F12) y ejecuta:
-
-```javascript
-console.log(localStorage.getItem('supabase.auth.token'))
+Ve al Dashboard de Supabase:
 ```
-
-Esto te dirá qué proyecto estás usando actualmente. El proyecto correcto es `fdlqyqeobwumyjuqgrpl`.
-
-### 2. Configurar Secrets en Supabase
-
-Ve al Dashboard de Supabase del proyecto correcto:
-```
-https://supabase.com/dashboard/project/fdlqyqeobwumyjuqgrpl/settings/functions
+https://supabase.com/dashboard/project/jbqaznerntjlbdhcmodj/settings/functions
 ```
 
 En **Settings → Edge Functions → Secrets**, añade estos 2 secrets:
@@ -41,17 +29,17 @@ En **Settings → Edge Functions → Secrets**, añade estos 2 secrets:
 - **Valor**: El signing secret del webhook (empieza con `whsec_...`)
 - Obtenerlo en: https://dashboard.stripe.com/webhooks
 
-### 3. Configurar Webhook en Stripe
+### 2. Configurar Webhook en Stripe
 
 Ve a https://dashboard.stripe.com/webhooks y:
 
-1. **Si ya existe un webhook**, elimínalo
-2. **Crea uno nuevo** con estos datos:
-   - **Endpoint URL**: `https://fdlqyqeobwumyjuqgrpl.supabase.co/functions/v1/stripe-webhook`
+1. **Si ya existe un webhook**, verifica que tenga la URL correcta
+2. **Si no existe o la URL es incorrecta, crea uno nuevo** con estos datos:
+   - **Endpoint URL**: `https://jbqaznerntjlbdhcmodj.supabase.co/functions/v1/stripe-webhook`
    - **Eventos a escuchar**:
      - `checkout.session.completed`
      - `payment_intent.succeeded`
-3. **Copia el Signing Secret** y úsalo en el paso 2 arriba
+3. **Copia el Signing Secret** y úsalo en el paso 1 arriba
 
 ---
 
@@ -77,13 +65,13 @@ El Edge Function ya está desplegado en tu proyecto de Supabase.
 === INICIO DE COMPRA ===
 Paquete seleccionado: {id: "small", coins: 1000, ...}
 Client ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-URL: https://fdlqyqeobwumyjuqgrpl.supabase.co
+URL: https://jbqaznerntjlbdhcmodj.supabase.co
 Anon Key: Presente
 ========================
 ```
 
 5. Si ves errores, revisa:
-   - Logs de Supabase: https://supabase.com/dashboard/project/fdlqyqeobwumyjuqgrpl/functions
+   - Logs de Supabase: https://supabase.com/dashboard/project/jbqaznerntjlbdhcmodj/functions
    - Logs de Stripe: https://dashboard.stripe.com/webhooks
 
 ---
@@ -120,10 +108,9 @@ Para probar pagos **sin cobrar dinero real**:
 
 ## Checklist Final
 
-- [ ] Verificar que uso el proyecto `fdlqyqeobwumyjuqgrpl`
-- [ ] Configurar `STRIPE_SECRET_KEY` en Supabase Secrets
-- [ ] Configurar `STRIPE_WEBHOOK_SECRET` en Supabase Secrets
-- [ ] Crear/actualizar webhook en Stripe con la URL correcta
+- [ ] Configurar `STRIPE_SECRET_KEY` en Supabase Secrets (proyecto `jbqaznerntjlbdhcmodj`)
+- [ ] Configurar `STRIPE_WEBHOOK_SECRET` en Supabase Secrets (proyecto `jbqaznerntjlbdhcmodj`)
+- [ ] Verificar/crear webhook en Stripe con URL: `https://jbqaznerntjlbdhcmodj.supabase.co/functions/v1/stripe-webhook`
 - [ ] Probar pago con tarjeta de prueba
 - [ ] Verificar que las monedas se añaden correctamente
 
