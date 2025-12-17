@@ -33,10 +33,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
       guest_result: updatedRoom?.guest_result,
       host_valid: hasValidResult(updatedRoom?.host_result),
       guest_valid: hasValidResult(updatedRoom?.guest_result),
-      gameStartedRef: gameStartedRef.current,
-      myResultSubmitted,
-      showResults,
-      role
+      gameStartedRef: gameStartedRef.current
     });
 
     setLoading(false);
@@ -64,7 +61,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
       console.log('[DuelLobby] Ambos resultados recibidos y válidos, mostrando pantalla de resultados');
       setShowResults(true);
     }
-  }, [role, myResultSubmitted, showResults]);
+  }, []);
 
   useEffect(() => {
     if (!initialRoom || !initialRoom.room_code) {
@@ -80,7 +77,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [initialRoom?.room_code, handleRoomUpdate]);
+  }, [initialRoom?.room_code]);
 
   useEffect(() => {
     if (!initialRoom?.room_code || gameStarted || showResults) return;
@@ -105,7 +102,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
       console.log('[DuelLobby] Clearing polling interval');
       clearInterval(pollInterval);
     };
-  }, [initialRoom?.room_code, gameStarted, showResults, handleRoomUpdate]);
+  }, [initialRoom?.room_code, gameStarted, showResults]);
 
   const handleDuelFinish = async (result: {
     win: boolean;
