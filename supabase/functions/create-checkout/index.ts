@@ -107,9 +107,22 @@ Deno.serve(async (req: Request) => {
     }
 
     const origin = req.headers.get("origin") || "http://localhost:5173";
+    const referer = req.headers.get("referer");
+
+    let baseUrl = origin;
+    if (referer) {
+      try {
+        const refererUrl = new URL(referer);
+        baseUrl = `${refererUrl.protocol}//${refererUrl.host}`;
+      } catch (e) {
+        console.log("Could not parse referer, using origin");
+      }
+    }
 
     console.log("Creating checkout session...");
     console.log("Origin:", origin);
+    console.log("Referer:", referer);
+    console.log("Base URL used:", baseUrl);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -127,8 +140,8 @@ Deno.serve(async (req: Request) => {
         },
       ],
       mode: "payment",
-      success_url: `${origin}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}?payment=cancelled`,
+      success_url: `${baseUrl}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}?payment=cancelled`,
       client_reference_id: clientId,
       metadata: {
         coins: coins.toString(),
