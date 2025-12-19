@@ -5,11 +5,17 @@
     <link rel="icon" type="image/png" href="/twinlogo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Twin Clash ⚡ - Memory Card Game</title>
-    <meta name="description" content="Twin Clash - Epic memory card matching game. Challenge yourself, compete in duels, and collect themes!" />
+    <meta
+      name="description"
+      content="Twin Clash - Epic memory card matching game. Challenge yourself, compete in duels, and collect themes!"
+    />
 
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179904258127705"
-         crossorigin="anonymous"></script>
+    <!-- Google AdSense (WEB) - ONLY THIS PUB -->
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179904258127705"
+      crossorigin="anonymous"
+    ></script>
 
     <!-- GameMonetize SDK -->
     <script src="https://api.gamemonetize.com/sdk.js"></script>
@@ -19,130 +25,109 @@
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-messaging-compat.js"></script>
   </head>
+
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 
     <script>
-      window.showInterstitialAd = function() {
-        if (!window.__lastAdShown) window.__lastAdShown = 0;
-        if (Date.now() - window.__lastAdShown < 60000) return;
-        window.__lastAdShown = Date.now();
+      // -----------------------------
+      // GameMonetize init (required)
+      // -----------------------------
+      window.sdk = null;
+      window.sdk_init = false;
 
-        const overlay = document.getElementById("interstitial-overlay");
-        if (!overlay) return;
-        overlay.style.display = "flex";
+      function initGameMonetize() {
+        const GM = window.GameMonetize || window.GM;
+        if (!GM || typeof GM.init !== "function") {
+          console.warn("[GameMonetize] SDK not ready yet");
+          return;
+        }
 
         try {
-          (adsbygoogle = window.adsbygoogle || []).push({});
-        } catch(e){}
-      };
+          GM.init({
+            gameId: "u6759vgzobxnr0oqgv1njvil5phnplwl",
+            onReady: function (sdk) {
+              window.sdk = sdk;
+              window.sdk_init = true;
+              console.log("[GameMonetize] SDK READY ✅");
+            },
+            onError: function (e) {
+              console.error("[GameMonetize] INIT ERROR:", e);
+            },
+          });
+        } catch (e) {
+          console.error("[GameMonetize] INIT EXCEPTION:", e);
+        }
+      }
 
-      window.closeInterstitial = function() {
-        const overlay = document.getElementById("interstitial-overlay");
-        if (!overlay) return;
-        overlay.style.display = "none";
-      };
+      window.addEventListener("load", () => {
+        // small delay to ensure sdk.js is available
+        setTimeout(initGameMonetize, 200);
+      });
 
-      window.showRewardedAd = function() {
-        const showMessage = (text, bgColor = '#333') => {
-          const msg = document.createElement('div');
+      // -----------------------------
+      // Rewarded ads (GameMonetize)
+      // No reward unless ad is completed
+      // -----------------------------
+      window.showRewardedAd = function () {
+        const showMessage = (text, bgColor = "#333") => {
+          const msg = document.createElement("div");
           msg.textContent = text;
-          msg.style.cssText = `position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${bgColor};color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;font-size:14px;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.3);`;
+          msg.style.cssText =
+            "position:fixed;bottom:20px;left:50%;transform:translateX(-50%);" +
+            "background:" +
+            bgColor +
+            ";color:#fff;padding:12px 24px;border-radius:8px;z-index:9999;" +
+            "font-size:14px;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,0.3);";
           document.body.appendChild(msg);
           setTimeout(() => msg.remove(), 3000);
         };
 
         const grantReward = () => {
-          window.dispatchEvent(new CustomEvent('add-coins', { detail: 2000 }));
-          showMessage('¡Has ganado +2.000 monedas! 🎉', '#10b981');
+          window.dispatchEvent(new CustomEvent("add-coins", { detail: 2000 }));
+          showMessage("¡Has ganado +2.000 monedas! 🎉", "#10b981");
         };
 
-        if (window.sdk_init === true && window.sdk) {
-          console.log('[GameMonetize] Using SDK.showRewardedAd');
+        // Prefer the initialized SDK instance if available
+        if (window.sdk_init === true && window.sdk && typeof window.sdk.showRewardedAd === "function") {
+          console.log("[GameMonetize] Using sdk.showRewardedAd()");
           try {
             window.sdk.showRewardedAd({
-              onRewardGranted: () => {
-                grantReward();
+              onRewardGranted: () => grantReward(),
+              onRewardDeclined: () => showMessage("Completa el anuncio para obtener la recompensa", "#ff9800"),
+              onHidden: () => console.log("[GameMonetize] Rewarded hidden"),
+              onError: (e) => {
+                console.warn("[GameMonetize] Rewarded error/no fill:", e);
+                showMessage("No hay anuncio disponible, inténtalo más tarde", "#ff4444");
               },
-              onRewardDeclined: () => {
-                showMessage('Completa el anuncio para obtener la recompensa', '#ff9800');
-              },
-              onHidden: () => {
-                console.log('[GameMonetize] Ad hidden');
-              }
             });
             return;
           } catch (e) {
-            console.error('[GameMonetize] SDK error:', e);
+            console.error("[GameMonetize] SDK rewarded exception:", e);
+            showMessage("No hay anuncio disponible, inténtalo más tarde", "#ff4444");
+            return;
           }
         }
 
+        // Fallback to legacy API if present (some implementations expose this)
         if (window.GameMonetize?.game?.fn?.rewarded) {
-          console.log('[GameMonetize] Using GameMonetize.game.fn.rewarded');
+          console.log("[GameMonetize] Using GameMonetize.game.fn.rewarded()");
           try {
-            window.GameMonetize.game.fn.rewarded(grantReward);
+            window.GameMonetize.game.fn.rewarded(() => grantReward());
             return;
           } catch (e) {
-            console.error('[GameMonetize] Rewarded error:', e);
+            console.error("[GameMonetize] Legacy rewarded exception:", e);
+            showMessage("No hay anuncio disponible, inténtalo más tarde", "#ff4444");
+            return;
           }
         }
 
-        console.warn('[GameMonetize] SDK not available, showing test ad');
-        showMessage('Cargando anuncio de prueba...', '#2563eb');
-
-        setTimeout(() => {
-          grantReward();
-        }, 2000);
+        // No SDK => no reward
+        console.warn("[GameMonetize] SDK not available");
+        showMessage("No hay anuncio disponible, inténtalo más tarde", "#ff4444");
       };
     </script>
-
-    <div id="interstitial-overlay" style="
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      flex-direction: column;
-    ">
-      <div style="
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        max-width: 90%;
-        max-height: 90%;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      ">
-        <button onclick="window.closeInterstitial()" style="
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          background: #ff4444;
-          color: white;
-          border: none;
-          border-radius: 50%;
-          width: 30px;
-          height: 30px;
-          cursor: pointer;
-          font-size: 18px;
-          font-weight: bold;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        ">×</button>
-
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-2140112688604592"
-             data-ad-slot=""
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-      </div>
-    </div>
   </body>
 </html>
+
