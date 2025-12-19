@@ -48,7 +48,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     setRoom(updatedRoom);
     setError(null);
 
-    if (updatedRoom.status === 'started' && updatedRoom.guest_client_id && !gameStartedRef.current) {
+    if (updatedRoom.status === 'playing' && updatedRoom.guest_client_id && !gameStartedRef.current) {
       console.log('[DuelLobby] ¡El duelo ha comenzado! Iniciando juego...');
       gameStartedRef.current = true;
       setGameStarted(true);
