@@ -9,12 +9,13 @@ import { WorldMap } from './components/WorldMap';
 import { LevelSelector } from './components/LevelSelector';
 import { AudioUploader } from './components/AudioUploader';
 import { RewardButton } from './components/RewardButton';
+import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 import { initializeFirebase } from './lib/firebase';
 import { AlertCircle } from 'lucide-react';
 
-type Screen = 'simple' | 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload';
+type Screen = 'simple' | 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload' | 'privacy';
 
 function App() {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -79,6 +80,9 @@ function App() {
     }
     if (mode === 'upload') {
       return 'upload';
+    }
+    if (mode === 'privacy') {
+      return 'privacy';
     }
     return 'simple';
   });
@@ -221,6 +225,9 @@ function App() {
       )}
       {screen === 'upload' && (
         <AudioUploader />
+      )}
+      {screen === 'privacy' && (
+        <PrivacyPolicy onBack={() => setScreen('simple')} />
       )}
       {screen === 'game' && <RewardButton currentLevel={selectedLevel} />}
     </>
