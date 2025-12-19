@@ -209,6 +209,23 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             <NotificationButton />
           </div>
         </div>
+
+        <div className="mt-6 pt-4 border-t border-gray-300">
+          <div className="flex justify-center gap-6 text-sm">
+            <a
+              href="/terms"
+              className="text-gray-700 hover:text-gray-900 font-semibold transition-colors"
+            >
+              Privacy Policy
+            </a>
+            <a
+              href="mailto:contact@twinclash.org"
+              className="text-gray-700 hover:text-gray-900 font-semibold transition-colors"
+            >
+              Contact
+            </a>
+          </div>
+        </div>
       </div>
 
       {showShop && <Shop onClose={handleShopClose} onSkinChanged={() => {}} />}

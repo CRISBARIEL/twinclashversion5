@@ -5,19 +5,25 @@ interface PrivacyPolicyProps {
 }
 
 export const PrivacyPolicy = ({ onBack }: PrivacyPolicyProps) => {
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else {
+      window.location.href = '/';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
-      {onBack && (
-        <div className="max-w-4xl mx-auto px-4 pt-6">
-          <button
-            onClick={onBack}
-            className="flex items-center gap-2 text-gray-700 hover:text-gray-900 font-semibold transition-colors"
-          >
-            <ArrowLeft size={20} />
-            Back
-          </button>
-        </div>
-      )}
+      <div className="max-w-4xl mx-auto px-4 pt-6">
+        <button
+          onClick={handleBack}
+          className="flex items-center gap-2 text-gray-700 hover:text-gray-900 font-semibold transition-colors"
+        >
+          <ArrowLeft size={20} />
+          Back
+        </button>
+      </div>
 
       <div className="max-w-4xl mx-auto px-4 py-12">
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">

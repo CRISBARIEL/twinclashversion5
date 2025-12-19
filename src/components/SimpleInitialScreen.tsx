@@ -121,6 +121,23 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
             <span>DUELO</span>
           </button>
         </div>
+
+        <div className="mt-6 pt-4 border-t border-white/30">
+          <div className="flex justify-center gap-6 text-sm">
+            <a
+              href="/terms"
+              className="text-white/90 hover:text-white font-semibold transition-colors"
+            >
+              Privacy Policy
+            </a>
+            <a
+              href="mailto:contact@twinclash.org"
+              className="text-white/90 hover:text-white font-semibold transition-colors"
+            >
+              Contact
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );

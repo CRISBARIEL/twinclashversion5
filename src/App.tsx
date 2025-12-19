@@ -73,8 +73,13 @@ function App() {
     );
   }
   const [screen, setScreen] = useState<Screen>(() => {
+    const pathname = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
     const mode = params.get('mode');
+
+    if (pathname === '/terms') {
+      return 'privacy';
+    }
     if (mode === 'duel') {
       return 'duel';
     }
