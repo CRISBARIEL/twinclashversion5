@@ -131,7 +131,7 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
               Privacy Policy
             </a>
             <a
-              href="mailto:contact@twinclash.org"
+              href="mailto:service@productionsbardi.com"
               className="text-white/90 hover:text-white font-semibold transition-colors"
             >
               Contact

@@ -219,7 +219,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
               Privacy Policy
             </a>
             <a
-              href="mailto:contact@twinclash.org"
+              href="mailto:service@productionsbardi.com"
               className="text-gray-700 hover:text-gray-900 font-semibold transition-colors"
             >
               Contact
