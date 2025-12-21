@@ -1,0 +1,496 @@
+export type Language = 'es' | 'en';
+
+export interface Translations {
+  common: {
+    back: string;
+    continue: string;
+    start: string;
+    close: string;
+    confirm: string;
+    cancel: string;
+    loading: string;
+    coins: string;
+    level: string;
+    score: string;
+    time: string;
+    play: string;
+    pause: string;
+    resume: string;
+    exit: string;
+  };
+  menu: {
+    playDuel: string;
+    worldMap: string;
+    shop: string;
+    dailyChallenge: string;
+    continueLevel: string;
+    claimDaily: string;
+    privacyPolicy: string;
+    contact: string;
+  };
+  game: {
+    moves: string;
+    timeBonus: string;
+    finalScore: string;
+    youWin: string;
+    tryAgain: string;
+    levelComplete: string;
+    gameOver: string;
+    paused: string;
+    exitConfirm: string;
+    exitMessage: string;
+  };
+  duel: {
+    duelMode: string;
+    createDuel: string;
+    joinDuel: string;
+    challengePlayers: string;
+    howItWorksTitle: string;
+    howItWorks1: string;
+    howItWorks2: string;
+    howItWorks3: string;
+    roomCode: string;
+    shareCode: string;
+    waitingForOpponent: string;
+    opponentJoined: string;
+    startDuel: string;
+    selectLevel: string;
+    enterCode: string;
+    join: string;
+    youWon: string;
+    youLost: string;
+    tie: string;
+    yourScore: string;
+    opponentScore: string;
+    playAgain: string;
+    backToMenu: string;
+  };
+  worlds: {
+    nature: string;
+    sports: string;
+    games: string;
+    animals: string;
+    space: string;
+    ocean: string;
+    food: string;
+    music: string;
+    beauty: string;
+    technology: string;
+    city: string;
+    science: string;
+    farm: string;
+    art: string;
+    transport: string;
+    clothing: string;
+    dinosaurs: string;
+    sweets: string;
+    tshirts: string;
+    eyes: string;
+    professions: string;
+    emotions: string;
+    pirates: string;
+    jewels: string;
+    videogames: string;
+    insects: string;
+    fruits: string;
+    vegetables: string;
+    worldLocked: string;
+    unlockWorld: string;
+    completeWorld: string;
+    purchase: string;
+    worldUnlocked: string;
+  };
+  shop: {
+    title: string;
+    themes: string;
+    powerups: string;
+    purchased: string;
+    buy: string;
+    equipped: string;
+    equip: string;
+    notEnoughCoins: string;
+  };
+  powerups: {
+    hint: string;
+    hintDesc: string;
+    shuffle: string;
+    shuffleDesc: string;
+    freeze: string;
+    freezeDesc: string;
+  };
+  themes: {
+    cat: string;
+    tiger: string;
+    fox: string;
+    eagle: string;
+    brazil: string;
+    italy: string;
+    croatia: string;
+    ecuador: string;
+    spain: string;
+    france: string;
+    netherlands: string;
+    apple: string;
+    germany: string;
+    argentina: string;
+    chocolate: string;
+    greenEye: string;
+    venezuela: string;
+    blue: string;
+    purple: string;
+    brown: string;
+  };
+  obstacles: {
+    stone: string;
+    ice: string;
+    chain: string;
+    fog: string;
+    lock: string;
+  };
+  difficulty: {
+    selectDifficulty: string;
+    easy: string;
+    medium: string;
+    hard: string;
+    easyDesc: string;
+    mediumDesc: string;
+    hardDesc: string;
+  };
+}
+
+export const translations: Record<Language, Translations> = {
+  es: {
+    common: {
+      back: 'Volver',
+      continue: 'Continuar',
+      start: 'Comenzar',
+      close: 'Cerrar',
+      confirm: 'Confirmar',
+      cancel: 'Cancelar',
+      loading: 'Cargando...',
+      coins: 'Monedas',
+      level: 'Nivel',
+      score: 'Puntos',
+      time: 'Tiempo',
+      play: 'Jugar',
+      pause: 'Pausar',
+      resume: 'Reanudar',
+      exit: 'Salir',
+    },
+    menu: {
+      playDuel: 'Jugar Duelo',
+      worldMap: 'Mapa de Mundos',
+      shop: 'Tienda',
+      dailyChallenge: 'Desafío Diario',
+      continueLevel: 'Continuar Nivel',
+      claimDaily: 'Reclamar Recompensa',
+      privacyPolicy: 'Política de Privacidad',
+      contact: 'Contacto',
+    },
+    game: {
+      moves: 'Movimientos',
+      timeBonus: 'Bonus de Tiempo',
+      finalScore: 'Puntuación Final',
+      youWin: '¡Ganaste!',
+      tryAgain: 'Inténtalo de nuevo',
+      levelComplete: 'Nivel Completado',
+      gameOver: 'Juego Terminado',
+      paused: 'Pausado',
+      exitConfirm: '¿Salir del nivel?',
+      exitMessage: 'Perderás todo el progreso actual',
+    },
+    duel: {
+      duelMode: 'Modo Duelo',
+      createDuel: 'Crear Duelo',
+      joinDuel: 'Unirse a Duelo',
+      challengePlayers: 'Desafía a otros jugadores en tiempo real',
+      howItWorksTitle: '¿Cómo funciona?',
+      howItWorks1: 'Crea una sala y comparte el código con tu rival',
+      howItWorks2: 'Ambos juegan el mismo nivel con las mismas cartas',
+      howItWorks3: '¡El más rápido en completar el nivel gana!',
+      roomCode: 'Código de sala',
+      shareCode: 'Compartir código',
+      waitingForOpponent: 'Esperando oponente...',
+      opponentJoined: '¡Oponente unido!',
+      startDuel: 'Comenzar Duelo',
+      selectLevel: 'Seleccionar Nivel',
+      enterCode: 'Ingresa el código',
+      join: 'Unirse',
+      youWon: '¡Ganaste!',
+      youLost: 'Perdiste',
+      tie: 'Empate',
+      yourScore: 'Tu puntuación',
+      opponentScore: 'Puntuación del oponente',
+      playAgain: 'Jugar de nuevo',
+      backToMenu: 'Volver al menú',
+    },
+    worlds: {
+      nature: 'Naturaleza',
+      sports: 'Deportes',
+      games: 'Juegos',
+      animals: 'Animales',
+      space: 'Espacio',
+      ocean: 'Océano',
+      food: 'Comida',
+      music: 'Música',
+      beauty: 'Belleza',
+      technology: 'Tecnología',
+      city: 'Ciudad',
+      science: 'Ciencia',
+      farm: 'Granja',
+      art: 'Arte',
+      transport: 'Transporte',
+      clothing: 'Ropa',
+      dinosaurs: 'Dinosaurios',
+      sweets: 'Dulces',
+      tshirts: 'Camisetas',
+      eyes: 'Ojos',
+      professions: 'Profesiones',
+      emotions: 'Emociones',
+      pirates: 'Piratas',
+      jewels: 'Joyas',
+      videogames: 'Videojuegos',
+      insects: 'Insectos',
+      fruits: 'Frutas',
+      vegetables: 'Verduras',
+      worldLocked: 'Mundo Bloqueado',
+      unlockWorld: 'Desbloquear Mundo',
+      completeWorld: 'Completa el mundo anterior',
+      purchase: 'Comprar',
+      worldUnlocked: 'Mundo Desbloqueado',
+    },
+    shop: {
+      title: 'Tienda',
+      themes: 'Temas',
+      powerups: 'Power-ups',
+      purchased: 'Comprado',
+      buy: 'Comprar',
+      equipped: 'Equipado',
+      equip: 'Equipar',
+      notEnoughCoins: 'No tienes suficientes monedas',
+    },
+    powerups: {
+      hint: 'Pista',
+      hintDesc: 'Resalta una pareja disponible',
+      shuffle: 'Mezclar',
+      shuffleDesc: 'Reordena todas las cartas',
+      freeze: 'Congelar',
+      freezeDesc: 'Pausa el tiempo por 10 segundos',
+    },
+    themes: {
+      cat: 'Tema Gato',
+      tiger: 'Tema Tigre',
+      fox: 'Tema Zorro',
+      eagle: 'Tema Águila',
+      brazil: 'Tema Brasil',
+      italy: 'Tema Italia',
+      croatia: 'Tema Croacia',
+      ecuador: 'Tema Ecuador',
+      spain: 'Tema España',
+      france: 'Tema Francia',
+      netherlands: 'Tema Holanda',
+      apple: 'Tema Manzana',
+      germany: 'Tema Alemania',
+      argentina: 'Tema Argentina',
+      chocolate: 'Tema Chocolate',
+      greenEye: 'Tema Ojo Verde',
+      venezuela: 'Tema Venezuela',
+      blue: 'Tema Azul',
+      purple: 'Tema Lila',
+      brown: 'Tema Marrón',
+    },
+    obstacles: {
+      stone: 'Piedra',
+      ice: 'Hielo',
+      chain: 'Cadena',
+      fog: 'Niebla',
+      lock: 'Candado',
+    },
+    difficulty: {
+      selectDifficulty: 'Selecciona Dificultad',
+      easy: 'Fácil',
+      medium: 'Medio',
+      hard: 'Difícil',
+      easyDesc: 'Más tiempo y menos cartas',
+      mediumDesc: 'Tiempo normal y cartas normales',
+      hardDesc: 'Menos tiempo y más cartas',
+    },
+  },
+  en: {
+    common: {
+      back: 'Back',
+      continue: 'Continue',
+      start: 'Start',
+      close: 'Close',
+      confirm: 'Confirm',
+      cancel: 'Cancel',
+      loading: 'Loading...',
+      coins: 'Coins',
+      level: 'Level',
+      score: 'Score',
+      time: 'Time',
+      play: 'Play',
+      pause: 'Pause',
+      resume: 'Resume',
+      exit: 'Exit',
+    },
+    menu: {
+      playDuel: 'Play Duel',
+      worldMap: 'World Map',
+      shop: 'Shop',
+      dailyChallenge: 'Daily Challenge',
+      continueLevel: 'Continue Level',
+      claimDaily: 'Claim Reward',
+      privacyPolicy: 'Privacy Policy',
+      contact: 'Contact',
+    },
+    game: {
+      moves: 'Moves',
+      timeBonus: 'Time Bonus',
+      finalScore: 'Final Score',
+      youWin: 'You Win!',
+      tryAgain: 'Try Again',
+      levelComplete: 'Level Complete',
+      gameOver: 'Game Over',
+      paused: 'Paused',
+      exitConfirm: 'Exit level?',
+      exitMessage: 'You will lose all current progress',
+    },
+    duel: {
+      duelMode: 'Duel Mode',
+      createDuel: 'Create Duel',
+      joinDuel: 'Join Duel',
+      challengePlayers: 'Challenge other players in real-time',
+      howItWorksTitle: 'How it works?',
+      howItWorks1: 'Create a room and share the code with your rival',
+      howItWorks2: 'Both play the same level with the same cards',
+      howItWorks3: 'The fastest to complete the level wins!',
+      roomCode: 'Room code',
+      shareCode: 'Share code',
+      waitingForOpponent: 'Waiting for opponent...',
+      opponentJoined: 'Opponent joined!',
+      startDuel: 'Start Duel',
+      selectLevel: 'Select Level',
+      enterCode: 'Enter the code',
+      join: 'Join',
+      youWon: 'You Won!',
+      youLost: 'You Lost',
+      tie: 'Tie',
+      yourScore: 'Your score',
+      opponentScore: 'Opponent score',
+      playAgain: 'Play Again',
+      backToMenu: 'Back to Menu',
+    },
+    worlds: {
+      nature: 'Nature',
+      sports: 'Sports',
+      games: 'Games',
+      animals: 'Animals',
+      space: 'Space',
+      ocean: 'Ocean',
+      food: 'Food',
+      music: 'Music',
+      beauty: 'Beauty',
+      technology: 'Technology',
+      city: 'City',
+      science: 'Science',
+      farm: 'Farm',
+      art: 'Art',
+      transport: 'Transport',
+      clothing: 'Clothing',
+      dinosaurs: 'Dinosaurs',
+      sweets: 'Sweets',
+      tshirts: 'T-shirts',
+      eyes: 'Eyes',
+      professions: 'Professions',
+      emotions: 'Emotions',
+      pirates: 'Pirates',
+      jewels: 'Jewels',
+      videogames: 'Video Games',
+      insects: 'Insects',
+      fruits: 'Fruits',
+      vegetables: 'Vegetables',
+      worldLocked: 'World Locked',
+      unlockWorld: 'Unlock World',
+      completeWorld: 'Complete the previous world',
+      purchase: 'Purchase',
+      worldUnlocked: 'World Unlocked',
+    },
+    shop: {
+      title: 'Shop',
+      themes: 'Themes',
+      powerups: 'Power-ups',
+      purchased: 'Purchased',
+      buy: 'Buy',
+      equipped: 'Equipped',
+      equip: 'Equip',
+      notEnoughCoins: 'Not enough coins',
+    },
+    powerups: {
+      hint: 'Hint',
+      hintDesc: 'Highlights an available pair',
+      shuffle: 'Shuffle',
+      shuffleDesc: 'Rearranges all cards',
+      freeze: 'Freeze',
+      freezeDesc: 'Pauses time for 10 seconds',
+    },
+    themes: {
+      cat: 'Cat Theme',
+      tiger: 'Tiger Theme',
+      fox: 'Fox Theme',
+      eagle: 'Eagle Theme',
+      brazil: 'Brazil Theme',
+      italy: 'Italy Theme',
+      croatia: 'Croatia Theme',
+      ecuador: 'Ecuador Theme',
+      spain: 'Spain Theme',
+      france: 'France Theme',
+      netherlands: 'Netherlands Theme',
+      apple: 'Apple Theme',
+      germany: 'Germany Theme',
+      argentina: 'Argentina Theme',
+      chocolate: 'Chocolate Theme',
+      greenEye: 'Green Eye Theme',
+      venezuela: 'Venezuela Theme',
+      blue: 'Blue Theme',
+      purple: 'Purple Theme',
+      brown: 'Brown Theme',
+    },
+    obstacles: {
+      stone: 'Stone',
+      ice: 'Ice',
+      chain: 'Chain',
+      fog: 'Fog',
+      lock: 'Lock',
+    },
+    difficulty: {
+      selectDifficulty: 'Select Difficulty',
+      easy: 'Easy',
+      medium: 'Medium',
+      hard: 'Hard',
+      easyDesc: 'More time and fewer cards',
+      mediumDesc: 'Normal time and normal cards',
+      hardDesc: 'Less time and more cards',
+    },
+  },
+};
+
+export function getBrowserLanguage(): Language {
+  const browserLang = navigator.language.toLowerCase();
+  if (browserLang.startsWith('es')) {
+    return 'es';
+  }
+  return 'en';
+}
+
+export function getStoredLanguage(): Language {
+  const stored = localStorage.getItem('gameLanguage') as Language | null;
+  if (stored && (stored === 'es' || stored === 'en')) {
+    return stored;
+  }
+  return getBrowserLanguage();
+}
+
+export function setStoredLanguage(lang: Language): void {
+  localStorage.setItem('gameLanguage', lang);
+}

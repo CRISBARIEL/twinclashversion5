@@ -4,9 +4,10 @@ import { canEnterWorld, isWorldCompleted, purchaseWorld, ensureWorld, WORLD_COST
 import { getLocalCoins, getCurrentLevel } from '../lib/progression';
 import { soundManager } from '../lib/sound';
 import { LEVELS, getGlobalLevelId } from '../lib/levels';
+import { LanguageSelector } from './LanguageSelector';
+import { useLanguage } from '../hooks/useLanguage';
 
 const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot];
-const worldNames = ['Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio', 'Océano', 'Comida', 'Música', 'Belleza', 'Tecnología', 'Ciudad', 'Ciencia', 'Granja', 'Arte', 'Transporte', 'Ropa', 'Dinosaurios', 'Dulces', 'Camisetas', 'Ojos', 'Profesiones', 'Emociones', 'Piratas', 'Joyas', 'Videojuegos', 'Insectos', 'Frutas', 'Verduras'];
 const worldColors = [
   { from: 'from-emerald-500', to: 'to-green-700' },
   { from: 'from-yellow-500', to: 'to-orange-700' },
@@ -47,6 +48,16 @@ interface WorldMapProps {
 }
 
 export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelectWorld, onBackToMenu }: WorldMapProps) {
+  const { t } = useLanguage();
+  const worldNames = [
+    t.worlds.nature, t.worlds.sports, t.worlds.games, t.worlds.animals,
+    t.worlds.space, t.worlds.ocean, t.worlds.food, t.worlds.music,
+    t.worlds.beauty, t.worlds.technology, t.worlds.city, t.worlds.science,
+    t.worlds.farm, t.worlds.art, t.worlds.transport, t.worlds.clothing,
+    t.worlds.dinosaurs, t.worlds.sweets, t.worlds.tshirts, t.worlds.eyes,
+    t.worlds.professions, t.worlds.emotions, t.worlds.pirates, t.worlds.jewels,
+    t.worlds.videogames, t.worlds.insects, t.worlds.fruits, t.worlds.vegetables
+  ];
   const [worldAccess, setWorldAccess] = useState<Record<number, boolean>>({ 1: true });
   const [worldsComplete, setWorldsComplete] = useState<Record<number, boolean>>({});
   const [coins, setCoins] = useState(0);
@@ -122,27 +133,28 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-400 via-blue-500 to-indigo-700 p-6">
+      <LanguageSelector />
       <button
         onClick={onBackToMenu}
         className="mb-6 text-white flex items-center gap-2 font-semibold text-lg hover:scale-105 transition-transform"
       >
-        ← Volver
+        ← {t.common.back}
       </button>
 
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-white mb-2">Selecciona tu Aventura</h1>
-        <p className="text-white/90 text-lg mb-4">28 Mundos · 140 Niveles</p>
+        <h1 className="text-4xl font-bold text-white mb-2">{t.menu.worldMap}</h1>
+        <p className="text-white/90 text-lg mb-4">28 {t.menu.worldMap} · 140 {t.common.level}s</p>
 
         <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 max-w-md mx-auto border-2 border-white/30">
           <div className="flex items-center justify-center gap-3 mb-2">
             <div className="flex items-center gap-2">
               <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg shadow-lg">1</div>
-              <span className="text-white font-semibold">Elige Categoría</span>
+              <span className="text-white font-semibold">{t.duel.selectLevel}</span>
             </div>
             <div className="text-white text-2xl">→</div>
             <div className="flex items-center gap-2">
               <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg shadow-lg">2</div>
-              <span className="text-white font-semibold">Elige Nivel</span>
+              <span className="text-white font-semibold">{t.common.play}</span>
             </div>
           </div>
         </div>
@@ -173,7 +185,7 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
                       <Icon size={40} className="text-white drop-shadow-lg" strokeWidth={2} />
                     </div>
                     <div className="text-left">
-                      <h3 className="text-xl font-bold drop-shadow-lg">Mundo {worldId}</h3>
+                      <h3 className="text-xl font-bold drop-shadow-lg">{t.menu.worldMap} {worldId}</h3>
                       <p className={`text-sm font-medium ${isUnlocked ? 'opacity-90' : 'opacity-60'}`}>
                         {worldNames[worldId - 1]}
                       </p>

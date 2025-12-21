@@ -13,10 +13,12 @@ import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 import { initializeFirebase } from './lib/firebase';
 import { AlertCircle } from 'lucide-react';
+import { LanguageContext, useLanguageState } from './hooks/useLanguage';
 
 type Screen = 'simple' | 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload' | 'privacy';
 
 function App() {
+  const languageState = useLanguageState();
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
@@ -157,7 +159,7 @@ function App() {
   }
 
   return (
-    <>
+    <LanguageContext.Provider value={languageState}>
       {screen === 'simple' && (
         <SimpleInitialScreen
           onStartLevel1={() => {
@@ -233,7 +235,7 @@ function App() {
       {screen === 'privacy' && (
         <PrivacyPolicy onBack={() => setScreen('simple')} />
       )}
-    </>
+    </LanguageContext.Provider>
   );
 }
 

@@ -4,8 +4,10 @@ import { canClaimDaily, claimDailyReward, getLocalCoins, loadFromSupabase, getCu
 import { Shop } from './Shop';
 import { AdminPanel } from './AdminPanel';
 import { NotificationButton } from './NotificationButton';
+import { LanguageSelector } from './LanguageSelector';
 import { playSoundZap } from '../utils/soundManager';
 import { soundManager } from '../lib/sound';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface InitialScreenProps {
   onStartGame: () => void;
@@ -16,6 +18,7 @@ interface InitialScreenProps {
 }
 
 export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel, onShowWorldMap, onContinueGame }: InitialScreenProps) => {
+  const { t } = useLanguage();
   const [showShop, setShowShop] = useState(false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [coins, setCoins] = useState(0);
@@ -75,6 +78,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center p-4 relative overflow-hidden">
+      <LanguageSelector />
       <div
         className="fixed top-0 left-0 w-32 h-32 z-40"
         onClick={handleAdminTap}
@@ -153,7 +157,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-3 flex items-center justify-center gap-2 hover:shadow-lg transition-all cursor-pointer"
           >
             <ShoppingBag size={20} className="text-white" />
-            <span className="text-sm font-bold text-white">Tienda</span>
+            <span className="text-sm font-bold text-white">{t.menu.shop}</span>
           </button>
         </div>
 
@@ -164,7 +168,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
               onClick={() => onContinueGame(savedLevel)}
               className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
-              ▶️ Continuar Nivel {savedLevel}
+              ▶️ {t.menu.continueLevel} {savedLevel}
             </button>
           )}
           <div className="flex gap-3">
@@ -173,7 +177,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
               onClick={onStartGame}
               className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
-              🆕 Nuevo Juego
+              🆕 {t.common.start}
             </button>
             {onShowWorldMap && (
               <button
@@ -182,7 +186,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
                 className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
               >
                 <Map size={20} />
-                <span className="text-sm">Mundos</span>
+                <span className="text-sm">{t.menu.worldMap}</span>
               </button>
             )}
           </div>
@@ -193,7 +197,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl p-3 font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
           >
             <Calendar size={20} />
-            <span className="text-sm">Reto Diario</span>
+            <span className="text-sm">{t.menu.dailyChallenge}</span>
           </button>
 
           <button
@@ -202,7 +206,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl p-3 font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
           >
             <Swords size={20} />
-            <span className="text-sm">Duelo</span>
+            <span className="text-sm">{t.menu.playDuel}</span>
           </button>
 
           <div className="flex justify-center">
@@ -216,13 +220,13 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
               href="/terms"
               className="text-gray-700 hover:text-gray-900 font-semibold transition-colors"
             >
-              Privacy Policy
+              {t.menu.privacyPolicy}
             </a>
             <a
               href="mailto:service@productionsbardi.com"
               className="text-gray-700 hover:text-gray-900 font-semibold transition-colors"
             >
-              Contact
+              {t.menu.contact}
             </a>
           </div>
         </div>
@@ -238,8 +242,8 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             <div className="text-6xl mb-4">
               <Gift size={64} className="mx-auto text-yellow-500" />
             </div>
-            <h3 className="text-3xl font-bold text-yellow-600 mb-2">¡Recompensa Diaria!</h3>
-            <p className="text-gray-600 mb-4">Reclama tus monedas gratis</p>
+            <h3 className="text-3xl font-bold text-yellow-600 mb-2">{t.menu.claimDaily}!</h3>
+            <p className="text-gray-600 mb-4">{t.common.coins}</p>
             <div className="bg-gradient-to-r from-yellow-400 to-amber-500 rounded-xl p-4 mb-6">
               <div className="flex items-center justify-center gap-2">
                 <Coins size={32} className="text-white" />
@@ -251,7 +255,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
               onClick={handleClaimDaily}
               className="w-full bg-gradient-to-r from-yellow-500 to-amber-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
             >
-              Reclamar
+              {t.menu.claimDaily}
             </button>
           </div>
         </div>

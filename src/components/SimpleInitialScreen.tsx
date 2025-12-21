@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { Swords } from 'lucide-react';
 import { loadFromSupabase, getCurrentLevel } from '../lib/progression';
 import { SoundGear } from './SoundGear';
+import { LanguageSelector } from './LanguageSelector';
 import { soundManager } from '../lib/sound';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface SimpleInitialScreenProps {
   onStartLevel1: () => void;
@@ -11,6 +13,7 @@ interface SimpleInitialScreenProps {
 }
 
 export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDuel }: SimpleInitialScreenProps) => {
+  const { t } = useLanguage();
   const [currentLevel, setCurrentLevel] = useState(1);
   const [loading, setLoading] = useState(true);
 
@@ -28,7 +31,7 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
       <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-white mx-auto mb-4"></div>
-          <p className="text-white text-xl font-bold">Cargando...</p>
+          <p className="text-white text-xl font-bold">{t.common.loading}</p>
         </div>
       </div>
     );
@@ -36,7 +39,8 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-4 right-4 z-50 bg-white rounded-full shadow-lg">
+      <LanguageSelector />
+      <div className="absolute top-4 right-16 z-50 bg-white rounded-full shadow-lg">
         <SoundGear />
       </div>
 
@@ -99,7 +103,7 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
             onClick={onStartLevel1}
             className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white py-5 rounded-xl font-bold text-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
           >
-            JUGAR
+            {t.common.play.toUpperCase()}
           </button>
 
           {currentLevel > 1 && (
@@ -108,7 +112,7 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
               onClick={() => onContinueLevel(currentLevel)}
               className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
-              NIVEL {currentLevel}
+              {t.common.level.toUpperCase()} {currentLevel}
             </button>
           )}
 
@@ -118,7 +122,7 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
             className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
           >
             <Swords size={24} />
-            <span>DUELO</span>
+            <span>{t.menu.playDuel.toUpperCase()}</span>
           </button>
         </div>
 
@@ -128,13 +132,13 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
               href="/terms"
               className="text-white/90 hover:text-white font-semibold transition-colors"
             >
-              Privacy Policy
+              {t.menu.privacyPolicy}
             </a>
             <a
               href="mailto:service@productionsbardi.com"
               className="text-white/90 hover:text-white font-semibold transition-colors"
             >
-              Contact
+              {t.menu.contact}
             </a>
           </div>
         </div>
