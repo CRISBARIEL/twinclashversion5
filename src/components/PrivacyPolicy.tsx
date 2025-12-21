@@ -148,8 +148,8 @@ export const PrivacyPolicy = ({ onBack }: PrivacyPolicyProps) => {
               Twin Clash is not specifically directed at children under the age of 13. We do not knowingly
               collect personal information from children under 13. If you are a parent or guardian and
               believe that your child has provided us with personal information, please contact us at{' '}
-              <a href="mailto:contact@twinclash.org" className="text-blue-600 hover:underline">
-                contact@twinclash.org
+              <a href="mailto:service@productionsbardi.com" className="text-blue-600 hover:underline">
+                service@productionsbardi.com
               </a>
               . We will take steps to remove such information from our systems.
             </p>
@@ -268,8 +268,8 @@ export const PrivacyPolicy = ({ onBack }: PrivacyPolicyProps) => {
             </ul>
             <p className="text-gray-700 leading-relaxed">
               To exercise any of these rights, please contact us at{' '}
-              <a href="mailto:contact@twinclash.org" className="text-blue-600 hover:underline">
-                contact@twinclash.org
+              <a href="mailto:service@productionsbardi.com" className="text-blue-600 hover:underline">
+                service@productionsbardi.com
               </a>
               . We will respond to your request within 30 days.
             </p>
@@ -303,8 +303,8 @@ export const PrivacyPolicy = ({ onBack }: PrivacyPolicyProps) => {
             <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
               <p className="text-gray-700 mb-2">
                 <strong>Email:</strong>{' '}
-                <a href="mailto:contact@twinclash.org" className="text-blue-600 hover:underline">
-                  contact@twinclash.org
+                <a href="mailto:service@productionsbardi.com" className="text-blue-600 hover:underline">
+                  service@productionsbardi.com
                 </a>
               </p>
               <p className="text-gray-700">
