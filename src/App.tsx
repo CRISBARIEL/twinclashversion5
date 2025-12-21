@@ -8,7 +8,6 @@ import { ChallengeScene } from './components/ChallengeScene';
 import { WorldMap } from './components/WorldMap';
 import { LevelSelector } from './components/LevelSelector';
 import { AudioUploader } from './components/AudioUploader';
-import { RewardButton } from './components/RewardButton';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
@@ -234,7 +233,6 @@ function App() {
       {screen === 'privacy' && (
         <PrivacyPolicy onBack={() => setScreen('simple')} />
       )}
-      {screen === 'game' && <RewardButton currentLevel={selectedLevel} />}
     </>
   );
 }

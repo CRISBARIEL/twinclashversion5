@@ -8,16 +8,3 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
-
-interface GameMonetizeSDK {
-  game: {
-    fn: {
-      rewarded: (callback: () => void) => void;
-    };
-  };
-}
-
-interface Window {
-  showRewardedAd?: () => void;
-  GameMonetize?: GameMonetizeSDK;
-}

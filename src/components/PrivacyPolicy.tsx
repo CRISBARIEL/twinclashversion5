@@ -104,10 +104,6 @@ export const PrivacyPolicy = ({ onBack }: PrivacyPolicyProps) => {
                 .
               </li>
               <li>
-                <strong>GameMonetize:</strong> Provides in-game advertising and may use cookies and similar
-                technologies to deliver relevant ads.
-              </li>
-              <li>
                 <strong>TikTok Ads:</strong> May collect information about your interactions with ads to
                 measure ad effectiveness and deliver personalized advertising.
               </li>
