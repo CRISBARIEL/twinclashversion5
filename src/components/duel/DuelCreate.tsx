@@ -297,7 +297,7 @@ export const DuelCreate = ({ onBack, onRoomCreated, clientId }: DuelCreateProps)
           >
             {creating ? (
               <span className="flex items-center justify-center gap-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-blue-400 border-t-transparent"></div>
                 Creando Sala...
               </span>
             ) : selectedLevel !== null ? (
