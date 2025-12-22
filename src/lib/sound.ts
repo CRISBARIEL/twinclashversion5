@@ -12,6 +12,7 @@ class SoundManager {
   private muted: boolean = false;
   private masterVolume: number = 1.0;
   private userInteracted: boolean = false;
+  private pendingStartMusic: boolean = false;
 
   constructor() {
     this.loadSettings();
@@ -52,6 +53,12 @@ class SoundManager {
   private setupUserInteractionListener(): void {
     const markInteraction = () => {
       this.userInteracted = true;
+
+      if (this.pendingStartMusic && this.startMusicTrack) {
+        this.pendingStartMusic = false;
+        this.playStartMusic();
+      }
+
       document.removeEventListener('click', markInteraction);
       document.removeEventListener('keypress', markInteraction);
       document.removeEventListener('touchstart', markInteraction);
@@ -171,10 +178,14 @@ class SoundManager {
   // API Pública - Música
 
   public playStartMusic(): void {
-    if (!this.startMusicTrack || !this.userInteracted) return;
+    if (!this.startMusicTrack) return;
+
+    if (!this.userInteracted) {
+      this.pendingStartMusic = true;
+      return;
+    }
 
     try {
-      // Si ya está sonando, no reiniciar
       if (!this.startMusicTrack.paused) {
         console.log('Start music already playing, skipping');
         return;
@@ -194,6 +205,7 @@ class SoundManager {
     try {
       this.startMusicTrack.pause();
       this.startMusicTrack.currentTime = 0;
+      this.pendingStartMusic = false;
     } catch (error) {
       console.warn('Error stopping start music:', error);
     }
