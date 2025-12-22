@@ -85,35 +85,23 @@ class SoundManager {
     try {
       this.startMusicTrack = new Audio(getStartThemeUrl());
       this.startMusicTrack.loop = true;
-      this.startMusicTrack.preload = 'auto';
-      this.startMusicTrack.addEventListener('ended', () => {
-        if (this.startMusicTrack && !this.muted) {
-          this.startMusicTrack.currentTime = 0;
-          this.startMusicTrack.play().catch(err => console.warn('Error restarting start music:', err));
-        }
-      });
+      this.startMusicTrack.preload = 'metadata';
 
       for (let i = 1; i <= 10; i++) {
         const track = new Audio(getLevelAudioUrl(i));
         track.loop = true;
-        track.preload = 'auto';
-        track.addEventListener('ended', () => {
-          if (!this.muted && track === this.currentLevelTrack) {
-            track.currentTime = 0;
-            track.play().catch(err => console.warn('Error restarting level music:', err));
-          }
-        });
+        track.preload = 'metadata';
         this.levelTracks.set(i, track);
       }
 
       this.matchSfx = new Audio(getMatchSfxUrl());
-      this.matchSfx.preload = 'auto';
+      this.matchSfx.preload = 'metadata';
 
       this.winSfx = new Audio(getWinSfxUrl());
-      this.winSfx.preload = 'auto';
+      this.winSfx.preload = 'metadata';
 
       this.loseSfx = new Audio(getLoseSfxUrl());
-      this.loseSfx.preload = 'auto';
+      this.loseSfx.preload = 'metadata';
 
       this.applyVolume();
     } catch (error) {

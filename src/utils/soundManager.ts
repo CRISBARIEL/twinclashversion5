@@ -46,7 +46,7 @@ class SoundManager {
       try {
         const audio = new Audio(effect.url);
         audio.volume = effect.volume || 0.5;
-        audio.preload = 'auto';
+        audio.preload = 'metadata';
         this.sounds.set(key, audio);
       } catch (error) {
         console.warn(`Failed to preload sound: ${effect.name}`, error);
