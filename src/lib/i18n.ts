@@ -27,6 +27,7 @@ export interface Translations {
     claimDaily: string;
     privacyPolicy: string;
     contact: string;
+    description: string;
   };
   game: {
     moves: string;
@@ -186,6 +187,7 @@ export const translations: Record<Language, Translations> = {
       claimDaily: 'Reclamar Recompensa',
       privacyPolicy: 'Política de Privacidad',
       contact: 'Contacto',
+      description: 'Memoriza las parejas antes de que se acabe el tiempo',
     },
     game: {
       moves: 'Movimientos',
@@ -343,6 +345,7 @@ export const translations: Record<Language, Translations> = {
       claimDaily: 'Claim Reward',
       privacyPolicy: 'Privacy Policy',
       contact: 'Contact',
+      description: 'Memorize the pairs before time runs out',
     },
     game: {
       moves: 'Moves',
@@ -500,6 +503,7 @@ export const translations: Record<Language, Translations> = {
       claimDaily: 'Resgatar Recompensa',
       privacyPolicy: 'Política de Privacidade',
       contact: 'Contato',
+      description: 'Memorize os pares antes que o tempo acabe',
     },
     game: {
       moves: 'Movimentos',
