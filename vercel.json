@@ -69,18 +69,7 @@
           "key": "X-XSS-Protection",
           "value": "1; mode=block"
         }
-      
       ]
-    },
-    {
-      "rewrites": [
-    {
-      "source": "/ads.txt",
-      "destination": "/ads.txt"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
     }
   ]
 }
