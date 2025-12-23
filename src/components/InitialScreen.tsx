@@ -143,7 +143,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
           />
         </div>
         <p className="text-center text-gray-600 mb-6 text-sm font-medium">
-          Encuentra todas las parejas antes de que se acabe el tiempo
+          {t.menu.description}
         </p>
 
         <div className="flex gap-3 mb-6">
