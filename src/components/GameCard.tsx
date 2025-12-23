@@ -35,13 +35,24 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
   }, []);
 
   const handleClick = () => {
-    if (!disabled && !card.isFlipped && !card.isMatched) {
+    if (!disabled && !card.isFlipped && !card.isMatched && !card.bombCountdown) {
       playSoundFlip();
       onClick(card.id);
     }
   };
 
-  const hasObstacle = card.obstacle && (card.obstacleHealth ?? 0) > 0;
+  const hasObstacle = card.obstacle && (
+    (card.obstacleHealth ?? 0) > 0 ||
+    card.obstacle === 'fire' ||
+    card.obstacle === 'bomb' ||
+    card.obstacle === 'virus' ||
+    card.isInfected ||
+    card.isWildcard
+  );
+
+  const safeImage = typeof image === 'string' && image ? image : '';
+  const isImageUrl = safeImage.length > 0 && (safeImage.startsWith('/') || safeImage.startsWith('http'));
+  const isEmoji = safeImage.length > 0 && !isImageUrl;
 
   return (
     <div
@@ -49,7 +60,7 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
       onClick={handleClick}
     >
       <div
-        className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${
+        className={`relative w-full h-full transition-transform duration-300 transform-style-3d ${
           card.isFlipped || card.isMatched ? 'rotate-y-180' : ''
         }`}
       >
@@ -65,7 +76,31 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
 
         <div className="absolute w-full h-full backface-hidden rotate-y-180">
           <div className={`w-full h-full bg-white rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} overflow-hidden`}>
-            <div className="text-6xl">{image}</div>
+            {safeImage === '' ? (
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                <div className="text-6xl text-gray-500 font-bold">?</div>
+              </div>
+            ) : isImageUrl ? (
+              <img
+                src={safeImage}
+                alt="card"
+                className="w-3/4 h-3/4 object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'none';
+                  const parent = target.parentElement;
+                  if (parent) {
+                    parent.innerHTML = '<div class="text-6xl text-gray-500 font-bold">?</div>';
+                  }
+                }}
+              />
+            ) : isEmoji ? (
+              <div className="text-5xl sm:text-6xl md:text-7xl">{safeImage}</div>
+            ) : (
+              <div className="w-full h-full bg-gray-300 flex items-center justify-center">
+                <div className="text-6xl text-gray-500 font-bold">?</div>
+              </div>
+            )}
           </div>
         </div>
       </div>

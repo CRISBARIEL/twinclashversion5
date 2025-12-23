@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Trophy, Star, RotateCcw } from 'lucide-react';
 import { GameCore } from './GameCore';
 import { supabase, getOrCreateClientId } from '../lib/supabase';
+import { soundManager } from '../lib/sound';
 
 interface ChallengeSceneProps {
   onBackToMenu: () => void;
@@ -23,6 +24,7 @@ export const ChallengeScene = ({ onBackToMenu }: ChallengeSceneProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    soundManager.stopStartMusic();
     loadChallengeProgress();
   }, [challengeLevels]);
 
@@ -68,6 +70,7 @@ export const ChallengeScene = ({ onBackToMenu }: ChallengeSceneProps) => {
   };
 
   const handleBackFromChallenge = async () => {
+    await new Promise(resolve => setTimeout(resolve, 500));
     await loadChallengeProgress();
     setIsPlaying(false);
   };
@@ -101,15 +104,59 @@ export const ChallengeScene = ({ onBackToMenu }: ChallengeSceneProps) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 p-4">
-      <div className="max-w-2xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 p-4 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none overflow-visible z-0">
+        <div className="absolute top-4 left-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🍃</span>
+        </div>
+        <div className="absolute top-16 left-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🍃</span>
+        </div>
+
+        <div className="absolute top-4 right-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🐱</span>
+        </div>
+        <div className="absolute top-16 right-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🐱</span>
+        </div>
+
+        <div className="absolute bottom-4 right-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🚀</span>
+        </div>
+        <div className="absolute bottom-16 right-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🚀</span>
+        </div>
+
+        <div className="absolute bottom-4 left-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🐬</span>
+        </div>
+        <div className="absolute bottom-16 left-20 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🐬</span>
+        </div>
+
+        <div className="absolute top-1/3 left-2 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
+          <span className="text-7xl">🍕</span>
+        </div>
+        <div className="absolute top-1/2 left-10 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-6">
+          <span className="text-7xl">🍕</span>
+        </div>
+
+        <div className="absolute top-1/3 right-2 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-6">
+          <span className="text-7xl">🎵</span>
+        </div>
+        <div className="absolute top-1/2 right-10 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform -rotate-12">
+          <span className="text-7xl">🎵</span>
+        </div>
+      </div>
+
+      <div className="max-w-2xl mx-auto relative z-10">
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
             <div>
               <h2 className="text-2xl font-bold text-gray-800">Desafíos Diarios</h2>
               <p className="text-sm text-gray-600">5 desafíos aleatorios</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <button
                 onClick={handleResetChallenges}
                 className="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors"

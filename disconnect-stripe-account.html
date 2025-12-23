@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Desvincular Cuenta de Stripe</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+    }
+    h1 {
+      color: #2d3748;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .subtitle {
+      color: #718096;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .info-box {
+      background: #edf2f7;
+      border-left: 4px solid #4299e1;
+      padding: 16px;
+      margin-bottom: 24px;
+      border-radius: 4px;
+    }
+    .info-box p {
+      color: #2d3748;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+    .warning-box {
+      background: #fff5f5;
+      border-left: 4px solid #f56565;
+      padding: 16px;
+      margin-bottom: 24px;
+      border-radius: 4px;
+    }
+    .warning-box p {
+      color: #742a2a;
+      line-height: 1.6;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      color: #2d3748;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    #result {
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: 8px;
+      display: none;
+    }
+    #result.success {
+      background: #f0fff4;
+      border-left: 4px solid #48bb78;
+      color: #22543d;
+      display: block;
+    }
+    #result.error {
+      background: #fff5f5;
+      border-left: 4px solid #f56565;
+      color: #742a2a;
+      display: block;
+    }
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+      margin-left: 8px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 Desvincular Cuenta de Stripe</h1>
+    <p class="subtitle">Panel administrativo para gestionar cuentas conectadas</p>
+
+    <div class="info-box">
+      <p><strong>📋 Información:</strong></p>
+      <p>Esta herramienta permite desvincular cuentas conectadas de Stripe que ya no se utilizan o están en estado rechazado.</p>
+    </div>
+
+    <div class="warning-box">
+      <p><strong>⚠️ Advertencia:</strong> Esta acción es permanente y no se puede deshacer. Asegúrate de que realmente deseas desvincular esta cuenta.</p>
+    </div>
+
+    <form id="disconnectForm">
+      <div class="form-group">
+        <label for="accountId">ID de Cuenta de Stripe (Account ID):</label>
+        <input
+          type="text"
+          id="accountId"
+          value="acct_15PGhS5c6G2u5pMf"
+          placeholder="acct_..."
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="adminSecret">Clave Admin (ADMIN_SECRET):</label>
+        <input
+          type="password"
+          id="adminSecret"
+          value="twinclash-admin-2024"
+          placeholder="Ingresa la clave admin"
+          required
+        />
+      </div>
+
+      <button type="submit" id="submitBtn">
+        Desvincular Cuenta
+      </button>
+    </form>
+
+    <div id="result"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('disconnectForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const accountId = document.getElementById('accountId').value.trim();
+      const adminSecret = document.getElementById('adminSecret').value.trim();
+
+      if (!accountId || !adminSecret) {
+        showResult('Por favor completa todos los campos', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Procesando<span class="loading"></span>';
+      resultDiv.style.display = 'none';
+
+      try {
+        const response = await fetch('https://jbqaznerntjlbdhcmodj.supabase.co/functions/v1/disconnect-stripe-account', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            accountId,
+            adminSecret
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          showResult(`✅ ${data.message}`, 'success');
+        } else {
+          showResult(`❌ Error: ${data.error}`, 'error');
+        }
+      } catch (error) {
+        showResult(`❌ Error de conexión: ${error.message}`, 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Desvincular Cuenta';
+      }
+    });
+
+    function showResult(message, type) {
+      resultDiv.textContent = message;
+      resultDiv.className = type;
+      resultDiv.style.display = 'block';
+    }
+  </script>
+</body>
+</html>

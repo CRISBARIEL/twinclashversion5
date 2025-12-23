@@ -4,7 +4,26 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/twinlogo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Twin Clash ⚡ - Memory Card Game</title>
+    <title>Twin Clash ⚡ - Twinclash</title>
+
+    <meta
+      name="description"
+      content="Twin Clash - Epic memory card matching game. Challenge yourself, compete in duels, and collect themes!"
+    />
+    <meta name="google-adsense-account" content="ca-pub-2179904258127705">
+
+    <!-- Google AdSense (WEB) - ONLY THIS PUB -->
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2179904258127705"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-messaging-compat.js"></script>
+
     <meta name="description" content="Twin Clash - Epic memory card matching game. Challenge yourself, compete in duels, and collect themes!" />
 
     <!-- ==================== META VERIFICACIÓN ADSENSE ✨ ==================== -->
@@ -23,97 +42,9 @@
       });
     </script>
 
-    <!-- ==================== SDK ADINPLAY BASE (SE ACTIVARÁ CUANDO TE APRUEBEN) ==================== -->
-    <!-- ⚠️ CUANDO TE DEN TU SCRIPT, SUSTITUYE EL DEBAJO CON TU PUB ID Y DOMINIO -->
-    <script>
-      var aiptag = window.aiptag || {};
-      aiptag.cmd = aiptag.cmd || [];
-      aiptag.cmd.display = aiptag.cmd.display || [];
-    </script>
-    <!-- ESTE ES UN EJEMPLO - LO CAMBIARÁS CUANDO TE DEN EL SCRIPT -->
-    <!-- <script async src="//api.adinplay.com/libs/aiptag/pub/TU_PUB_ID/twinclash.com/tag.min.js"></script> -->
-
-   <script>
-      // Nombre del placement rewarded cuando AdinPlay te lo habilite
-      const AIP_REWARDED_PLACEMENT = "twinclash_rewarded";
-
-      let rewardCooldown = false;
-
-      function showRewardedAd() {
-        if (rewardCooldown) {
-          alert("Espera unos segundos antes de ver otro anuncio 🚫");
-          return;
-        }
-
-        rewardCooldown = true;
-        setTimeout(() => {
-          rewardCooldown = false;
-        }, 30000);
-
-        if (typeof aiptag === "undefined" || !window.aipDisplayTag) {
-          console.warn("AdinPlay no está listo. Regala monedas temporalmente.");
-          // Recompensa dummy temporal mientras AdinPlay se activa:
-          window.dispatchEvent(new CustomEvent("add-coins", { detail: 25000 }));
-          alert("¡+25.000 monedas! (modo temporal sin ads)");
-          return;
-        }
-
-        try {
-          aiptag.cmd.display.push(function() {
-            aipDisplayTag.display(AIP_REWARDED_PLACEMENT);
-          });
-        } catch (e) {
-          console.error("Error con rewarded:", e);
-          alert("No se pudo cargar el anuncio. Intenta más tarde 🙏");
-        }
-      }
-
-      // ESTE EVENTO SE USARÁ CUANDO ADINPLAY ACTIVE TUS REWARDED ADS
-      function onRewardedAdCompleted() {
-        window.dispatchEvent(new CustomEvent("add-coins", { detail: 25000 }));
-        alert("¡+25.000 MONEDAS por ver el vídeo! 🔥");
-      }
-    <script>
-
-    <style>
-      @keyframes pulse {
-        0%   { transform: translateX(-50%) scale(1); }
-        50%  { transform: translateX(-50%) scale(1.08); }
-        100% { transform: translateX(-50%) scale(1); }
-      }
-
-      .reward-button {
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(45deg, #ff0066, #ff00cc);
-        color: white;
-        font-size: 28px;
-        font-weight: bold;
-        padding: 22px 50px;
-        border: none;
-        border-radius: 30px;
-        cursor: pointer;
-        box-shadow: 0 12px 40px rgba(255, 0, 0, 0.5);
-        z-index: 9999;
-        animation: pulse 2s infinite;
-      }
-    </style>
-<!-- TikTok Pixel Code Start -->
-<script>
-!function (w, d, t) {
-  w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie","holdConsent","revokeConsent","grantConsent"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(
-var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r="https://analytics.tiktok.com/i18n/pixel/events.js",o=n&&n.partner;ttq._i=ttq._i||{},ttq._i[e]=[],ttq._i[e]._u=r,ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script")
-;n.type="text/javascript",n.async=!0,n.src=r+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};
-
-
-  ttq.load('D4RT84RC77UET7S4GOH0');
-  ttq.page();
-}(window, document, 'ttq');
-</script>
-<!-- TikTok Pixel Code End -->
+   
   </head>
+
   <body>
 
     <div id="root"></div>
@@ -121,3 +52,4 @@ var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n
 
   </body>
 </html>
+

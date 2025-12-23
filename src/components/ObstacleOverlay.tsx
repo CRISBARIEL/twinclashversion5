@@ -24,6 +24,7 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
   // Internal state to track breaking animation
   const [isShatteringIce, setIsShatteringIce] = useState(false);
   const [isShatteringRock, setIsShatteringRock] = useState(false);
+  const [isShatteringIron, setIsShatteringIron] = useState(false);
   const [previousHealth, setPreviousHealth] = useState(card.obstacleHealth);
 
   /**
@@ -41,6 +42,9 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
       } else if (card.obstacle === 'stone') {
         setIsShatteringRock(true);
         setTimeout(() => setIsShatteringRock(false), 600);
+      } else if (card.obstacle === 'iron') {
+        setIsShatteringIron(true);
+        setTimeout(() => setIsShatteringIron(false), 600);
       }
     }
 
@@ -50,7 +54,7 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
   const hasObstacle = card.obstacle && (card.obstacleHealth ?? 0) > 0;
 
   // Keep rendering during break animation, then unmount
-  if (!hasObstacle && !isShatteringIce && !isShatteringRock) return null;
+  if (!hasObstacle && !isShatteringIce && !isShatteringRock && !isShatteringIron) return null;
 
   /**
    * ICE OVERLAY
@@ -340,6 +344,179 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
             ))}
           </div>
         )}
+      </div>
+    );
+  }
+
+  /**
+   * IRON OVERLAY (Rusted iron - oxidized metal)
+   */
+  if (card.obstacle === 'iron' || isShatteringIron) {
+    const health = card.obstacleHealth ?? 0;
+
+    return (
+      <div className="absolute inset-0 pointer-events-none z-10">
+        {/* Iron overlay - only visible when health > 0 */}
+        {hasObstacle && card.obstacle === 'iron' && (
+          <div className={`absolute inset-0 rounded-xl ${isShatteringIron ? 'rock-breaking' : ''}`}>
+            {/* Health = 2 (solid rusty iron) */}
+            {health === 2 && (
+              <div className="absolute inset-0 rounded-2xl overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, #b45309 0%, #92400e 50%, #78350f 100%)',
+                  boxShadow: 'inset 0 3px 10px rgba(251,191,36,0.3), inset 0 -6px 16px rgba(0,0,0,0.7), 0 8px 24px rgba(0,0,0,0.6)',
+                  border: '4px solid #854d0e',
+                }}
+              >
+                {/* Rust texture spots */}
+                <div className="absolute inset-0">
+                  <div className="absolute top-2 left-3 w-4 h-4 bg-orange-800/60 rounded-full blur-sm" />
+                  <div className="absolute top-5 right-4 w-3 h-3 bg-orange-900/50 rounded-full blur-sm" />
+                  <div className="absolute bottom-3 left-5 w-5 h-5 bg-amber-900/50 rounded-full blur-sm" />
+                  <div className="absolute bottom-6 right-3 w-3 h-3 bg-orange-800/60 rounded-full blur-sm" />
+                </div>
+
+                {/* Rust cracks */}
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <path d="M 10 10 L 20 18 L 15 28"
+                    stroke="rgba(217,119,6,0.6)"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round" />
+                  <path d="M 90 12 L 80 20 L 85 30"
+                    stroke="rgba(217,119,6,0.6)"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round" />
+                </svg>
+
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-5xl filter drop-shadow-lg">⛓️</div>
+                </div>
+                <div className="absolute bottom-2 right-2 w-7 h-7 bg-gradient-to-br from-orange-600 to-orange-900 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-xl border-2 border-amber-700">
+                  2
+                </div>
+              </div>
+            )}
+
+            {/* Health = 1 (heavily rusted iron) */}
+            {health === 1 && (
+              <div className="absolute inset-0 rounded-2xl overflow-hidden"
+                style={{
+                  background: 'linear-gradient(135deg, #d97706 0%, #b45309 50%, #92400e 100%)',
+                  boxShadow: 'inset 0 2px 8px rgba(251,191,36,0.4), inset 0 -4px 12px rgba(0,0,0,0.6), 0 6px 20px rgba(0,0,0,0.5)',
+                  border: '4px solid #a16207',
+                }}
+              >
+                {/* More rust spots */}
+                <div className="absolute inset-0">
+                  <div className="absolute top-1 left-2 w-6 h-6 bg-orange-700/70 rounded-full blur-md" />
+                  <div className="absolute top-4 right-2 w-5 h-5 bg-orange-800/60 rounded-full blur-md" />
+                  <div className="absolute bottom-2 left-4 w-7 h-7 bg-amber-800/60 rounded-full blur-md" />
+                  <div className="absolute bottom-5 right-2 w-4 h-4 bg-orange-900/70 rounded-full blur-md" />
+                  <div className="absolute top-1/2 left-1/3 w-5 h-5 bg-orange-800/50 rounded-full blur-md" />
+                </div>
+
+                {/* Heavy rust cracks */}
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                  <path d="M 8 8 L 22 20 L 18 35"
+                    stroke="rgba(217,119,6,0.8)"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round" />
+                  <path d="M 92 10 L 78 22 L 82 37"
+                    stroke="rgba(217,119,6,0.8)"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round" />
+                  <path d="M 10 90 L 24 78 L 20 63"
+                    stroke="rgba(217,119,6,0.8)"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round" />
+                  <path d="M 90 88 L 76 76 L 80 61"
+                    stroke="rgba(217,119,6,0.8)"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round" />
+                  <path d="M 40 25 L 50 40 L 45 55"
+                    stroke="rgba(217,119,6,0.7)"
+                    strokeWidth="2.5"
+                    fill="none"
+                    strokeLinecap="round" />
+                  <path d="M 60 30 L 50 45 L 55 60"
+                    stroke="rgba(217,119,6,0.7)"
+                    strokeWidth="2.5"
+                    fill="none"
+                    strokeLinecap="round" />
+                </svg>
+
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-5xl opacity-80 filter drop-shadow-md">⛓️</div>
+                </div>
+                <div className="absolute bottom-2 right-2 w-7 h-7 bg-gradient-to-br from-orange-500 to-orange-800 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg border-2 border-amber-600">
+                  1
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Iron particles - only during break animation */}
+        {isShatteringIron && (
+          <div className="absolute inset-0">
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="rock-particle"
+                style={{
+                  left: '50%',
+                  top: '50%',
+                  '--angle': `${i * 72}deg`,
+                } as React.CSSProperties}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (card.obstacle === 'fire') {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute inset-0 rounded-xl obstacle-fire overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-red-400/90 via-orange-500/90 to-yellow-500/90 backdrop-blur-sm border-2 border-red-300 rounded-xl" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-5xl animate-pulse">🔥</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (card.obstacle === 'bomb') {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute inset-0 rounded-xl obstacle-bomb overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-800/90 via-gray-700/90 to-gray-900/90 backdrop-blur-sm border-2 border-gray-600 rounded-xl" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-5xl">💣</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (card.obstacle === 'virus') {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-10">
+        <div className="absolute inset-0 rounded-xl obstacle-virus overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-400/90 via-emerald-500/90 to-teal-500/90 backdrop-blur-sm border-2 border-green-300 rounded-xl" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-5xl animate-pulse">🦠</div>
+          </div>
+        </div>
       </div>
     );
   }

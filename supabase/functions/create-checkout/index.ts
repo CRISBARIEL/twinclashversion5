@@ -11,12 +11,14 @@ interface RequestBody {
   packageId: string;
   coins: number;
   price: number;
+  clientId: string;
 }
 
 const PACKAGES: Record<string, { coins: number; price: number; name: string }> = {
-  small: { coins: 500, price: 100, name: "Paquete Pequeño - 500 Monedas" },
-  medium: { coins: 2500, price: 250, name: "Paquete Mediano - 2000 + 500 Bonus" },
-  large: { coins: 12000, price: 600, name: "Paquete Grande - 10000 + 2000 Bonus" },
+  small: { coins: 1000, price: 99, name: "1000 Monedas" },
+  medium: { coins: 1550, price: 399, name: "1550 Monedas (+50 Bonus)" },
+  large: { coins: 2400, price: 799, name: "2400 Monedas (+200 Bonus)" },
+  xlarge: { coins: 4000, price: 1499, name: "4000 Monedas (+700 Bonus)" },
 };
 
 Deno.serve(async (req: Request) => {
@@ -28,9 +30,14 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const stripeKey = Deno.env.get("STRIPESECRETKEY");
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+
+    console.log("=== CREATE CHECKOUT SESSION ===");
+    console.log("Stripe Key Present:", !!stripeKey);
+    console.log("Stripe Key Type:", stripeKey?.substring(0, 7));
 
     if (!stripeKey) {
+      console.error("❌ STRIPE_SECRET_KEY not configured in Supabase Secrets");
       return new Response(
         JSON.stringify({
           error: "Stripe no está configurado. Por favor, contacta al administrador."
@@ -45,11 +52,45 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    // Validate it's a LIVE key
+    if (!stripeKey.startsWith("sk_live_") && !stripeKey.startsWith("sk_test_")) {
+      console.error("❌ Invalid Stripe key format");
+      return new Response(
+        JSON.stringify({
+          error: "Configuración de Stripe inválida"
+        }),
+        {
+          status: 503,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
+
+    console.log("✅ Stripe configured with", stripeKey.startsWith("sk_live_") ? "LIVE" : "TEST", "key");
+
     const stripe = new Stripe(stripeKey, {
       apiVersion: "2023-10-16",
     });
 
-    const { packageId, coins, price }: RequestBody = await req.json();
+    const { packageId, coins, price, clientId }: RequestBody = await req.json();
+
+    console.log("Request data:", { packageId, coins, price, clientId: clientId?.substring(0, 8) + "..." });
+
+    if (!clientId) {
+      return new Response(
+        JSON.stringify({ error: "Client ID es requerido" }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+    }
 
     const packageInfo = PACKAGES[packageId];
     if (!packageInfo) {
@@ -64,6 +105,24 @@ Deno.serve(async (req: Request) => {
         }
       );
     }
+
+    const origin = req.headers.get("origin") || "http://localhost:5173";
+    const referer = req.headers.get("referer");
+
+    let baseUrl = origin;
+    if (referer) {
+      try {
+        const refererUrl = new URL(referer);
+        baseUrl = `${refererUrl.protocol}//${refererUrl.host}`;
+      } catch (e) {
+        console.log("Could not parse referer, using origin");
+      }
+    }
+
+    console.log("Creating checkout session...");
+    console.log("Origin:", origin);
+    console.log("Referer:", referer);
+    console.log("Base URL used:", baseUrl);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -81,16 +140,25 @@ Deno.serve(async (req: Request) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin") || "http://localhost:5173"}?payment=success&coins=${coins}`,
-      cancel_url: `${req.headers.get("origin") || "http://localhost:5173"}?payment=cancelled`,
+      success_url: `${baseUrl}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}?payment=cancelled`,
+      client_reference_id: clientId,
       metadata: {
         coins: coins.toString(),
         packageId: packageId,
+        clientId: clientId,
       },
     });
 
+    console.log("✅ Checkout session created successfully");
+    console.log("Session ID:", session.id);
+    console.log("Session URL:", session.url ? "Generated" : "Missing");
+
     return new Response(
-      JSON.stringify({ url: session.url }),
+      JSON.stringify({
+        url: session.url,
+        sessionId: session.id
+      }),
       {
         status: 200,
         headers: {

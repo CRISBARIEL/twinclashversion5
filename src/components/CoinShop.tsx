@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Coins, CreditCard, Sparkles, X, ArrowLeft } from 'lucide-react';
-import { getLocalCoins, addCoins } from '../lib/progression';
+import { getLocalCoins, loadFromSupabase } from '../lib/progression';
 
 interface CoinPackage {
   id: string;
@@ -14,24 +14,31 @@ interface CoinPackage {
 const coinPackages: CoinPackage[] = [
   {
     id: 'small',
-    coins: 500,
-    price: 1.00,
-    priceLabel: '1€',
+    coins: 1000,
+    price: 0.99,
+    priceLabel: '0,99€',
   },
   {
     id: 'medium',
-    coins: 2000,
-    price: 2.50,
-    priceLabel: '2,50€',
+    coins: 1550,
+    price: 3.99,
+    priceLabel: '3,99€',
     popular: true,
-    bonus: 500,
+    bonus: 50,
   },
   {
     id: 'large',
-    coins: 10000,
-    price: 6.00,
-    priceLabel: '6€',
-    bonus: 2000,
+    coins: 2400,
+    price: 7.99,
+    priceLabel: '7,99€',
+    bonus: 200,
+  },
+  {
+    id: 'xlarge',
+    coins: 4000,
+    price: 14.99,
+    priceLabel: '14,99€',
+    bonus: 700,
   },
 ];
 
@@ -47,18 +54,16 @@ export function CoinShop({ onClose }: CoinShopProps) {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get('payment');
-    const coinsToAdd = urlParams.get('coins');
 
-    if (paymentStatus === 'success' && coinsToAdd) {
-      addCoins(parseInt(coinsToAdd, 10));
-      setCurrentCoins(getLocalCoins());
+    if (paymentStatus === 'success') {
+      loadFromSupabase().then(() => {
+        setCurrentCoins(getLocalCoins());
+        alert('¡Pago exitoso! Tus monedas han sido añadidas a tu cuenta.');
+      });
 
       const url = new URL(window.location.href);
       url.searchParams.delete('payment');
-      url.searchParams.delete('coins');
       window.history.replaceState({}, '', url.toString());
-
-      alert(`¡Pago exitoso! Se han añadido ${coinsToAdd} monedas a tu cuenta.`);
     } else if (paymentStatus === 'cancelled') {
       const url = new URL(window.location.href);
       url.searchParams.delete('payment');
@@ -76,8 +81,16 @@ export function CoinShop({ onClose }: CoinShopProps) {
     setIsProcessing(true);
 
     try {
+      const clientId = localStorage.getItem('client_id');
+      if (!clientId) {
+        alert('Error: No se pudo obtener el ID del cliente');
+        setIsProcessing(false);
+        return;
+      }
+
       console.log('=== INICIO DE COMPRA ===');
       console.log('Paquete seleccionado:', selectedPackage);
+      console.log('Client ID:', clientId);
       console.log('URL:', import.meta.env.VITE_SUPABASE_URL);
       console.log('Anon Key:', import.meta.env.VITE_SUPABASE_ANON_KEY ? 'Presente' : 'FALTA');
       console.log('========================');
@@ -92,6 +105,7 @@ export function CoinShop({ onClose }: CoinShopProps) {
           packageId: selectedPackage.id,
           coins: selectedPackage.coins + (selectedPackage.bonus || 0),
           price: Math.round(selectedPackage.price * 100),
+          clientId: clientId,
         }),
       });
 
@@ -148,7 +162,7 @@ export function CoinShop({ onClose }: CoinShopProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {coinPackages.map((pkg) => (
             <button
               key={pkg.id}

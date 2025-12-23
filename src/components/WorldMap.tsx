@@ -1,10 +1,13 @@
-import { useState, useEffect } from 'react';
-import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu } from 'lucide-react';
-import { canEnterWorld, isWorldCompleted, purchaseWorld, ensureWorld, WORLD_COSTS } from '../lib/worldProgress';
-import { getLocalCoins } from '../lib/progression';
+import { useState, useEffect, useRef } from 'react';
+import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, Trophy as TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot, ChevronDown, ChevronUp, Star } from 'lucide-react';
+import { canEnterWorld, isWorldCompleted, purchaseWorld, ensureWorld, WORLD_COSTS, canPlayLevel } from '../lib/worldProgress';
+import { getLocalCoins, getCurrentLevel } from '../lib/progression';
+import { soundManager } from '../lib/sound';
+import { LEVELS, getGlobalLevelId } from '../lib/levels';
+import { LanguageSelector } from './LanguageSelector';
+import { useLanguage } from '../hooks/useLanguage';
 
-const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu];
-const worldNames = ['Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio', 'Océano', 'Comida', 'Música', 'Belleza', 'Tecnología'];
+const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot];
 const worldColors = [
   { from: 'from-emerald-500', to: 'to-green-700' },
   { from: 'from-yellow-500', to: 'to-orange-700' },
@@ -16,6 +19,24 @@ const worldColors = [
   { from: 'from-violet-500', to: 'to-purple-700' },
   { from: 'from-fuchsia-500', to: 'to-pink-700' },
   { from: 'from-slate-500', to: 'to-gray-700' },
+  { from: 'from-blue-500', to: 'to-sky-700' },
+  { from: 'from-teal-500', to: 'to-cyan-700' },
+  { from: 'from-lime-500', to: 'to-green-600' },
+  { from: 'from-amber-500', to: 'to-yellow-700' },
+  { from: 'from-rose-500', to: 'to-red-600' },
+  { from: 'from-pink-500', to: 'to-rose-700' },
+  { from: 'from-green-600', to: 'to-emerald-800' },
+  { from: 'from-pink-400', to: 'to-red-600' },
+  { from: 'from-emerald-500', to: 'to-teal-700' },
+  { from: 'from-sky-400', to: 'to-blue-600' },
+  { from: 'from-blue-500', to: 'to-indigo-700' },
+  { from: 'from-yellow-500', to: 'to-red-600' },
+  { from: 'from-slate-600', to: 'to-amber-800' },
+  { from: 'from-purple-600', to: 'to-rose-500' },
+  { from: 'from-cyan-500', to: 'to-indigo-700' },
+  { from: 'from-lime-500', to: 'to-emerald-700' },
+  { from: 'from-red-500', to: 'to-yellow-500' },
+  { from: 'from-green-500', to: 'to-emerald-700' },
 ];
 
 interface WorldMapProps {
@@ -27,6 +48,16 @@ interface WorldMapProps {
 }
 
 export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelectWorld, onBackToMenu }: WorldMapProps) {
+  const { t } = useLanguage();
+  const worldNames = [
+    t.worlds.nature, t.worlds.sports, t.worlds.games, t.worlds.animals,
+    t.worlds.space, t.worlds.ocean, t.worlds.food, t.worlds.music,
+    t.worlds.beauty, t.worlds.technology, t.worlds.city, t.worlds.science,
+    t.worlds.farm, t.worlds.art, t.worlds.transport, t.worlds.clothing,
+    t.worlds.dinosaurs, t.worlds.sweets, t.worlds.tshirts, t.worlds.eyes,
+    t.worlds.professions, t.worlds.emotions, t.worlds.pirates, t.worlds.jewels,
+    t.worlds.videogames, t.worlds.insects, t.worlds.fruits, t.worlds.vegetables
+  ];
   const [worldAccess, setWorldAccess] = useState<Record<number, boolean>>({ 1: true });
   const [worldsComplete, setWorldsComplete] = useState<Record<number, boolean>>({});
   const [coins, setCoins] = useState(0);
@@ -35,26 +66,32 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
   const [showAdminPassword, setShowAdminPassword] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
   const [adminWorldTarget, setAdminWorldTarget] = useState<number | null>(null);
+  const [showAdminButton, setShowAdminButton] = useState(false);
+  const [expandedWorld, setExpandedWorld] = useState<number | null>(currentWorld || null);
+  const tapCountRef = useRef(0);
+  const tapTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
+    soundManager.stopStartMusic();
+
     const loadWorldStates = async () => {
       const access: Record<number, boolean> = { 1: true };
       const complete: Record<number, boolean> = {};
 
-      for (let i = 1; i <= 10; i++) {
-        ensureWorld(`world-${i}`, 5);
+      for (let i = 1; i <= 28; i++) {
+        await ensureWorld(`world-${i}`, 5);
 
         if (i > 1) {
-          canEnterWorld(`world-${i}`).then(canEnter => {
-            setWorldAccess(prev => ({ ...prev, [i]: canEnter }));
-          });
+          const canEnter = await canEnterWorld(`world-${i}`);
+          access[i] = canEnter;
         }
 
-        isWorldCompleted(`world-${i}`).then(completed => {
-          setWorldsComplete(prev => ({ ...prev, [i]: completed }));
-        });
+        const completed = await isWorldCompleted(`world-${i}`);
+        complete[i] = completed;
       }
 
+      setWorldAccess(access);
+      setWorldsComplete(complete);
       setCoins(getLocalCoins());
     };
 
@@ -63,11 +100,15 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
 
   const handleWorldClick = async (worldId: number) => {
     if (worldId === 1 || worldAccess[worldId]) {
-      onSelectWorld(worldId);
+      setExpandedWorld(expandedWorld === worldId ? null : worldId);
       return;
     }
 
     setPurchaseModalWorld(worldId);
+  };
+
+  const handleLevelClick = (worldId: number, levelNum: number) => {
+    onSelectWorld(worldId);
   };
 
   const handlePurchaseWorld = async () => {
@@ -92,72 +133,126 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-sky-400 via-blue-500 to-indigo-700 p-6">
+      <LanguageSelector />
       <button
         onClick={onBackToMenu}
         className="mb-6 text-white flex items-center gap-2 font-semibold text-lg hover:scale-105 transition-transform"
       >
-        ← Volver
+        ← {t.common.back}
       </button>
 
-      <h1 className="text-4xl font-bold text-white text-center mb-3">Elige tu Mundo</h1>
-      <p className="text-white/80 text-center mb-10 text-lg">10 Mundos · 50 Niveles · Aventura Épica</p>
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-white mb-2">{t.menu.worldMap}</h1>
+        <p className="text-white/90 text-lg mb-4">28 {t.menu.worldMap} · 140 {t.common.level}s</p>
 
-      <div className="grid grid-cols-1 gap-6 max-w-md mx-auto">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((worldId) => {
+        <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 max-w-md mx-auto border-2 border-white/30">
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <div className="flex items-center gap-2">
+              <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg shadow-lg">1</div>
+              <span className="text-white font-semibold">{t.duel.selectLevel}</span>
+            </div>
+            <div className="text-white text-2xl">→</div>
+            <div className="flex items-center gap-2">
+              <div className="bg-white text-blue-600 rounded-full w-8 h-8 flex items-center justify-center font-bold text-lg shadow-lg">2</div>
+              <span className="text-white font-semibold">{t.common.play}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 max-w-md mx-auto">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28].map((worldId) => {
           const isUnlocked = worldAccess[worldId] ?? false;
           const Icon = worldIcons[worldId - 1];
           const colors = worldColors[worldId - 1];
           const isCurrent = currentWorld === worldId;
           const isCompleted = worldsComplete[worldId] ?? false;
+          const isExpanded = expandedWorld === worldId;
 
           return (
-            <button
-              key={worldId}
-              onClick={() => handleWorldClick(worldId)}
-              className={`relative p-6 rounded-3xl shadow-2xl transition-all transform overflow-hidden ${
-                isUnlocked
-                  ? `bg-gradient-to-br ${colors.from} ${colors.to} hover:scale-105 active:scale-95`
-                  : 'bg-gradient-to-br from-gray-600 to-gray-800'
-              }`}
-            >
-              <div className="absolute top-4 right-4">
-                <div className={`relative ${isUnlocked ? 'animate-bounce-slow' : 'opacity-40'}`}>
-                  <div className={`absolute inset-0 ${isUnlocked ? 'bg-white/30' : 'bg-white/10'} rounded-full blur-xl`}></div>
-                  <Icon size={56} className="relative text-white drop-shadow-lg" strokeWidth={1.5} />
-                </div>
-              </div>
+            <div key={worldId} className="transition-all">
+              <button
+                onClick={() => handleWorldClick(worldId)}
+                className={`w-full relative p-5 rounded-2xl shadow-xl transition-all transform ${
+                  isUnlocked
+                    ? `bg-gradient-to-br ${colors.from} ${colors.to} hover:scale-102 active:scale-98`
+                    : 'bg-gradient-to-br from-gray-600 to-gray-800'
+                } ${isExpanded ? 'rounded-b-none' : ''}`}
+              >
+                <div className="flex items-center justify-between text-white">
+                  <div className="flex items-center gap-4">
+                    <div className={`relative ${isUnlocked ? '' : 'opacity-40'}`}>
+                      <Icon size={40} className="text-white drop-shadow-lg" strokeWidth={2} />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="text-xl font-bold drop-shadow-lg">{t.menu.worldMap} {worldId}</h3>
+                      <p className={`text-sm font-medium ${isUnlocked ? 'opacity-90' : 'opacity-60'}`}>
+                        {worldNames[worldId - 1]}
+                      </p>
+                    </div>
+                  </div>
 
-              <div className="flex items-start justify-between text-white relative z-10">
-                <div className="flex flex-col gap-2">
-                  <h3 className="text-2xl font-bold drop-shadow-lg">Mundo {worldId}</h3>
-                  <p className={`text-lg font-semibold ${isUnlocked ? 'opacity-90' : 'opacity-60'}`}>
-                    {worldNames[worldId - 1]}
+                  <div className="flex items-center gap-3">
+                    {isCompleted ? (
+                      <Trophy className="text-yellow-300 drop-shadow-lg" size={28} />
+                    ) : !isUnlocked ? (
+                      <Lock size={28} className="text-white/60" />
+                    ) : isCurrent ? (
+                      <div className="text-xs bg-white/30 rounded-lg px-2 py-1 backdrop-blur-sm font-semibold">
+                        Nivel {currentLevel}/5
+                      </div>
+                    ) : null}
+
+                    {isUnlocked && (
+                      isExpanded ?
+                        <ChevronUp size={24} className="text-white" strokeWidth={3} /> :
+                        <ChevronDown size={24} className="text-white" strokeWidth={3} />
+                    )}
+                  </div>
+                </div>
+              </button>
+
+              {isExpanded && isUnlocked && (
+                <div className={`bg-gradient-to-br ${colors.from} ${colors.to} rounded-b-2xl p-4 shadow-xl border-t-2 border-white/20`}>
+                  <div className="grid grid-cols-5 gap-2">
+                    {[1, 2, 3, 4, 5].map((levelNum) => {
+                      const globalLevelId = getGlobalLevelId(worldId, levelNum);
+                      const userCurrentLevel = getCurrentLevel();
+                      const levelUnlocked = globalLevelId <= userCurrentLevel;
+                      const isCurrentLevel = globalLevelId === userCurrentLevel;
+
+                      return (
+                        <button
+                          key={levelNum}
+                          onClick={() => handleLevelClick(worldId, levelNum)}
+                          className={`relative aspect-square rounded-xl font-bold text-lg transition-all transform ${
+                            levelUnlocked
+                              ? isCurrentLevel
+                                ? 'bg-white text-blue-600 scale-110 shadow-2xl ring-4 ring-yellow-300'
+                                : 'bg-white/90 text-gray-800 hover:scale-110 hover:shadow-xl active:scale-95'
+                              : 'bg-white/20 text-white/40 cursor-not-allowed'
+                          }`}
+                        >
+                          {levelUnlocked ? (
+                            <>
+                              <span className="text-2xl">{levelNum}</span>
+                              {isCurrentLevel && (
+                                <Star className="absolute -top-1 -right-1 text-yellow-400 fill-yellow-400" size={16} />
+                              )}
+                            </>
+                          ) : (
+                            <Lock size={20} className="mx-auto" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-center text-white/80 text-xs mt-3 font-medium">
+                    Toca un nivel para jugar
                   </p>
-                  {isCurrent && !isCompleted && (
-                    <div className="mt-1 text-sm bg-white/30 rounded-lg px-3 py-1.5 inline-block backdrop-blur-sm">
-                      📍 Nivel {currentLevel} / 5
-                    </div>
-                  )}
                 </div>
-                <div className="flex flex-col items-center gap-1 ml-4">
-                  {isCompleted ? (
-                    <>
-                      <Trophy className="text-yellow-300 drop-shadow-lg" size={32} />
-                      <span className="text-xs bg-yellow-300/30 px-2 py-1 rounded-full font-semibold">
-                        Completado
-                      </span>
-                    </>
-                  ) : !isUnlocked ? (
-                    <div className="flex flex-col items-center gap-1">
-                      <Lock size={32} className="text-white/60" />
-                      <span className="text-xs bg-white/20 px-2 py-1 rounded-full">
-                        Bloqueado
-                      </span>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            </button>
+              )}
+            </div>
           );
         })}
       </div>
@@ -241,7 +336,32 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
       {purchaseModalWorld && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
-            <div className="text-6xl mb-4">🔓</div>
+            <div
+              className="text-6xl mb-4 cursor-pointer select-none"
+              onClick={() => {
+                tapCountRef.current += 1;
+
+                if (tapTimerRef.current) {
+                  clearTimeout(tapTimerRef.current);
+                }
+
+                if (tapCountRef.current >= 5) {
+                  setShowAdminButton(true);
+                  tapCountRef.current = 0;
+                  if (tapTimerRef.current) {
+                    clearTimeout(tapTimerRef.current);
+                    tapTimerRef.current = null;
+                  }
+                } else {
+                  tapTimerRef.current = window.setTimeout(() => {
+                    tapCountRef.current = 0;
+                    tapTimerRef.current = null;
+                  }, 1000);
+                }
+              }}
+            >
+              🔓
+            </div>
             <h3 className="text-3xl font-bold text-gray-800 mb-2">
               Desbloquear Mundo {purchaseModalWorld}
             </h3>
@@ -267,7 +387,15 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
             <div className="flex gap-3">
               <button
                 type="button"
-                onClick={() => setPurchaseModalWorld(null)}
+                onClick={() => {
+                  setPurchaseModalWorld(null);
+                  setShowAdminButton(false);
+                  tapCountRef.current = 0;
+                  if (tapTimerRef.current) {
+                    clearTimeout(tapTimerRef.current);
+                    tapTimerRef.current = null;
+                  }
+                }}
                 disabled={loading}
                 className="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-colors disabled:opacity-50"
               >
@@ -283,17 +411,20 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
               </button>
             </div>
 
-            <button
-              type="button"
-              onClick={() => {
-                setAdminWorldTarget(purchaseModalWorld);
-                setPurchaseModalWorld(null);
-                setShowAdminPassword(true);
-              }}
-              className="mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              Admin
-            </button>
+            {showAdminButton && (
+              <button
+                type="button"
+                onClick={() => {
+                  setAdminWorldTarget(purchaseModalWorld);
+                  setPurchaseModalWorld(null);
+                  setShowAdminPassword(true);
+                  setShowAdminButton(false);
+                }}
+                className="mt-3 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                Admin
+              </button>
+            )}
           </div>
         </div>
       )}

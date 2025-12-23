@@ -1,11 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { GameCore } from './GameCore';
-import { addCoins } from '../lib/progression';
+import { addCoins, setCurrentLevel } from '../lib/progression';
 import { getLevelConfig } from '../lib/levels';
 import { WorldUnlockModal } from './WorldUnlockModal';
 import { WorldIntroScreen } from './WorldIntroScreen';
 import { soundManager } from '../lib/sound';
 import { completeWorldLevel, getWorldIdForLevel, getLevelInWorld } from '../lib/worldProgress';
+
+declare global {
+  interface Window {
+    ttq?: {
+      track: (event: string) => void;
+    };
+  }
+}
 
 export interface WorldUnlockEvent {
   completedWorld: number;
@@ -31,31 +39,46 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
   const [worldUnlockEvent, setWorldUnlockEvent] = useState<WorldUnlockEvent | null>(null);
   const [showWorldIntro, setShowWorldIntro] = useState(false);
   const [introWorld, setIntroWorld] = useState(1);
+  const [showCoinAnimation, setShowCoinAnimation] = useState(false);
 
   const completedRef = useRef(false);
   const lastWorldRef = useRef<number>(getLevelConfig(initialLevel)?.world || 1);
 
-  const onLevelCompleted = useCallback(async () => {
+  const onLevelCompleted = useCallback(() => {
+    console.log('[GameShell] ===== onLevelCompleted CALLED =====');
+    console.log('[GameShell] Current level:', level);
+    console.log('[GameShell] completedRef.current:', completedRef.current);
+
     if (completedRef.current) {
-      console.log('[GameShell] onLevelCompleted: already completed, skipping');
+      console.log('[GameShell] ⚠️ ALREADY COMPLETED, SKIPPING');
       return;
     }
     completedRef.current = true;
+    console.log('[GameShell] ✅ Setting completedRef to TRUE');
 
     const config = getLevelConfig(level);
-    if (!config) return;
+    console.log('[GameShell] Config:', config);
+    if (!config) {
+      console.log('[GameShell] ❌ NO CONFIG FOUND');
+      completedRef.current = false;
+      return;
+    }
 
     const worldId = getWorldIdForLevel(level);
     const levelInWorld = getLevelInWorld(level);
+    console.log('[GameShell] World:', worldId, 'Level in world:', levelInWorld);
 
-    await completeWorldLevel(worldId, levelInWorld, 3);
+    completeWorldLevel(worldId, levelInWorld, 3).catch(err => {
+      console.error('[GameShell] Error saving progress:', err);
+    });
 
     addCoins(config.unlockReward);
 
     if (config.level === 5) {
+      console.log('[GameShell] 🎉 END OF WORLD', config.world);
       const nextWorld = config.world + 1;
 
-      if (nextWorld <= 10) {
+      if (nextWorld <= 15) {
         setWorldUnlockEvent({
           completedWorld: config.world,
           unlockedWorld: nextWorld,
@@ -72,29 +95,39 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
       }
     } else {
       const nextLevelId = level + 1;
-      setNextLevel(nextLevelId);
-      setBannerType('level');
-      setShowBanner(true);
+      console.log('[GameShell] 🚀 ADVANCING TO LEVEL:', nextLevelId);
+      setCurrentLevel(nextLevelId);
+      setLevel(nextLevelId);
+      console.log('[GameShell] ✅ setLevel called with:', nextLevelId);
     }
   }, [level]);
 
   useEffect(() => {
-    console.log('[GameShell] LEVEL_CHANGED', level);
+    console.log('[GameShell] ===== LEVEL_CHANGED to:', level, '=====');
     completedRef.current = false;
 
     const currentConfig = getLevelConfig(level);
+    console.log('[GameShell] Current config:', currentConfig);
     if (currentConfig && currentConfig.world !== lastWorldRef.current && currentConfig.level === 1) {
+      console.log('[GameShell] 🌎 SHOWING WORLD INTRO for world:', currentConfig.world);
       setIntroWorld(currentConfig.world);
       setShowWorldIntro(true);
       lastWorldRef.current = currentConfig.world;
     }
 
     soundManager.stopStartMusic();
-    soundManager.stopLevelMusic();
-    if (currentConfig) {
-      soundManager.playLevelMusic(currentConfig.world);
-    }
   }, [level]);
+
+  useEffect(() => {
+    if (window.ttq) {
+      try {
+        window.ttq.track('Game_Start');
+        console.log('[TikTok] Game_Start event tracked');
+      } catch (error) {
+        console.error('[TikTok] Error tracking Game_Start:', error);
+      }
+    }
+  }, []);
 
   const handleNextLevel = useCallback(() => {
     console.log('[GameShell] handleNextLevel', { level, nextLevel });
@@ -103,6 +136,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
     setNextLevel(null);
     setShowBanner(false);
     setBannerType(null);
+    setShowCoinAnimation(false);
   }, [nextLevel, level]);
 
   const handleWorldUnlockContinue = useCallback(() => {
@@ -121,7 +155,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
     setShowWorldIntro(false);
   }, []);
 
-  console.log('[GameShell] Render', { level, nextLevel, showBanner, bannerType });
+  console.log('[GameShell] Render', { level, nextLevel, showBanner, bannerType, worldUnlockEvent });
 
   return (
     <>
@@ -150,13 +184,43 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
         />
       )}
 
-      {showBanner && nextLevel != null && !worldUnlockEvent && (
+      {showBanner && nextLevel != null && !worldUnlockEvent && (() => {
+        console.log('[GameShell] SHOWING BANNER MODAL');
+        return true;
+      })() && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl pointer-events-auto">
             {bannerType === 'level' ? (
               <>
                 <div className="text-6xl mb-4">🎉</div>
                 <h3 className="text-3xl font-bold text-green-600 mb-2">¡Nivel {level} Completado!</h3>
+
+                <div className="bg-gradient-to-br from-yellow-100 to-amber-100 rounded-xl p-6 mb-4 relative overflow-hidden">
+                  <div className="text-4xl mb-2">💰</div>
+                  <div className="text-2xl font-bold text-amber-700 mb-1">
+                    +{getLevelConfig(level)?.unlockReward || 10} Monedas
+                  </div>
+                  <div className="text-sm text-amber-600">¡Ganadas en este nivel!</div>
+
+                  {showCoinAnimation && (
+                    <div className="absolute inset-0 pointer-events-none">
+                      {[...Array(8)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="absolute text-2xl animate-coin-fall"
+                          style={{
+                            left: `${20 + i * 10}%`,
+                            animationDelay: `${i * 0.1}s`,
+                            animationDuration: '1.2s'
+                          }}
+                        >
+                          🪙
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <p className="text-gray-600 mb-6">Pulsa para continuar.</p>
                 <div className="flex flex-col gap-3">
                   <button

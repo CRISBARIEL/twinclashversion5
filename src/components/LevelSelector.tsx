@@ -22,19 +22,30 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
 
   useEffect(() => {
     const loadLevelStates = async () => {
+      console.log('[LevelSelector] ====================================');
+      console.log('[LevelSelector] Loading level states for world', world);
+
       const worldKey = `world-${world}`;
+      console.log('[LevelSelector] Calling ensureWorld...');
       await ensureWorld(worldKey, 5);
+
+      console.log('[LevelSelector] Calling getWorldState...');
       const state = await getWorldState(worldKey);
+      console.log('[LevelSelector] State received:', JSON.stringify(state, null, 2));
+
       const access: Record<number, boolean> = {};
 
       state.levels.forEach((levelState, idx) => {
         access[idx + 1] = levelState.unlocked;
+        console.log(`[LevelSelector] Level ${idx + 1}: unlocked=${levelState.unlocked}, completed=${levelState.completed}`);
       });
 
       access[1] = true;
 
+      console.log('[LevelSelector] Final levelAccess:', access);
       setLevelAccess(access);
       setCoins(getLocalCoins());
+      console.log('[LevelSelector] ====================================');
     };
 
     loadLevelStates();
@@ -43,17 +54,22 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
   const handleLevelClick = async (level: number) => {
     const globalLevel = getGlobalLevelId(world, level);
 
-    if (level === 1 || levelAccess[level]) {
-      onSelectLevel(globalLevel);
-      return;
-    }
+    // TEMPORAL: Todos los niveles desbloqueados para pruebas
+    onSelectLevel(globalLevel);
+    return;
 
-    if (level === 5 && !levelAccess[4]) {
-      alert('Para jugar el nivel 5, primero debes completar el nivel 4 o comprarlo');
-      return;
-    }
+    // Código original comentado:
+    // if (level === 1 || levelAccess[level]) {
+    //   onSelectLevel(globalLevel);
+    //   return;
+    // }
 
-    setPurchaseModalLevel(level);
+    // if (level === 5 && !levelAccess[4]) {
+    //   alert('Para jugar el nivel 5, primero debes completar el nivel 4 o comprarlo');
+    //   return;
+    // }
+
+    // setPurchaseModalLevel(level);
   };
 
   const handlePurchaseLevel = async () => {
@@ -94,7 +110,7 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
         <p className="text-white/90 text-xl">{themeName}</p>
       </div>
 
-      <div className="grid grid-cols-5 gap-4 max-w-lg mx-auto mb-8">
+      <div className="grid grid-cols-5 gap-2 sm:gap-4 max-w-lg mx-auto mb-8 px-4">
         {levelsInWorld.map((lvl) => {
           const isUnlocked = levelAccess[lvl.level] ?? false;
           const globalLevel = getGlobalLevelId(world, lvl.level);
@@ -104,7 +120,7 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
             <button
               key={lvl.level}
               onClick={() => handleLevelClick(lvl.level)}
-              className={`relative w-16 h-16 rounded-2xl font-bold text-xl transition-all shadow-lg ${
+              className={`relative aspect-square rounded-2xl font-bold text-base sm:text-xl transition-all shadow-lg ${
                 isUnlocked
                   ? isCurrent
                     ? 'bg-yellow-400 scale-110 shadow-xl text-yellow-900'
@@ -117,19 +133,19 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
                   <span>{lvl.level}</span>
                   {isCurrent && (
                     <Star
-                      className="absolute -top-2 -right-2 text-yellow-600 fill-yellow-400"
-                      size={20}
+                      className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 text-yellow-600 fill-yellow-400"
+                      size={16}
                     />
                   )}
                   {lvl.level === 5 && (
                     <Trophy
-                      className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-orange-500"
-                      size={16}
+                      className="absolute -bottom-0.5 sm:-bottom-1 left-1/2 -translate-x-1/2 text-orange-500"
+                      size={14}
                     />
                   )}
                 </>
               ) : (
-                <Lock className="absolute inset-0 m-auto text-gray-500" size={20} />
+                <Lock className="absolute inset-0 m-auto text-gray-500" size={16} />
               )}
             </button>
           );

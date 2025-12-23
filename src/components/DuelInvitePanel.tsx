@@ -1,19 +1,40 @@
-import { useState } from 'react';
-import { X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Lock } from 'lucide-react';
+import { getWorldState } from '../lib/worldProgress';
 
 interface DuelInvitePanelProps {
   onClose: () => void;
-  onCreateRoom: (worldId: number) => void;
+  onCreateRoom: (worldId: number, levelNumber: number) => void;
   onJoinRoom: (roomCode: string) => void;
 }
 
 export const DuelInvitePanel = ({ onClose, onCreateRoom, onJoinRoom }: DuelInvitePanelProps) => {
   const [mode, setMode] = useState<'menu' | 'create' | 'join'>('menu');
   const [selectedWorld, setSelectedWorld] = useState(1);
+  const [selectedLevel, setSelectedLevel] = useState(1);
+  const [unlockedLevels, setUnlockedLevels] = useState<boolean[]>([]);
   const [joinCode, setJoinCode] = useState('');
 
+  useEffect(() => {
+    if (mode === 'create') {
+      loadUnlockedLevels();
+    }
+  }, [mode, selectedWorld]);
+
+  const loadUnlockedLevels = async () => {
+    const worldId = `world-${selectedWorld}`;
+    const state = await getWorldState(worldId);
+    const unlocked = state.levels.map(l => l.unlocked);
+    setUnlockedLevels(unlocked);
+
+    const firstUnlocked = unlocked.findIndex(u => u);
+    if (firstUnlocked !== -1 && !unlocked[selectedLevel - 1]) {
+      setSelectedLevel(firstUnlocked + 1);
+    }
+  };
+
   const handleCreateRoom = () => {
-    onCreateRoom(selectedWorld);
+    onCreateRoom(selectedWorld, selectedLevel);
     onClose();
   };
 
@@ -70,7 +91,10 @@ export const DuelInvitePanel = ({ onClose, onCreateRoom, onJoinRoom }: DuelInvit
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((world) => (
                   <button
                     key={world}
-                    onClick={() => setSelectedWorld(world)}
+                    onClick={() => {
+                      setSelectedWorld(world);
+                      setSelectedLevel(1);
+                    }}
                     className={`py-3 rounded-lg font-bold transition-all ${
                       selectedWorld === world
                         ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white scale-110'
@@ -83,7 +107,35 @@ export const DuelInvitePanel = ({ onClose, onCreateRoom, onJoinRoom }: DuelInvit
               </div>
             </div>
 
+            <div>
+              <label className="block text-sm font-semibold mb-2">Selecciona el Nivel:</label>
+              <div className="grid grid-cols-5 gap-2">
+                {[1, 2, 3, 4, 5].map((level) => {
+                  const isUnlocked = unlockedLevels[level - 1];
+                  return (
+                    <button
+                      key={level}
+                      onClick={() => isUnlocked && setSelectedLevel(level)}
+                      disabled={!isUnlocked}
+                      className={`py-3 rounded-lg font-bold transition-all relative ${
+                        selectedLevel === level && isUnlocked
+                          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white scale-110'
+                          : isUnlocked
+                          ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                          : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                      }`}
+                    >
+                      {isUnlocked ? level : <Lock size={16} className="mx-auto" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="bg-gray-800 rounded-lg p-3 text-sm">
+              <p className="opacity-80">
+                🎯 Mundo {selectedWorld} - Nivel {selectedLevel}
+              </p>
               <p className="opacity-80">
                 💰 Recompensa: <span className="font-bold text-yellow-400">{20 + (selectedWorld - 1) * 13} monedas</span>
               </p>
