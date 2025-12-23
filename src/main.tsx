@@ -1,8 +1,12 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 import App from './App.tsx';
 import './index.css';
 import { addCoins, getLocalCoins } from './lib/progression';
+
+// Inject Speed Insights for performance monitoring
+injectSpeedInsights();
 
 // Unregister old service workers but KEEP Firebase messaging service worker
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
