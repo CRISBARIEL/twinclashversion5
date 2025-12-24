@@ -14,7 +14,7 @@ export function RewardedAdButton({
   onRewardGranted,
   onAdShown,
   onAdFailed,
-  testMode = true,
+  testMode = false, // PRODUCCIÓN: false = IDs reales | Para testing cambia a true
   className = ''
 }: RewardedAdButtonProps) {
   const { initialized, isRewardedReady, showRewardedAd, testMode: currentTestMode } = useAdMob(true, testMode);

@@ -8,11 +8,20 @@ export interface AdMobConfig {
   testMode?: boolean;
 }
 
+// ===== IDs DE PRUEBA (Google Test Ads) =====
+// Usa estos IDs SOLO para testing/desarrollo
+// const TEST_IDS = {
+//   rewarded: 'ca-app-pub-3940256099942544/5224354917',
+//   interstitial: 'ca-app-pub-3940256099942544/1033173712',
+// };
+
 const TEST_IDS = {
   rewarded: 'ca-app-pub-3940256099942544/5224354917',
   interstitial: 'ca-app-pub-3940256099942544/1033173712',
 };
 
+// ===== IDs DE PRODUCCIÓN (TUS IDS REALES) =====
+// Estos son tus IDs reales aprobados de AdMob
 const PRODUCTION_IDS = {
   rewarded: 'ca-app-pub-2140112688604592/7419668822',
   interstitial: 'ca-app-pub-2140112688604592/5693128960',
@@ -20,7 +29,7 @@ const PRODUCTION_IDS = {
 
 class AdMobService {
   private initialized = false;
-  private testMode = true;
+  private testMode = false; // PRODUCCIÓN: false = IDs reales | true = IDs de prueba
   private rewardedAdLoaded = false;
   private interstitialAdLoaded = false;
   private isNativePlatform = false;
@@ -29,7 +38,7 @@ class AdMobService {
     this.isNativePlatform = Capacitor.isNativePlatform();
   }
 
-  async initialize(testMode: boolean = true): Promise<void> {
+  async initialize(testMode: boolean = false): Promise<void> { // PRODUCCIÓN: false por defecto
     if (this.initialized) {
       console.log('[AdMob] Already initialized');
       return;
