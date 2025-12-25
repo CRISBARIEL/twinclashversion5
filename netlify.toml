@@ -6,11 +6,12 @@
 [build.environment]
   NODE_VERSION = "18"
 
-# SPA routing
+# SPA routing - exclude static files
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
 
 # Global security headers
 [[headers]]
