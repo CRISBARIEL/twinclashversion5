@@ -4,14 +4,15 @@ import App from './App.tsx';
 import './index.css';
 import { addCoins, getLocalCoins } from './lib/progression';
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/firebase-messaging-sw.js')
-    .then(registration => {
-      console.log('[ServiceWorker] Firebase messaging service worker registered:', registration.scope);
-    })
-    .catch(error => {
-      console.warn('[ServiceWorker] Registration failed (non-critical):', error);
-    });
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", async () => {
+    try {
+      const reg = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+      console.log("SW registered:", reg.scope);
+    } catch (e) {
+      console.error("SW register failed:", e);
+    }
+  });
 }
 
 createRoot(document.getElementById('root')!).render(
