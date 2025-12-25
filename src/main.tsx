@@ -4,7 +4,7 @@ import App from './App.tsx';
 import './index.css';
 import { addCoins, getLocalCoins } from './lib/progression';
 import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken } from 'firebase/messaging';
+import { initializePushNotifications } from './lib/push';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -17,27 +17,15 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 
-async function initFCM() {
-  try {
-    const messaging = getMessaging(app);
-    const token = await getToken(messaging, {
-      vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY,
-    });
-    console.log('FCM TOKEN:', token);
-  } catch (e) {
-    console.error('FCM ERROR:', e);
-  }
-}
-
-initFCM();
-
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
       const reg = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
-      console.log("SW registered:", reg.scope);
+      console.log("[PUSH] SW registered:", reg.scope);
+
+      await initializePushNotifications(app);
     } catch (e) {
-      console.error("SW register failed:", e);
+      console.error("[PUSH] SW register failed:", e);
     }
   });
 }
