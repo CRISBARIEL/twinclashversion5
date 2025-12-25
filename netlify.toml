@@ -6,12 +6,13 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
 
-# Headers globales
+# Global security headers
 [[headers]]
   for = "/*"
   [headers.values]
@@ -20,39 +21,26 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# Assets
+# ads.txt for AdSense
+[[headers]]
+  for = "/ads.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=300"
+
+# Assets - long-term cache with immutable
 [[headers]]
   for = "/assets/*"
   [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
+    Cache-Control = "public, max-age=31536000, immutable"
 
-# JS
+# Audio files - long-term cache with immutable
 [[headers]]
-  for = "/*.js"
+  for = "/audio/*"
   [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
+    Cache-Control = "public, max-age=31536000, immutable"
 
-# CSS
-[[headers]]
-  for = "/*.css"
-  [headers.values]
-    Cache-Control = "public, max-age=0, must-revalidate"
-
-# Sounds
-[[headers]]
-  for = "/sounds/*"
-  [headers.values]
-    Cache-Control = "public, max-age=2592000"
-    Content-Type = "audio/wav"
-
-# SVG
-[[headers]]
-  for = "/*.svg"
-  [headers.values]
-    Cache-Control = "public, max-age=2592000"
-    Content-Type = "image/svg+xml"
-
-# PNG
+# PNG images - 30 days cache
 [[headers]]
   for = "/*.png"
   [headers.values]
