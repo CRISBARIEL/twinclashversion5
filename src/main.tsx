@@ -4,21 +4,13 @@ import App from './App.tsx';
 import './index.css';
 import { addCoins, getLocalCoins } from './lib/progression';
 
-// Unregister old service workers but KEEP Firebase messaging service worker
-if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations()
-    .then(registrations => {
-      registrations.forEach(reg => {
-        if (!reg.active?.scriptURL.includes('firebase-messaging-sw.js')) {
-          console.log('[ServiceWorker] Unregistering old service worker:', reg.scope);
-          reg.unregister();
-        } else {
-          console.log('[ServiceWorker] Keeping Firebase messaging service worker:', reg.scope);
-        }
-      });
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js')
+    .then(registration => {
+      console.log('[ServiceWorker] Firebase messaging service worker registered:', registration.scope);
     })
-    .catch((error) => {
-      console.warn('[ServiceWorker] Error managing service workers (no crítico):', error);
+    .catch(error => {
+      console.warn('[ServiceWorker] Registration failed (non-critical):', error);
     });
 }
 
