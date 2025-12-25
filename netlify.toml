@@ -1,58 +1,58 @@
 [build]
-command = "npx vite build"
-publish = "dist"
+  command = "npx vite build"
+  publish = "dist"
 
 [build.environment]
-NODE_VERSION = "18"
+  NODE_VERSION = "18"
 
 [[redirects]]
-from = "/*"
-to = "/index.html"
-status = 200
+  from = "/*"
+  to = "/index.html"
+  status = 200
 
+# Headers globales
 [[headers]]
-for = "/*"
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
-[headers.values]
-X-Frame-Options = "DENY"
-X-Content-Type-Options = "nosniff"
-X-XSS-Protection = "1; mode=block"
-Referrer-Policy = "strict-origin-when-cross-origin"
-
+# Assets
 [[headers]]
-for = "/assets/*"
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
 
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
-
+# JS
 [[headers]]
-for = "/*.js"
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
 
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
-
+# CSS
 [[headers]]
-for = "/*.css"
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
 
-[headers.values]
-Cache-Control = "public, max-age=0, must-revalidate"
-
+# Sounds
 [[headers]]
-for = "/sounds/*"
+  for = "/sounds/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+    Content-Type = "audio/wav"
 
-[headers.values]
-Cache-Control = "public, max-age=2592000"
-Content-Type = "audio/wav"
-
+# SVG
 [[headers]]
-for = "/*.svg"
+  for = "/*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+    Content-Type = "image/svg+xml"
 
-[headers.values]
-Cache-Control = "public, max-age=2592000"
-Content-Type = "image/svg+xml"
-
+# PNG
 [[headers]]
-for = "/*.png"
-
-[headers.values]
-Cache-Control = "public, max-age=2592000"
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
