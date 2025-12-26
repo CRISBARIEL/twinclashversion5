@@ -219,3 +219,53 @@ Note: Notifications require HTTPS (or localhost for testing)
 - **ads.txt** and **AdSense** configuration remain unchanged
 - **netlify.toml** redirects and headers remain unchanged
 - Push notifications work alongside existing features without interference
+- Service worker is automatically generated during build with Firebase credentials
+- **Admin key** is separate from world management password
+
+## Production Deployment (Netlify)
+
+### Critical: Service Worker Generation
+
+The service worker (`firebase-messaging-sw.js`) is generated at build time by `scripts/generate-fcm-sw.mjs`. This script:
+- Loads Firebase environment variables (VITE_FIREBASE_*)
+- Replaces placeholders in the template with actual values
+- Generates the final service worker with correct configuration
+
+**In Netlify**:
+1. Environment variables are automatically available during build
+2. The build command `npm run build` runs the generation script
+3. The service worker is copied to `dist/` with correct Firebase config
+
+### Troubleshooting: "Notification button locked/blocked in production"
+
+If the notification button works in preview but not in production:
+
+**1. Verify Service Worker Configuration**
+- Download `firebase-messaging-sw.js` from your production site
+- Check if Firebase config has real values (not "undefined")
+- If values are undefined, environment variables weren't available during build
+
+**2. Check Netlify Environment Variables**
+- Go to Site settings > Environment variables
+- Verify all `VITE_FIREBASE_*` variables are set
+- Redeploy after adding/updating variables
+
+**3. Check Browser Console**
+- Look for `[NotificationButton]` logs showing the registration flow
+- Look for `[PUSH]` logs from the initialization
+- Common errors:
+  - "VAPID key not configured" → Missing `VITE_FIREBASE_VAPID_KEY`
+  - "Token not generated" → Service worker config is wrong or not ready
+  - "Service worker not found" → Build didn't copy it to dist/
+
+**4. Test Locally First**
+- Create `.env` file with all Firebase variables
+- Run `npm run build` (should show: `[generate-fcm-sw] Service worker generated`)
+- Check `dist/firebase-messaging-sw.js` has real Firebase values
+- Run `npm run preview` and test notifications
+
+**5. Service Worker DevTools**
+- Open DevTools > Application > Service Workers
+- Verify `/firebase-messaging-sw.js` is registered and active
+- Click on the service worker to see its console
+- Look for initialization errors

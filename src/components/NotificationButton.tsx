@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Bell, BellOff } from 'lucide-react';
-import { requestNotificationPermission, getNotificationPermissionStatus, isNotificationSupported } from '../lib/firebase';
+import { ensureNotificationPermission, getFcmToken, upsertPushToken } from '../lib/push';
 import { getOrCreateClientId } from '../lib/supabase';
+import { firebaseApp } from '../lib/firebaseApp';
 
 export const NotificationButton = () => {
   const [permission, setPermission] = useState<NotificationPermission>('default');
@@ -9,43 +10,65 @@ export const NotificationButton = () => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
-    if (isNotificationSupported()) {
-      setPermission(getNotificationPermissionStatus());
+    if ('Notification' in window) {
+      setPermission(Notification.permission);
     }
   }, []);
 
   const handleRequestPermission = async () => {
-    if (!isNotificationSupported()) {
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+      console.error('[NotificationButton] Browser not supported');
       alert('Tu navegador no soporta notificaciones push');
       return;
     }
 
+    console.log('[NotificationButton] Current permission:', permission);
+
     if (permission === 'granted') {
+      console.log('[NotificationButton] Permission already granted, showing tooltip');
       setShowTooltip(true);
       setTimeout(() => setShowTooltip(false), 3000);
       return;
     }
 
+    console.log('[NotificationButton] Requesting notification permission...');
     setIsLoading(true);
 
     try {
-      const clientId = getOrCreateClientId();
-      const token = await requestNotificationPermission(clientId);
+      const requestedPermission = await ensureNotificationPermission();
+      console.log('[NotificationButton] Permission result:', requestedPermission);
 
-      if (token) {
-        setPermission('granted');
-        alert('¡Notificaciones activadas! Te avisaremos de retos diarios y eventos especiales.');
+      if (requestedPermission === 'granted') {
+        console.log('[NotificationButton] Getting FCM token...');
+        const token = await getFcmToken(firebaseApp);
+
+        if (token) {
+          console.log('[NotificationButton] Token obtained, saving to database...');
+          const clientId = getOrCreateClientId();
+          await upsertPushToken(token, clientId);
+
+          setPermission('granted');
+          console.log('[NotificationButton] Successfully registered for push notifications');
+          alert('¡Notificaciones activadas! Te avisaremos de retos diarios y eventos especiales.');
+        } else {
+          console.warn('[NotificationButton] Token not generated - check VAPID key and service worker');
+          setPermission(Notification.permission);
+          alert('No se pudo obtener el token. Verifica la configuración de Firebase.');
+        }
       } else {
-        setPermission(Notification.permission);
+        console.log('[NotificationButton] Permission not granted:', requestedPermission);
+        setPermission(requestedPermission);
       }
     } catch (error) {
       console.error('[NotificationButton] Error requesting permission:', error);
+      setPermission(Notification.permission);
+      alert('Error al activar notificaciones. Revisa la consola para más detalles.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (!isNotificationSupported()) {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
     return null;
   }
 
