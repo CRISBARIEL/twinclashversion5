@@ -91,27 +91,20 @@ CREATE TABLE push_tokens (
 
 ### 2. Sending Notifications
 
-#### Using AdminPushPanel Component
+#### Using the Admin Panel
 
-Import and use the component in your app:
+The push notifications feature is integrated into the existing AdminPanel:
 
-```tsx
-import { AdminPushPanel } from './components/AdminPushPanel';
+1. Open the Admin Panel in your app
+2. Click on the "Push" tab
+3. Enter your admin key (saved in localStorage for convenience)
+4. Compose your notification:
+   - **Título**: Notification title
+   - **Mensaje**: Notification message body
+   - **URL**: Landing page URL (default: https://twinclash.org/)
+5. Click "Enviar a Todos" to send to all registered users
 
-function App() {
-  return (
-    <div>
-      {/* Your app content */}
-      <AdminPushPanel />
-    </div>
-  );
-}
-```
-
-The panel provides a UI to:
-- Enter admin key
-- Compose notification (title, body, URL)
-- Send to all registered users
+The admin key is separate from the world management password and must match the `ADMIN_PUSH_KEY` environment variable.
 
 #### Using API Directly
 
@@ -132,10 +125,9 @@ curl -X POST https://your-site.netlify.app/.netlify/functions/send-push \
 
 ```json
 {
-  "requested": 100,
-  "successCount": 98,
-  "failureCount": 2,
-  "errorsSample": ["messaging/invalid-registration-token"]
+  "ok": true,
+  "sent": 98,
+  "failed": 2
 }
 ```
 
@@ -143,7 +135,8 @@ curl -X POST https://your-site.netlify.app/.netlify/functions/send-push \
 
 - Notifications are only sent to tokens with `last_seen` within the last 30 days
 - Invalid tokens (unregistered, expired) are automatically removed from the database
-- Limited to 1000 tokens per request (can be adjusted if needed)
+- Tokens are sent in batches of 500 (FCM limit) to handle any number of users
+- No limit on total tokens - all active tokens will be processed
 
 ## Testing
 
@@ -214,11 +207,11 @@ Note: Notifications require HTTPS (or localhost for testing)
 
 ## Files Modified/Created
 
-- `src/lib/push.ts` - Push notification utilities
-- `src/components/AdminPushPanel.tsx` - Admin UI for sending notifications
+- `src/lib/push.ts` - Push notification utilities (FCM token management)
+- `src/components/AdminPanel.tsx` - Integrated "Push" tab for sending notifications
 - `src/main.tsx` - Integration with app initialization
-- `netlify/functions/send-push.ts` - Netlify function for sending notifications
-- `supabase/migrations/*_create_push_tokens_table.sql` - Database migration
+- `netlify/functions/send-push.ts` - Netlify function for batch sending notifications
+- `supabase/migrations/*_create_push_tokens_table.sql` - Database migrations
 - `README_PUSH.md` - This documentation
 
 ## Important Notes

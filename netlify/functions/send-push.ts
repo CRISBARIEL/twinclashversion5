@@ -78,8 +78,7 @@ export const handler: Handler = async (event) => {
     const { data: tokenRecords, error: fetchError } = await supabase
       .from('push_tokens')
       .select('token')
-      .gte('last_seen', thirtyDaysAgo.toISOString())
-      .limit(1000);
+      .gte('last_seen', thirtyDaysAgo.toISOString());
 
     if (fetchError) {
       throw new Error(`Failed to fetch tokens: ${fetchError.message}`);
@@ -89,17 +88,22 @@ export const handler: Handler = async (event) => {
       return {
         statusCode: 200,
         body: JSON.stringify({
-          requested: 0,
-          successCount: 0,
-          failureCount: 0,
+          ok: true,
+          sent: 0,
+          failed: 0,
           message: 'No active tokens found'
         })
       };
     }
 
-    const tokens = tokenRecords.map(r => r.token);
+    const allTokens = tokenRecords.map(r => r.token);
+    const BATCH_SIZE = 500;
 
-    console.log(`[PUSH-FUNCTION] Sending to ${tokens.length} tokens`);
+    let totalSent = 0;
+    let totalFailed = 0;
+    const invalidTokens: string[] = [];
+
+    console.log(`[PUSH-FUNCTION] Sending to ${allTokens.length} tokens in batches of ${BATCH_SIZE}`);
 
     const message = {
       notification: {
@@ -113,34 +117,41 @@ export const handler: Handler = async (event) => {
       }
     };
 
-    const response = await admin.messaging().sendEachForMulticast({
-      tokens,
-      ...message
-    });
+    for (let i = 0; i < allTokens.length; i += BATCH_SIZE) {
+      const tokenBatch = allTokens.slice(i, i + BATCH_SIZE);
 
-    const invalidTokens: string[] = [];
-    response.responses.forEach((resp, idx) => {
-      if (!resp.success && resp.error) {
-        const errorCode = resp.error.code;
-        if (errorCode === 'messaging/invalid-registration-token' ||
-            errorCode === 'messaging/registration-token-not-registered') {
-          invalidTokens.push(tokens[idx]);
+      console.log(`[PUSH-FUNCTION] Processing batch ${Math.floor(i / BATCH_SIZE) + 1}: ${tokenBatch.length} tokens`);
+
+      const response = await admin.messaging().sendEachForMulticast({
+        tokens: tokenBatch,
+        ...message
+      });
+
+      totalSent += response.successCount;
+      totalFailed += response.failureCount;
+
+      response.responses.forEach((resp, idx) => {
+        if (!resp.success && resp.error) {
+          const errorCode = resp.error.code;
+          if (errorCode === 'messaging/invalid-registration-token' ||
+              errorCode === 'messaging/registration-token-not-registered') {
+            invalidTokens.push(tokenBatch[idx]);
+          }
         }
-      }
-    });
+      });
+    }
 
     if (invalidTokens.length > 0) {
       console.log(`[PUSH-FUNCTION] Removing ${invalidTokens.length} invalid tokens`);
-      await supabase
-        .from('push_tokens')
-        .delete()
-        .in('token', invalidTokens);
-    }
 
-    const errorsSample = response.responses
-      .filter(r => !r.success)
-      .slice(0, 5)
-      .map(r => r.error?.message);
+      for (let i = 0; i < invalidTokens.length; i += 100) {
+        const deleteChunk = invalidTokens.slice(i, i + 100);
+        await supabase
+          .from('push_tokens')
+          .delete()
+          .in('token', deleteChunk);
+      }
+    }
 
     return {
       statusCode: 200,
@@ -148,10 +159,9 @@ export const handler: Handler = async (event) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        requested: tokens.length,
-        successCount: response.successCount,
-        failureCount: response.failureCount,
-        errorsSample
+        ok: true,
+        sent: totalSent,
+        failed: totalFailed
       })
     };
   } catch (error: any) {

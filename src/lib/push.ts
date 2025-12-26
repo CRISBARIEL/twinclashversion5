@@ -71,12 +71,17 @@ export function getOrCreateClientId(): string {
 
 export async function upsertPushToken(token: string, clientId: string): Promise<boolean> {
   try {
+    const userAgent = navigator.userAgent || 'unknown';
+    const locale = navigator.language || 'unknown';
+
     const { error } = await supabase
       .from('push_tokens')
       .upsert({
         token,
         client_id: clientId,
         platform: 'web',
+        user_agent: userAgent,
+        locale: locale,
         last_seen: new Date().toISOString()
       }, {
         onConflict: 'token'
