@@ -1,5 +1,4 @@
 import { getMessaging, getToken } from 'firebase/messaging';
-import { supabase } from './supabase';
 
 export async function ensureNotificationPermission(): Promise<NotificationPermission> {
   if (!('Notification' in window)) {
@@ -71,31 +70,40 @@ export function getOrCreateClientId(): string {
 
 export async function upsertPushToken(token: string, clientId: string): Promise<boolean> {
   try {
-    const userAgent = navigator.userAgent || 'unknown';
     const locale = navigator.language || 'unknown';
 
-    const { error } = await supabase
-      .from('push_tokens')
-      .upsert({
+    console.log('[PUSH] Registering token via Netlify function...');
+
+    const response = await fetch('/.netlify/functions/register-push', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
         token,
         client_id: clientId,
         platform: 'web',
-        user_agent: userAgent,
-        locale: locale,
-        last_seen: new Date().toISOString()
-      }, {
-        onConflict: 'token'
-      });
+        locale
+      })
+    });
 
-    if (error) {
-      console.error('[PUSH] Error saving token to Supabase:', error);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+      console.error('[PUSH] Failed to register token:', response.status, errorData);
       return false;
     }
 
-    console.log('[PUSH] Saved token to Supabase');
-    return true;
+    const result = await response.json();
+
+    if (result.ok) {
+      console.log('[PUSH] Token registered successfully via backend');
+      return true;
+    } else {
+      console.error('[PUSH] Backend returned error:', result);
+      return false;
+    }
   } catch (error) {
-    console.error('[PUSH] Exception saving token:', error);
+    console.error('[PUSH] Exception registering token:', error);
     return false;
   }
 }

@@ -4,10 +4,29 @@ This guide explains how to configure and use push notifications with Firebase Cl
 
 ## Architecture Overview
 
-- **Frontend**: React app requests notification permission, obtains FCM token, and stores it in Supabase
-- **Database**: Supabase stores FCM tokens for anonymous users
-- **Backend**: Netlify Function sends push notifications to all registered users
+- **Frontend**: React app requests notification permission and obtains FCM token
+- **Registration**: Netlify Function (`register-push`) securely stores token in Supabase using SERVICE_ROLE_KEY
+- **Database**: Supabase stores FCM tokens (no direct writes from frontend)
+- **Backend**: Netlify Function (`send-push`) sends push notifications to all registered users
 - **Messaging**: Firebase Cloud Messaging (FCM) delivers notifications to browsers
+
+### Security Pattern: Backend-Only Token Storage
+
+**Critical**: The frontend NEVER writes directly to Supabase. All token registration goes through a Netlify Function with SERVICE_ROLE_KEY.
+
+**Token Registration Flow**:
+1. User clicks "Activar notificaciones"
+2. Browser requests permission and gets FCM token from Firebase
+3. Frontend calls `/.netlify/functions/register-push` (POST) with token
+4. Netlify function validates and saves to Supabase using SERVICE_ROLE_KEY
+5. No RLS INSERT policies needed - function has full database access
+
+**Benefits**:
+- ✅ No 401 Unauthorized errors
+- ✅ Anonymous users can register tokens
+- ✅ Centralized validation and logging
+- ✅ Easy to add rate limiting or spam protection
+- ✅ Simplified security (no complex RLS policies)
 
 ## Environment Variables
 
@@ -201,16 +220,99 @@ Note: Notifications require HTTPS (or localhost for testing)
 
 ### Tokens not saving to Supabase
 
-- Verify Supabase URL and anon key
-- Check RLS policies are configured correctly
-- Ensure `push_tokens` table exists
+- Check Network tab for `register-push` function call
+- If 500 error: Missing `SUPABASE_URL` or `SUPABASE_SERVICE_ROLE_KEY` in Netlify
+- If 400 error: Token validation failed (check token format)
+- Check Netlify function logs in Netlify dashboard
+
+## Testing Token Registration (DevTools)
+
+After enabling notifications, verify the registration flow works:
+
+### 1. Open Browser DevTools
+
+- Press F12 or right-click > Inspect
+- Go to **Network** tab
+- Filter by `register-push` or leave empty
+
+### 2. Click "Activar notificaciones"
+
+- Grant permission in browser prompt
+- Watch for request to `register-push` in Network tab
+
+### 3. Verify Request/Response
+
+**Expected Request**:
+```
+POST /.netlify/functions/register-push
+Content-Type: application/json
+
+{
+  "token": "eQbTK...",
+  "client_id": "123e4567-e89b-12d3-a456-426614174000",
+  "platform": "web",
+  "locale": "es-ES"
+}
+```
+
+**Expected Response (200 OK)**:
+```json
+{
+  "ok": true
+}
+```
+
+**If 500 Error**: Check Netlify function logs for missing environment variables
+**If 400 Error**: Token validation failed (token too short or invalid format)
+**If Network Error**: Function not deployed or Netlify issue
+
+### 4. Check Console Logs
+
+Look for these logs in order:
+```
+[PUSH] Token: eQbTK... (truncated)
+[PUSH] Registering token via Netlify function...
+[PUSH] Token registered successfully via backend
+[NotificationButton] Successfully registered for push notifications
+```
+
+### 5. Verify in Supabase Dashboard
+
+1. Go to your Supabase project dashboard
+2. Navigate to **Table Editor** > `push_tokens`
+3. You should see your token with:
+   - `token`: Your FCM token (long string)
+   - `client_id`: UUID from localStorage
+   - `platform`: "web"
+   - `user_agent`: Your browser info
+   - `locale`: Your language (e.g., "es-ES")
+   - `last_seen`: Current timestamp
+
+### Quick Test Command
+
+Test the registration endpoint directly (replace with your real token):
+
+```bash
+curl -X POST https://your-site.netlify.app/.netlify/functions/register-push \
+  -H "Content-Type: application/json" \
+  -d '{
+    "token": "eQbTKxPHrfE:APA91bE...",
+    "client_id": "test-client-123",
+    "platform": "web",
+    "locale": "es-ES"
+  }'
+```
+
+Expected response: `{"ok":true}`
 
 ## Files Modified/Created
 
-- `src/lib/push.ts` - Push notification utilities (FCM token management)
+- `src/lib/push.ts` - Push notification utilities (FCM token management, now calls Netlify function)
+- `src/components/NotificationButton.tsx` - User-facing notification activation button
 - `src/components/AdminPanel.tsx` - Integrated "Push" tab for sending notifications
 - `src/main.tsx` - Integration with app initialization
-- `netlify/functions/send-push.ts` - Netlify function for batch sending notifications
+- **`netlify/functions/register-push.ts`** - **NEW**: Register user tokens (no auth required, backend-only storage)
+- `netlify/functions/send-push.ts` - Netlify function for batch sending notifications (admin only)
 - `supabase/migrations/*_create_push_tokens_table.sql` - Database migrations
 - `README_PUSH.md` - This documentation
 
