@@ -158,7 +158,7 @@ export const handler: Handler = async (event) => {
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(
+      body: JSON.stringify({
         ok: true,
         sent: totalSent,
         failed: totalFailed
