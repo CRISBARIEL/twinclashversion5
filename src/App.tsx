@@ -10,7 +10,7 @@ import { LevelSelector } from './components/LevelSelector';
 import { AudioUploader } from './components/AudioUploader';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { AdminPush } from './components/AdminPush';
-import { NotificationButton } from './components/NotificationButton';
+import { NotificationBellButton } from './components/NotificationBellButton';
 import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 import { initializeFirebase } from './lib/firebase';
@@ -165,7 +165,7 @@ function App() {
 
   return (
     <LanguageContext.Provider value={languageState}>
-      <NotificationButton />
+      <NotificationBellButton isHomeScreen={screen === 'simple'} />
       {screen === 'simple' && (
         <SimpleInitialScreen
           onStartLevel1={() => {
