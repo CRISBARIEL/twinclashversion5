@@ -9,13 +9,14 @@ import { WorldMap } from './components/WorldMap';
 import { LevelSelector } from './components/LevelSelector';
 import { AudioUploader } from './components/AudioUploader';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
+import { AdminPush } from './components/AdminPush';
 import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 import { initializeFirebase } from './lib/firebase';
 import { AlertCircle } from 'lucide-react';
 import { LanguageContext, useLanguageState } from './hooks/useLanguage';
 
-type Screen = 'simple' | 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload' | 'privacy';
+type Screen = 'simple' | 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload' | 'privacy' | 'adminpush';
 
 function App() {
   const languageState = useLanguageState();
@@ -80,6 +81,9 @@ function App() {
 
     if (pathname === '/terms') {
       return 'privacy';
+    }
+    if (pathname === '/admin/push') {
+      return 'adminpush';
     }
     if (mode === 'duel') {
       return 'duel';
@@ -234,6 +238,9 @@ function App() {
       )}
       {screen === 'privacy' && (
         <PrivacyPolicy onBack={() => setScreen('simple')} />
+      )}
+      {screen === 'adminpush' && (
+        <AdminPush onBack={() => setScreen('simple')} />
       )}
     </LanguageContext.Provider>
   );
