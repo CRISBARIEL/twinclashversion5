@@ -6,7 +6,7 @@ firebase.initializeApp({
   authDomain: "twinclash-c6eac.firebaseapp.com",
   projectId: "twinclash-c6eac",
   storageBucket: "twinclash-c6eac.appspot.com",
-  messagingSenderId: "189939875668",
+  messagingSenderId: "809339875668",
   appId: "1:189939875668:web:6330e6e16d82051fb18c1"
 });
 
