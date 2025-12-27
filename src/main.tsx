@@ -5,6 +5,7 @@ import './index.css';
 import { addCoins } from './lib/progression';
 import { firebaseApp } from './lib/firebaseApp';
 import { initializePushNotifications } from './lib/push';
+import { iniciarNotificacionesPush } from './lib/pushDebug';
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
@@ -12,7 +13,7 @@ if ("serviceWorker" in navigator) {
       const reg = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
       console.log("[PUSH] SW registered:", reg.scope);
 
-      await initializePushNotifications(firebaseApp);
+      await iniciarNotificacionesPush();
     } catch (e) {
       console.error("[PUSH] SW register failed:", e);
     }
