@@ -13,7 +13,9 @@ if ("serviceWorker" in navigator) {
       const reg = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
       console.log("[PUSH] SW registered:", reg.scope);
 
-      await iniciarNotificacionesPush();
+      // ❌ DESACTIVADO: No pedir permisos automáticamente
+      // await iniciarNotificacionesPush();
+      console.log("[PUSH] Service worker listo. Use el botón de notificaciones para activar.");
     } catch (e) {
       console.error("[PUSH] SW register failed:", e);
     }
