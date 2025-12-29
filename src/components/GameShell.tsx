@@ -4,6 +4,7 @@ import { addCoins, setCurrentLevel } from '../lib/progression';
 import { getLevelConfig } from '../lib/levels';
 import { WorldUnlockModal } from './WorldUnlockModal';
 import { WorldIntroScreen } from './WorldIntroScreen';
+import { RewardAdModal } from './RewardAdModal';
 import { soundManager } from '../lib/sound';
 import { completeWorldLevel, getWorldIdForLevel, getLevelInWorld } from '../lib/worldProgress';
 
@@ -33,13 +34,21 @@ interface GameShellProps {
 
 export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameShellProps) => {
   const [level, setLevel] = useState(initialLevel);
+
+ // (si aún usas banners antiguos, puedes dejarlo; si no, también puedes borrarlo)
   const [nextLevel, setNextLevel] = useState<number | null>(null);
+
+  const [showRewardModal, setShowRewardModal] = useState(false);
+  const [pendingNextLevel, setPendingNextLevel] = useState<number | null>(null);
+  const rewardAmount = 2000;
+
   const [showBanner, setShowBanner] = useState(false);
   const [bannerType, setBannerType] = useState<BannerType>(null);
   const [worldUnlockEvent, setWorldUnlockEvent] = useState<WorldUnlockEvent | null>(null);
   const [showWorldIntro, setShowWorldIntro] = useState(false);
   const [introWorld, setIntroWorld] = useState(1);
   const [showCoinAnimation, setShowCoinAnimation] = useState(false);
+
 
   const completedRef = useRef(false);
   const lastWorldRef = useRef<number>(getLevelConfig(initialLevel)?.world || 1);
@@ -72,7 +81,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
       console.error('[GameShell] Error saving progress:', err);
     });
 
-    addCoins(config.unlockReward);
+    //addCoins(config.unlockReward);
 
     if (config.level === 5) {
       console.log('[GameShell] 🎉 END OF WORLD', config.world);
@@ -94,13 +103,15 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
         });
       }
     } else {
-      const nextLevelId = level + 1;
-      console.log('[GameShell] 🚀 ADVANCING TO LEVEL:', nextLevelId);
-      setCurrentLevel(nextLevelId);
-      setLevel(nextLevelId);
-      console.log('[GameShell] ✅ setLevel called with:', nextLevelId);
-    }
-  }, [level]);
+  const nextLevelId = level + 1;
+
+  // Guardamos el siguiente nivel pero NO avanzamos todavía
+  setPendingNextLevel(nextLevelId);
+
+  // Abrimos el modal para reclamar recompensa (con anuncio)
+  setShowRewardModal(true);
+}  
+}, [level]);
 
   useEffect(() => {
     console.log('[GameShell] ===== LEVEL_CHANGED to:', level, '=====');
@@ -154,11 +165,38 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
   const handleStartWorld = useCallback(() => {
     setShowWorldIntro(false);
   }, []);
+  const continueAfterReward = useCallback(() => {
+  setShowRewardModal(false);
+
+  if (pendingNextLevel == null) return;
+
+  addCoins(rewardAmount);
+  setCurrentLevel(pendingNextLevel);
+  setLevel(pendingNextLevel);
+  setPendingNextLevel(null);
+}, [pendingNextLevel, rewardAmount]);
+
+const continueWithoutReward = useCallback(() => {
+  setShowRewardModal(false);
+
+  if (pendingNextLevel == null) return;
+
+  setCurrentLevel(pendingNextLevel);
+  setLevel(pendingNextLevel);
+  setPendingNextLevel(null);
+}, [pendingNextLevel]);
 
   console.log('[GameShell] Render', { level, nextLevel, showBanner, bannerType, worldUnlockEvent });
 
   return (
     <>
+      <RewardAdModal
+  open={showRewardModal}
+  levelId={level}
+  reward={rewardAmount}
+  onClaimed={continueAfterReward}
+  onSkip={continueWithoutReward}
+/>
       {showWorldIntro ? (
         <WorldIntroScreen
           world={introWorld}
