@@ -86,21 +86,19 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
         )}
 
         {/* Ice particles - only during break animation */}
-               {/* TEST: Ice particles always visible when obstacle is ice */}
-{card.obstacle === 'ice' && (
-  <div className="absolute inset-0">
-    {[0, 1, 2, 3, 4].map((i) => (
-      <div
-        key={i}
-        className="ice-particle"
-        style={{
-          left: '50%',
-          top: '50%',
-          '--angle': `${i * 72}deg`,
-        } as React.CSSProperties}
-      />
-    ))}
-  </div>
+              {card.obstacle === 'ice' && (
+  <div
+    style={{
+      position: 'absolute',
+      left: '50%',
+      top: '50%',
+      width: 18,
+      height: 18,
+      background: 'red',
+      transform: 'translate(-50%, -50%)',
+      zIndex: 999999,
+    }}
+  />
 )}
       </div>
     );
@@ -113,7 +111,7 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
     const health = card.obstacleHealth ?? 0;
 
     return (
-      <div className="absolute inset-0 pointer-events-none z-[999]">
+    <div className="absolute inset-0 pointer-events-none z-[999]" style={{ transform: 'translateZ(2px)' }}>
         {/* Stone overlay - only visible when health > 0 */}
         {hasObstacle && card.obstacle === 'stone' && (
           <div className={`absolute inset-0 rounded-xl ${isShatteringRock ? 'rock-breaking' : ''}`}>
