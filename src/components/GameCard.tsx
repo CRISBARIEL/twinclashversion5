@@ -52,15 +52,14 @@ export const GameCard = ({
   const isEmoji = safeImage.length > 0 && !isImageUrl;
 
   return (
-    <div className="relative aspect-square cursor-pointer perspective-1000" onClick={handleClick}>
+    <div className="relative aspect-square cursor-pointer perspective-1000 z-0" onClick={handleClick}>
       <div
         className={`relative w-full h-full transition-transform duration-300 transform-style-3d ${
           card.isFlipped || card.isMatched ? 'rotate-y-180' : ''
         }`}
       >
-        {/* Cara trasera (sin voltear) */}
+        {/* Cara trasera */}
         <div className="absolute w-full h-full backface-hidden">
-          {/* ✅ CAMBIO: overflow-hidden -> overflow-visible */}
           <div
             className={`w-full h-full ${skin.cardBackColor} rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} relative overflow-visible ${
               showHint ? 'hint-pulse' : ''
@@ -68,14 +67,13 @@ export const GameCard = ({
           >
             <div className="text-4xl text-white font-bold">?</div>
           </div>
-
-          {/* Overlay de obstáculo encima de la carta */}
-          <ObstacleOverlay card={card} isBreaking={isBreaking} />
         </div>
 
-        {/* Cara delantera (volteada) */}
+        {/* Cara delantera */}
         <div className="absolute w-full h-full backface-hidden rotate-y-180">
-          <div className={`w-full h-full bg-white rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} overflow-hidden`}>
+          <div
+            className={`w-full h-full bg-white rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} overflow-hidden`}
+          >
             {safeImage === '' ? (
               <div className="w-full h-full bg-gray-300 flex items-center justify-center">
                 <div className="text-6xl text-gray-500 font-bold">?</div>
@@ -103,8 +101,12 @@ export const GameCard = ({
             )}
           </div>
         </div>
+
+        {/* ✅ Overlay fuera del 3D: SIEMPRE por encima */}
+        <ObstacleOverlay card={card} isBreaking={isBreaking} />
       </div>
     </div>
   );
 };
+
 
