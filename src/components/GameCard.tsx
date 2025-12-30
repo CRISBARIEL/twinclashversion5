@@ -3,7 +3,6 @@ import { getSkinById, getDefaultSkin, getEquippedTheme } from '../lib/skins';
 import { playSoundFlip } from '../utils/soundManager';
 import { useState, useEffect } from 'react';
 import { ObstacleOverlay } from './ObstacleOverlay';
-// removed custom photo feature
 
 interface GameCardProps {
   card: Card;
@@ -14,7 +13,14 @@ interface GameCardProps {
   isBreaking?: boolean;
 }
 
-export const GameCard = ({ card, image, onClick, disabled, showHint = false, isBreaking = false }: GameCardProps) => {
+export const GameCard = ({
+  card,
+  image,
+  onClick,
+  disabled,
+  showHint = false,
+  isBreaking = false,
+}: GameCardProps) => {
   const [skin, setSkin] = useState(getDefaultSkin());
 
   useEffect(() => {
@@ -41,39 +47,33 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
     }
   };
 
-  const hasObstacle = card.obstacle && (
-    (card.obstacleHealth ?? 0) > 0 ||
-    card.obstacle === 'fire' ||
-    card.obstacle === 'bomb' ||
-    card.obstacle === 'virus' ||
-    card.isInfected ||
-    card.isWildcard
-  );
-
   const safeImage = typeof image === 'string' && image ? image : '';
   const isImageUrl = safeImage.length > 0 && (safeImage.startsWith('/') || safeImage.startsWith('http'));
   const isEmoji = safeImage.length > 0 && !isImageUrl;
 
   return (
-    <div
-      className="relative aspect-square cursor-pointer perspective-1000"
-      onClick={handleClick}
-    >
+    <div className="relative aspect-square cursor-pointer perspective-1000" onClick={handleClick}>
       <div
         className={`relative w-full h-full transition-transform duration-300 transform-style-3d ${
           card.isFlipped || card.isMatched ? 'rotate-y-180' : ''
         }`}
       >
-        {/* Cara trasera de la carta (sin voltear) */}
+        {/* Cara trasera (sin voltear) */}
         <div className="absolute w-full h-full backface-hidden">
-          <div className={`w-full h-full ${skin.cardBackColor} rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} relative overflow-hidden ${showHint ? 'hint-pulse' : ''}`}>
+          {/* ✅ CAMBIO: overflow-hidden -> overflow-visible */}
+          <div
+            className={`w-full h-full ${skin.cardBackColor} rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} relative overflow-visible ${
+              showHint ? 'hint-pulse' : ''
+            }`}
+          >
             <div className="text-4xl text-white font-bold">?</div>
           </div>
 
-          {/* Overlay de obstáculo (hielo o piedra) renderizado encima de la carta */}
+          {/* Overlay de obstáculo encima de la carta */}
           <ObstacleOverlay card={card} isBreaking={isBreaking} />
         </div>
 
+        {/* Cara delantera (volteada) */}
         <div className="absolute w-full h-full backface-hidden rotate-y-180">
           <div className={`w-full h-full bg-white rounded-xl shadow-lg flex items-center justify-center border-4 ${skin.cardBorderColor} overflow-hidden`}>
             {safeImage === '' ? (
@@ -107,3 +107,4 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
     </div>
   );
 };
+
