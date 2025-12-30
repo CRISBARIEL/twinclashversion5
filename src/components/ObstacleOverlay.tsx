@@ -86,24 +86,23 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
         )}
 
         {/* Ice particles - only during break animation */}
-              {card.obstacle === 'ice' && (
-  <div
-    style={{
-      position: 'absolute',
-      left: '50%',
-      top: '50%',
-      width: 18,
-      height: 18,
-      background: 'red',
-      transform: 'translate(-50%, -50%)',
-      zIndex: 999999,
-    }}
-  />
+             {isShatteringIce && (
+  <div className="absolute inset-0">
+    {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+      <div
+        key={i}
+        className="ice-particle"
+        style={{
+          left: '50%',
+          top: '50%',
+          transform: `translate(-50%, -50%) rotate(${i * 45}deg) translateX(60px) scale(0.8)`,
+          opacity: 0,
+          animation: 'ice-pop 520ms ease-out forwards',
+        } as React.CSSProperties}
+      />
+    ))}
+  </div>
 )}
-      </div>
-    );
-  }
-
   /**
    * ROCK OVERLAY (Hand-drawn stone style)
    */
