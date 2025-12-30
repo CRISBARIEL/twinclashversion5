@@ -2,50 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =========================================================
+   GENERAL ANIMATIONS
+========================================================= */
+
 @keyframes scale-pulse {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 
 @keyframes fade-out {
-  0% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-  }
+  0% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 @keyframes bounce-once {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-30px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-30px); }
 }
 
-.animate-scale-pulse {
-  animation: scale-pulse 0.6s ease-out;
-}
-
-.animate-fade-out {
-  animation: fade-out 0.3s ease-out forwards;
-}
-
-.animate-bounce-once {
-  animation: bounce-once 0.5s ease-out;
-}
+.animate-scale-pulse { animation: scale-pulse 0.6s ease-out; }
+.animate-fade-out { animation: fade-out 0.3s ease-out forwards; }
+.animate-bounce-once { animation: bounce-once 0.5s ease-out; }
 
 .game-title {
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3))
@@ -53,29 +32,14 @@
           drop-shadow(0 0 30px rgba(76, 199, 255, 0.4));
 }
 
-.game-logo {
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
-}
+.game-logo { filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2)); }
 
-.perspective-1000 {
-  perspective: 1000px;
-}
+.perspective-1000 { perspective: 1000px; }
+.transform-style-3d { transform-style: preserve-3d; }
+.backface-hidden { backface-visibility: hidden; }
+.rotate-y-180 { transform: rotateY(180deg); }
 
-.transform-style-3d {
-  transform-style: preserve-3d;
-}
-
-.backface-hidden {
-  backface-visibility: hidden;
-}
-
-.rotate-y-180 {
-  transform: rotateY(180deg);
-}
-
-.hint-pulse {
-  animation: hint-pulse 1.5s ease-in-out infinite;
-}
+.hint-pulse { animation: hint-pulse 1.5s ease-in-out infinite; }
 
 @keyframes hint-pulse {
   0%, 100% {
@@ -92,88 +56,52 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.scrollbar-thin::-webkit-scrollbar {
-  width: 4px;
-}
-
-.scrollbar-thin::-webkit-scrollbar-track {
-  background: transparent;
-}
-
+.scrollbar-thin::-webkit-scrollbar { width: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
 .scrollbar-thin::-webkit-scrollbar-thumb {
   background: rgba(59, 130, 246, 0.5);
   border-radius: 4px;
 }
-
-.scrollbar-thin::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.8);
-}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: rgba(59, 130, 246, 0.8); }
 
 html, body {
   overscroll-behavior: none;
   -webkit-overflow-scrolling: touch;
 }
 
-* {
-  -webkit-tap-highlight-color: transparent;
-}
+* { -webkit-tap-highlight-color: transparent; }
 
-.obstacle-crack {
-  animation: crack-effect 0.5s ease-out;
-}
+/* =========================================================
+   OBSTACLE CRACK / BREAK (GENERIC)
+========================================================= */
+
+.obstacle-crack { animation: crack-effect 0.5s ease-out; }
 
 @keyframes crack-effect {
-  0%, 100% {
-    transform: scale(1);
-  }
-  25% {
-    transform: scale(1.05) rotate(2deg);
-  }
-  75% {
-    transform: scale(0.98) rotate(-2deg);
-  }
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.05) rotate(2deg); }
+  75% { transform: scale(0.98) rotate(-2deg); }
 }
 
-.obstacle-break {
-  animation: break-effect 0.6s ease-out forwards;
-}
+.obstacle-break { animation: break-effect 0.6s ease-out forwards; }
 
 @keyframes break-effect {
-  0% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.1) rotate(5deg);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.5) rotate(15deg);
-  }
+  0% { opacity: 1; transform: scale(1) rotate(0deg); }
+  50% { opacity: 0.8; transform: scale(1.1) rotate(5deg); }
+  100% { opacity: 0; transform: scale(0.5) rotate(15deg); }
 }
 
-/**
- * ICE BREAKING ANIMATION
- * Performance: Uses only transform and opacity (GPU-accelerated)
- * Duration: 500ms
- */
+/* =========================================================
+   ICE BREAKING ANIMATION
+   IMPORTANT FIX: removed cos()/sin() so it works in Chrome
+========================================================= */
 
 /* Main ice overlay break animation */
-.ice-breaking {
-  animation: ice-shatter 500ms ease-out forwards;
-}
+.ice-breaking { animation: ice-shatter 500ms ease-out forwards; }
 
 @keyframes ice-shatter {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.2);
-    filter: blur(4px);
-  }
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.2); filter: blur(4px); }
 }
 
 /* Ice particles (5 pieces flying outward) */
@@ -188,47 +116,32 @@ html, body {
   will-change: transform, opacity;
 }
 
+/* FIXED: rotate(var(--angle)) + translateX(distance) */
 @keyframes ice-particle-fly {
   0% {
     opacity: 1;
-    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0px) scale(1);
   }
   100% {
     opacity: 0;
-    transform:
-      translate(-50%, -50%)
-      translate(
-        calc(cos(var(--angle)) * 60px),
-        calc(sin(var(--angle)) * 60px)
-      )
-      rotate(calc(var(--angle) * 2))
-      scale(0.3);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(60px) scale(0.3);
   }
 }
 
-/**
- * ROCK BREAKING ANIMATION
- * Paper pieces flying outward
- * Duration: 600ms
- */
+/* =========================================================
+   ROCK BREAKING ANIMATION
+   IMPORTANT FIX: removed cos()/sin() so it works in Chrome
+========================================================= */
 
 /* Main rock overlay break animation */
-.rock-breaking {
-  animation: rock-shatter 600ms ease-out forwards;
-}
+.rock-breaking { animation: rock-shatter 600ms ease-out forwards; }
 
 @keyframes rock-shatter {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.15);
-  }
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.15); }
 }
 
-/* Rock particles (paper pieces) */
+/* Rock particles */
 .rock-particle {
   position: absolute;
   width: 10px;
@@ -240,51 +153,79 @@ html, body {
   will-change: transform, opacity;
 }
 
+/* FIXED: rotate(var(--angle)) + translateX(distance) */
 @keyframes rock-particle-fly {
   0% {
     opacity: 1;
-    transform: translate(-50%, -50%) rotate(0deg) scale(1);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0px) scale(1);
   }
   100% {
     opacity: 0;
-    transform:
-      translate(-50%, -50%)
-      translate(
-        calc(cos(var(--angle)) * 50px),
-        calc(sin(var(--angle)) * 50px)
-      )
-      rotate(calc(var(--angle) * 3))
-      scale(0.2);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(50px) scale(0.2);
   }
 }
 
-/* Coin falling animation */
-@keyframes coin-fall {
+/* =========================================================
+   OPTIONAL: "CANDY-STYLE" EXTRA PARTICLES (if you use ParticleBurst)
+   (Safe to keep even if you don't use it.)
+========================================================= */
+
+.candy-particle {
+  position: absolute;
+  border-radius: 3px;
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0px);
+  animation: candyBurst 550ms ease-out forwards;
+  animation-delay: var(--delay, 0ms);
+  will-change: transform, opacity;
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.25));
+}
+
+.candy-ice {
+  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(125,211,252,0.95));
+  border: 1px solid rgba(255,255,255,0.6);
+}
+.candy-stone {
+  background: linear-gradient(135deg, rgba(229,231,235,0.95), rgba(107,114,128,0.95));
+  border: 1px solid rgba(255,255,255,0.25);
+}
+.candy-iron {
+  background: linear-gradient(135deg, rgba(251,191,36,0.95), rgba(120,53,15,0.95));
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+@keyframes candyBurst {
   0% {
-    top: -20px;
-    opacity: 0;
-    transform: translateY(0) rotate(0deg) scale(0.5);
-  }
-  20% {
     opacity: 1;
-    transform: translateY(20px) rotate(180deg) scale(1);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(0px) translateY(0px) scale(1);
   }
-  80% {
-    opacity: 1;
-    transform: translateY(80px) rotate(520deg) scale(1);
+  70% {
+    opacity: 0.95;
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(var(--distance, 40px)) translateY(10px) scale(1);
   }
   100% {
-    top: 100%;
     opacity: 0;
-    transform: translateY(100px) rotate(720deg) scale(0.3);
+    transform: translate(-50%, -50%) rotate(var(--angle)) translateX(var(--distance, 40px)) translateY(26px) scale(0.25);
   }
 }
 
-.animate-coin-fall {
-  animation: coin-fall 1.2s ease-in forwards;
+/* =========================================================
+   COIN FALLING
+========================================================= */
+
+@keyframes coin-fall {
+  0% { top: -20px; opacity: 0; transform: translateY(0) rotate(0deg) scale(0.5); }
+  20% { opacity: 1; transform: translateY(20px) rotate(180deg) scale(1); }
+  80% { opacity: 1; transform: translateY(80px) rotate(520deg) scale(1); }
+  100% { top: 100%; opacity: 0; transform: translateY(100px) rotate(720deg) scale(0.3); }
 }
 
-/* Combo Power Animation - 6 streak achievement */
+.animate-coin-fall { animation: coin-fall 1.2s ease-in forwards; }
+
+/* =========================================================
+   COMBO POWER
+========================================================= */
+
 .combo-power-animation {
   animation: combo-power 0.6s ease-out;
   position: relative;
@@ -292,53 +233,32 @@ html, body {
 }
 
 @keyframes combo-power {
-  0% {
-    transform: scale(1);
-  }
-  30% {
-    transform: scale(1.08);
-    filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.6));
-  }
-  100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 0 rgba(59, 130, 246, 0));
-  }
+  0% { transform: scale(1); }
+  30% { transform: scale(1.08); filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.6)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(59, 130, 246, 0)); }
 }
 
-/* Fade In Animation */
+/* =========================================================
+   FADE IN / SCALE IN
+========================================================= */
+
 @keyframes fadeIn {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
+  0% { opacity: 0; }
+  100% { opacity: 1; }
 }
+.animate-fadeIn { animation: fadeIn 0.3s ease-out; }
 
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* Scale In Animation */
 @keyframes scaleIn {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
+.animate-scaleIn { animation: scaleIn 0.4s ease-out; }
 
-.animate-scaleIn {
-  animation: scaleIn 0.4s ease-out;
-}
+/* =========================================================
+   FIRE OBSTACLE
+========================================================= */
 
-/* FIRE OBSTACLE ANIMATION - Red glowing pulsing effect */
-.obstacle-fire {
-  animation: fire-glow 1s ease-in-out infinite;
-}
+.obstacle-fire { animation: fire-glow 1s ease-in-out infinite; }
 
 @keyframes fire-glow {
   0%, 100% {
@@ -367,37 +287,25 @@ html, body {
 }
 
 @keyframes fire-pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.15);
-  }
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
 }
 
-/* BOMB OBSTACLE ANIMATION - Countdown timer */
-.obstacle-bomb {
-  animation: bomb-shake 0.5s ease-in-out infinite;
-}
+/* =========================================================
+   BOMB OBSTACLE
+========================================================= */
+
+.obstacle-bomb { animation: bomb-shake 0.5s ease-in-out infinite; }
 
 @keyframes bomb-shake {
-  0%, 100% {
-    transform: translateX(0) rotate(0deg);
-  }
-  25% {
-    transform: translateX(-2px) rotate(-2deg);
-  }
-  75% {
-    transform: translateX(2px) rotate(2deg);
-  }
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-2px) rotate(-2deg); }
+  75% { transform: translateX(2px) rotate(2deg); }
 }
 
 .bomb-countdown-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
@@ -411,36 +319,21 @@ html, body {
 }
 
 @keyframes bomb-countdown-pulse {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.3);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.3); }
+  100% { transform: scale(1); opacity: 1; }
 }
 
-/* VIRUS OBSTACLE ANIMATION - Green spinning effect */
-.obstacle-virus {
-  animation: virus-spin 2s linear infinite;
-}
+/* =========================================================
+   VIRUS OBSTACLE
+========================================================= */
+
+.obstacle-virus { animation: virus-spin 2s linear infinite; }
 
 @keyframes virus-spin {
-  0% {
-    transform: rotate(0deg);
-    box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.8);
-  }
-  100% {
-    transform: rotate(360deg);
-    box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
-  }
+  0% { transform: rotate(0deg); box-shadow: 0 0 10px rgba(34, 197, 94, 0.6); }
+  50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.8); }
+  100% { transform: rotate(360deg); box-shadow: 0 0 10px rgba(34, 197, 94, 0.6); }
 }
 
 .virus-infected {
@@ -449,14 +342,8 @@ html, body {
 }
 
 @keyframes virus-infected-pulse {
-  0%, 100% {
-    box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
-    filter: brightness(1);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(34, 197, 94, 0.7);
-    filter: brightness(1.15);
-  }
+  0%, 100% { box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); filter: brightness(1); }
+  50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.7); filter: brightness(1.15); }
 }
 
 .virus-timer-overlay {
@@ -479,17 +366,17 @@ html, body {
 }
 
 @keyframes wildcard-glow {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(168, 85, 247, 0.6);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(168, 85, 247, 0.9);
-  }
+  0%, 100% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.6); }
+  50% { box-shadow: 0 0 30px rgba(168, 85, 247, 0.9); }
 }
 
-/* Frozen card by bomb */
+/* =========================================================
+   BOMB "FROZEN" CARD STATE
+========================================================= */
+
 .card-frozen {
   opacity: 0.5;
   pointer-events: none;
   filter: grayscale(0.8);
 }
+
