@@ -113,7 +113,7 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
     const health = card.obstacleHealth ?? 0;
 
     return (
-      <div className="absolute inset-0 pointer-events-none z-10">
+      <div className="absolute inset-0 pointer-events-none z-[999]">
         {/* Stone overlay - only visible when health > 0 */}
         {hasObstacle && card.obstacle === 'stone' && (
           <div className={`absolute inset-0 rounded-xl ${isShatteringRock ? 'rock-breaking' : ''}`}>
@@ -356,7 +356,7 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
     const health = card.obstacleHealth ?? 0;
 
     return (
-      <div className="absolute inset-0 pointer-events-none z-10">
+      <div className="absolute inset-0 pointer-events-none z-[999]">
         {/* Iron overlay - only visible when health > 0 */}
         {hasObstacle && card.obstacle === 'iron' && (
           <div className={`absolute inset-0 rounded-xl ${isShatteringIron ? 'rock-breaking' : ''}`}>
@@ -485,7 +485,7 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
 
   if (card.obstacle === 'fire') {
     return (
-      <div className="absolute inset-0 pointer-events-none z-10">
+     <div className="absolute inset-0 pointer-events-none z-[999]">
         <div className="absolute inset-0 rounded-xl obstacle-fire overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-red-400/90 via-orange-500/90 to-yellow-500/90 backdrop-blur-sm border-2 border-red-300 rounded-xl" />
           <div className="absolute inset-0 flex items-center justify-center">
@@ -498,7 +498,7 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
 
   if (card.obstacle === 'bomb') {
     return (
-      <div className="absolute inset-0 pointer-events-none z-10">
+      <div className="absolute inset-0 pointer-events-none z-[999]">
         <div className="absolute inset-0 rounded-xl obstacle-bomb overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-gray-800/90 via-gray-700/90 to-gray-900/90 backdrop-blur-sm border-2 border-gray-600 rounded-xl" />
           <div className="absolute inset-0 flex items-center justify-center">
@@ -511,7 +511,7 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
 
   if (card.obstacle === 'virus') {
     return (
-      <div className="absolute inset-0 pointer-events-none z-10">
+      <div className="absolute inset-0 pointer-events-none z-[999]">
         <div className="absolute inset-0 rounded-xl obstacle-virus overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-green-400/90 via-emerald-500/90 to-teal-500/90 backdrop-blur-sm border-2 border-green-300 rounded-xl" />
           <div className="absolute inset-0 flex items-center justify-center">
