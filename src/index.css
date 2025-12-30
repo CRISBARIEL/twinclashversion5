@@ -379,4 +379,9 @@ html, body {
   pointer-events: none;
   filter: grayscale(0.8);
 }
+.ice-particle, .rock-particle, .candy-particle {
+  transform-style: flat;
+  backface-visibility: hidden;
+}
+
 
