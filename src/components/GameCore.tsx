@@ -1023,79 +1023,104 @@ export const GameCore = ({
     const hasObstacles = cards.some(c => c.obstacle);
 
     if (hasObstacles) {
-      // DIFFICULT LEVELS: Only unlock obstacles, don't reveal cards
-      // Strategy: Unlock COMPLETE PAIRS and prioritize cards adjacent to locked cards
+      // DIFFICULT LEVELS: Unlock obstacles based on percentage of cards (not pairs)
+      // NEW STRATEGY: Find pairs where AT LEAST ONE card has obstacles, and unlock BOTH cards in those pairs
 
-      const cardsWithObstacles = unmatchedCards.filter(c => c.obstacle && (c.obstacleHealth ?? 0) > 0);
+      // Calculate how many cards to unlock (percentage of total unmatched cards)
+      const cardsToUnlockCount = Math.max(2, Math.floor(unmatchedCards.length * (percentage / 100)));
+      // Ensure it's an even number (pairs)
+      const pairsToUnlock = Math.floor(cardsToUnlockCount / 2);
 
-      // Group cards by image to find complete pairs
-      const pairsByImage = new Map<number, typeof cardsWithObstacles>();
-      cardsWithObstacles.forEach(card => {
-        if (!pairsByImage.has(card.imageIndex)) {
-          pairsByImage.set(card.imageIndex, []);
+      // Group all unmatched cards by image index
+      const allPairsByImage = new Map<number, Card[]>();
+      unmatchedCards.forEach(card => {
+        if (!allPairsByImage.has(card.imageIndex)) {
+          allPairsByImage.set(card.imageIndex, []);
         }
-        pairsByImage.get(card.imageIndex)!.push(card);
+        allPairsByImage.get(card.imageIndex)!.push(card);
       });
 
-      // Get only complete pairs (both cards have obstacles)
-      const completePairs = Array.from(pairsByImage.entries())
-        .filter(([, cards]) => cards.length === 2)
-        .map(([, cards]) => cards);
-
-      // Calculate how many pairs to unlock based on percentage
-      const pairsToUnlock = Math.max(1, Math.floor(completePairs.length * (percentage / 100)));
+      // Get pairs (both cards) and check if at least one has obstacles
+      const pairsWithObstacles = Array.from(allPairsByImage.values())
+        .filter(pair => pair.length === 2) // Ensure it's a complete pair
+        .filter(pair => pair.some(card => card.obstacle && (card.obstacleHealth ?? 0) > 0)); // At least one has obstacle
 
       // Helper: Check if a card is adjacent to locked cards (4-column grid)
-      const getAdjacentScore = (card: Card) => {
-        const index = cards.findIndex(c => c.id === card.id);
-        const row = Math.floor(index / 4);
-        const col = index % 4;
+      const getAdjacentScore = (pair: Card[]) => {
+        return pair.reduce((total, card) => {
+          const index = cards.findIndex(c => c.id === card.id);
+          if (index === -1) return total;
 
-        const adjacentPositions = [
-          index - 4,     // top
-          index + 4,     // bottom
-          col > 0 ? index - 1 : -1,     // left
-          col < 3 ? index + 1 : -1,     // right
-        ];
+          const row = Math.floor(index / 4);
+          const col = index % 4;
 
-        return adjacentPositions.filter(pos => {
-          if (pos < 0 || pos >= cards.length) return false;
-          const adjacentCard = cards[pos];
-          return adjacentCard && adjacentCard.obstacle && (adjacentCard.obstacleHealth ?? 0) > 0;
-        }).length;
+          const adjacentPositions = [
+            index - 4,     // top
+            index + 4,     // bottom
+            col > 0 ? index - 1 : -1,     // left
+            col < 3 ? index + 1 : -1,     // right
+          ];
+
+          const adjacentLockedCount = adjacentPositions.filter(pos => {
+            if (pos < 0 || pos >= cards.length) return false;
+            const adjacentCard = cards[pos];
+            return adjacentCard && adjacentCard.obstacle && (adjacentCard.obstacleHealth ?? 0) > 0;
+          }).length;
+
+          return total + adjacentLockedCount;
+        }, 0);
       };
 
-      // Sort pairs by adjacency score (prioritize pairs near other locked cards)
-      const sortedPairs = completePairs.sort((pairA, pairB) => {
-        const scoreA = pairA.reduce((sum, card) => sum + getAdjacentScore(card), 0);
-        const scoreB = pairB.reduce((sum, card) => sum + getAdjacentScore(card), 0);
+      // Sort pairs by: 1) priority to pairs with obstacles, 2) adjacency score
+      const sortedPairs = pairsWithObstacles.sort((pairA, pairB) => {
+        const scoreA = getAdjacentScore(pairA);
+        const scoreB = getAdjacentScore(pairB);
         return scoreB - scoreA; // Higher score first
       });
 
-      // Select pairs to unlock
+      // Select pairs to unlock (both cards in each pair)
       const selectedPairs = sortedPairs.slice(0, pairsToUnlock);
       const cardIdsToUnlock = selectedPairs.flat().map(c => c.id);
 
+      console.log(`[PowerUp ${percentage}%] Unlocking ${cardIdsToUnlock.length} cards in ${selectedPairs.length} pairs`);
+
       setCards(prev => prev.map(c => {
         if (cardIdsToUnlock.includes(c.id)) {
-          // Stone: reduce health by 1
-          if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 2) {
-            return { ...c, obstacleHealth: 1 };
-          }
-          // Stone with 1 health: remove obstacle completely (card stays face down)
-          else if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 1) {
-            return { ...c, obstacle: null, obstacleHealth: 0 };
-          }
-          // Iron: reduce health by 1
-          else if (c.obstacle === 'iron' && (c.obstacleHealth ?? 0) === 2) {
-            return { ...c, obstacleHealth: 1 };
-          }
-          // Iron with 1 health: remove obstacle completely (card stays face down)
-          else if (c.obstacle === 'iron' && (c.obstacleHealth ?? 0) === 1) {
-            return { ...c, obstacle: null, obstacleHealth: 0 };
-          }
           // Ice: remove obstacle completely (card stays face down)
-          else if (c.obstacle === 'ice') {
+          if (c.obstacle === 'ice' && (c.obstacleHealth ?? 0) > 0) {
+            console.log(`[PowerUp] Removing ice from card ${c.id}`);
+            return { ...c, obstacle: null, obstacleHealth: 0 };
+          }
+          // Stone with 2 health: reduce to 1 (20% unlock)
+          else if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 2) {
+            if (percentage === 20) {
+              console.log(`[PowerUp] Reducing stone health from 2 to 1 on card ${c.id}`);
+              return { ...c, obstacleHealth: 1 };
+            } else if (percentage === 40) {
+              // 40% removes stone completely
+              console.log(`[PowerUp] Removing stone from card ${c.id}`);
+              return { ...c, obstacle: null, obstacleHealth: 0 };
+            }
+          }
+          // Stone with 1 health: remove obstacle completely
+          else if (c.obstacle === 'stone' && (c.obstacleHealth ?? 0) === 1) {
+            console.log(`[PowerUp] Removing stone (health 1) from card ${c.id}`);
+            return { ...c, obstacle: null, obstacleHealth: 0 };
+          }
+          // Iron with 2 health: reduce to 1 (20% unlock) or remove (40% unlock)
+          else if (c.obstacle === 'iron' && (c.obstacleHealth ?? 0) === 2) {
+            if (percentage === 20) {
+              console.log(`[PowerUp] Reducing iron health from 2 to 1 on card ${c.id}`);
+              return { ...c, obstacleHealth: 1 };
+            } else if (percentage === 40) {
+              // 40% removes iron completely
+              console.log(`[PowerUp] Removing iron from card ${c.id}`);
+              return { ...c, obstacle: null, obstacleHealth: 0 };
+            }
+          }
+          // Iron with 1 health: remove obstacle completely
+          else if (c.obstacle === 'iron' && (c.obstacleHealth ?? 0) === 1) {
+            console.log(`[PowerUp] Removing iron (health 1) from card ${c.id}`);
             return { ...c, obstacle: null, obstacleHealth: 0 };
           }
         }
