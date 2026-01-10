@@ -370,17 +370,17 @@ export const THEMES: Record<string, Theme> = {
       pattern: '🥕'
     }
   },
-  wand: {
-    name: 'Varitas',
+  bottles: {
+    name: 'Botellas',
     images: [
-      '🪄', '✨', '⭐', '🌟', '💫',
-      '🔮', '🎩', '🐰', '🎪', '🎭',
-      '🪄', '⚡', '💥', '🌠', '🔆',
-      '🎆', '🎇', '✨'
+      '🍾', '🍷', '🍸', '🍹', '🍺',
+      '🍻', '🥂', '🥃', '🧃', '🧋',
+      '🥤', '🧉', '🍶', '🧪', '⚗️',
+      '🔵', '🟢', '🔴'
     ],
     background: {
-      gradient: 'from-violet-500 via-purple-600 to-fuchsia-700',
-      pattern: '🪄'
+      gradient: 'from-teal-500 via-cyan-600 to-blue-700',
+      pattern: '🍾'
     }
   },
   castle: {
@@ -448,17 +448,17 @@ export const THEMES: Record<string, Theme> = {
       pattern: '📍'
     }
   },
-  magic: {
-    name: 'Magia',
+  cups: {
+    name: 'Tazas',
     images: [
-      '🔮', '🪄', '✨', '⭐', '🌟',
-      '💫', '🌠', '🎆', '🎇', '💥',
-      '⚡', '🔆', '💎', '🔷', '🔶',
-      '🟣', '🟢', '🔵'
+      '☕', '🍵', '🥤', '🧃', '🧋',
+      '🫖', '🥛', '🍼', '🏆', '🥇',
+      '🥈', '🥉', '🎖️', '🏅', '⚱️',
+      '🔵', '🟢', '🔴'
     ],
     background: {
-      gradient: 'from-purple-600 via-violet-700 to-fuchsia-800',
-      pattern: '🔮'
+      gradient: 'from-amber-500 via-yellow-600 to-orange-700',
+      pattern: '☕'
     }
   },
   energy: {
@@ -578,17 +578,17 @@ export const THEMES: Record<string, Theme> = {
       pattern: '🤖'
     }
   },
-  aliens: {
-    name: 'Aliens',
+  astronauts: {
+    name: 'Astronautas',
     images: [
-      '👽', '🛸', '🌌', '🌠', '👾',
-      '🚀', '🛰️', '🪐', '⭐', '🌟',
-      '💫', '✨', '🌙', '☄️', '🔭',
-      '🌕', '🌑', '🌎'
+      '👨‍🚀', '👩‍🚀', '🚀', '🛰️', '🌌',
+      '🌠', '🪐', '⭐', '🌟', '💫',
+      '✨', '🌙', '☄️', '🔭', '🌕',
+      '🌑', '🌎', '🛸'
     ],
     background: {
-      gradient: 'from-purple-900 via-indigo-950 to-slate-950',
-      pattern: '👽'
+      gradient: 'from-indigo-900 via-blue-950 to-slate-950',
+      pattern: '👨‍🚀'
     }
   },
   castles: {
