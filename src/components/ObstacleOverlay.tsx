@@ -52,9 +52,9 @@ export const ObstacleOverlay = ({ card, isBreaking = false }: ObstacleOverlayPro
   }, [card.obstacle, card.obstacleHealth, previousHealth]);
 
   // For ice, stone, iron - check health
-  // For fire, bomb, virus - always show when obstacle is present
+  // For fire, bomb, virus - always show when obstacle is present or blocked
   const hasObstacle = card.obstacle &&
-    (card.obstacle === 'fire' || card.obstacle === 'bomb' || card.obstacle === 'virus' || (card.obstacleHealth ?? 0) > 0);
+    (card.obstacle === 'fire' || card.obstacle === 'bomb' || card.obstacle === 'virus' || (card.obstacleHealth ?? 0) > 0 || (card.blockedHealth ?? 0) > 0);
 
   // Keep rendering during break animation, then unmount
   if (!hasObstacle && !isShatteringIce && !isShatteringRock && !isShatteringIron) return null;

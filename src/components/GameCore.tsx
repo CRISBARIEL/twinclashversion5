@@ -357,6 +357,7 @@ export const GameCore = ({
           if (!occupiedIndices.has(idx) && canPlaceObstacle(idx, occupiedIndices, false)) {
             shuffled[idx].obstacle = 'fire';
             shuffled[idx].obstacleHealth = 0;
+            shuffled[idx].blockedHealth = 2;
             occupiedIndices.add(idx);
             placed++;
           }
@@ -370,6 +371,7 @@ export const GameCore = ({
           if (!occupiedIndices.has(idx) && canPlaceObstacle(idx, occupiedIndices, false)) {
             shuffled[idx].obstacle = 'bomb';
             shuffled[idx].obstacleHealth = 0;
+            shuffled[idx].blockedHealth = 2;
             occupiedIndices.add(idx);
             placed++;
           }
@@ -383,6 +385,7 @@ export const GameCore = ({
           if (!occupiedIndices.has(idx) && canPlaceObstacle(idx, occupiedIndices, false)) {
             shuffled[idx].obstacle = 'virus';
             shuffled[idx].obstacleHealth = 0;
+            shuffled[idx].blockedHealth = 1;
             occupiedIndices.add(idx);
             placed++;
           }
@@ -768,6 +771,10 @@ export const GameCore = ({
       return;
     }
 
+    if ((card.blockedHealth ?? 0) > 0) {
+      return;
+    }
+
     const newFlipped = [...flippedCards, id];
     setFlippedCards(newFlipped);
 
@@ -898,6 +905,14 @@ export const GameCore = ({
                 return { ...c, obstacle: null, obstacleHealth: 0 };
               }
               return { ...c, obstacleHealth: newHealth };
+            }
+
+            if (adjacentIndices.includes(idx) && (c.blockedHealth ?? 0) > 0) {
+              const newBlockedHealth = (c.blockedHealth ?? 0) - 1;
+              if (newBlockedHealth <= 0) {
+                return { ...c, blockedHealth: 0, obstacle: null, obstacleHealth: 0 };
+              }
+              return { ...c, blockedHealth: newBlockedHealth };
             }
 
             return c;

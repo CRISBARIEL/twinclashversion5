@@ -10,6 +10,7 @@ export interface Card {
   virusTimer?: number;
   isInfected?: boolean;
   isWildcard?: boolean;
+  blockedHealth?: number;
 }
 
 export interface GameState {

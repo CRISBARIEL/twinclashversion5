@@ -43,6 +43,7 @@ export const GameCard = ({ card, image, onClick, disabled, showHint = false, isB
 
   const hasObstacle = card.obstacle && (
     (card.obstacleHealth ?? 0) > 0 ||
+    (card.blockedHealth ?? 0) > 0 ||
     card.obstacle === 'fire' ||
     card.obstacle === 'bomb' ||
     card.obstacle === 'virus' ||
