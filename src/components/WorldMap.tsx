@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, Trophy as TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot, ChevronDown, ChevronUp, Star, Wand2, Castle, TreePine, Mountain, Snowflake, MapPin, Sparkle, Zap, Sun, Flower2, Wind, CloudSnow, Film, BookOpen, Shield, Bot, Rocket as AlienIcon, Flag, Coins as TreasureIcon, Flame } from 'lucide-react';
+import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, Trophy as TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot, ChevronDown, ChevronUp, Star, Wand2, Castle, TreePine, Mountain, Snowflake, MapPin, Sparkle, Zap, Sun, Flower2, Wind, CloudSnow, Film, BookOpen, Shield, Bot, Rocket as AlienIcon, Flag, Coins as TreasureIcon, Flame, Skull, Music2 } from 'lucide-react';
 import { canEnterWorld, isWorldCompleted, purchaseWorld, ensureWorld, WORLD_COSTS, canPlayLevel } from '../lib/worldProgress';
 import { getLocalCoins, getCurrentLevel } from '../lib/progression';
 import { soundManager } from '../lib/sound';
@@ -7,7 +7,7 @@ import { LEVELS, getGlobalLevelId } from '../lib/levels';
 import { LanguageSelector } from './LanguageSelector';
 import { useLanguage } from '../hooks/useLanguage';
 
-const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot, Wand2, Castle, TreePine, Mountain, Snowflake, MapPin, Sparkle, Zap, Skull, Music, Sun, Flower2, Wind, CloudSnow, Film, BookOpen, Shield, Bot, AlienIcon, Flag, TreasureIcon, Flame];
+const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot, Wand2, Castle, TreePine, Mountain, Snowflake, MapPin, Sparkle, Zap, Skull, Music2, Sun, Flower2, Wind, CloudSnow, Film, BookOpen, Shield, Bot, AlienIcon, Flag, TreasureIcon, Flame];
 const worldColors = [
   { from: 'from-emerald-500', to: 'to-green-700' },
   { from: 'from-yellow-500', to: 'to-orange-700' },
