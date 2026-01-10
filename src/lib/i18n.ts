@@ -95,6 +95,26 @@ export interface Translations {
     insects: string;
     fruits: string;
     vegetables: string;
+    mythology: string;
+    medieval: string;
+    jungle: string;
+    desert: string;
+    arctic: string;
+    urban: string;
+    fantasy: string;
+    scifi: string;
+    summer: string;
+    spring: string;
+    autumn: string;
+    winter: string;
+    cinema: string;
+    history: string;
+    superheroes: string;
+    robots: string;
+    aliens: string;
+    castles: string;
+    treasures: string;
+    volcano: string;
     worldLocked: string;
     unlockWorld: string;
     completeWorld: string;
@@ -255,6 +275,26 @@ export const translations: Record<Language, Translations> = {
       insects: 'Insectos',
       fruits: 'Frutas',
       vegetables: 'Verduras',
+      mythology: 'Mitología',
+      medieval: 'Medieval',
+      jungle: 'Jungla',
+      desert: 'Desierto',
+      arctic: 'Ártico',
+      urban: 'Urbano',
+      fantasy: 'Fantasía',
+      scifi: 'Ciencia Ficción',
+      summer: 'Verano',
+      spring: 'Primavera',
+      autumn: 'Otoño',
+      winter: 'Invierno',
+      cinema: 'Cine',
+      history: 'Historia',
+      superheroes: 'Superhéroes',
+      robots: 'Robots',
+      aliens: 'Extraterrestres',
+      castles: 'Castillos',
+      treasures: 'Tesoros',
+      volcano: 'Volcán',
       worldLocked: 'Mundo Bloqueado',
       unlockWorld: 'Desbloquear Mundo',
       completeWorld: 'Completa el mundo anterior',
@@ -413,6 +453,26 @@ export const translations: Record<Language, Translations> = {
       insects: 'Insects',
       fruits: 'Fruits',
       vegetables: 'Vegetables',
+      mythology: 'Mythology',
+      medieval: 'Medieval',
+      jungle: 'Jungle',
+      desert: 'Desert',
+      arctic: 'Arctic',
+      urban: 'Urban',
+      fantasy: 'Fantasy',
+      scifi: 'Sci-Fi',
+      summer: 'Summer',
+      spring: 'Spring',
+      autumn: 'Autumn',
+      winter: 'Winter',
+      cinema: 'Cinema',
+      history: 'History',
+      superheroes: 'Superheroes',
+      robots: 'Robots',
+      aliens: 'Aliens',
+      castles: 'Castles',
+      treasures: 'Treasures',
+      volcano: 'Volcano',
       worldLocked: 'World Locked',
       unlockWorld: 'Unlock World',
       completeWorld: 'Complete the previous world',
@@ -571,6 +631,26 @@ export const translations: Record<Language, Translations> = {
       insects: 'Insetos',
       fruits: 'Frutas',
       vegetables: 'Vegetais',
+      mythology: 'Mitologia',
+      medieval: 'Medieval',
+      jungle: 'Selva',
+      desert: 'Deserto',
+      arctic: 'Ártico',
+      urban: 'Urbano',
+      fantasy: 'Fantasia',
+      scifi: 'Ficção Científica',
+      summer: 'Verão',
+      spring: 'Primavera',
+      autumn: 'Outono',
+      winter: 'Inverno',
+      cinema: 'Cinema',
+      history: 'História',
+      superheroes: 'Super-heróis',
+      robots: 'Robôs',
+      aliens: 'Alienígenas',
+      castles: 'Castelos',
+      treasures: 'Tesouros',
+      volcano: 'Vulcão',
       worldLocked: 'Mundo Bloqueado',
       unlockWorld: 'Desbloquear Mundo',
       completeWorld: 'Complete o mundo anterior',

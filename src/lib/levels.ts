@@ -226,17 +226,17 @@ export const LEVELS: Record<number, LevelConfig> = {
   179: { world: 36, level: 4, pairs: 12, timeLimit: 60, theme: 'scifi', unlockReward: 230, obstacles: { virus: 4, fire: 2 }, difficulty: 'very_hard' },
   180: { world: 36, level: 5, pairs: 14, timeLimit: 45, theme: 'scifi', unlockReward: 3600, obstacles: { virus: 5, fire: 3, bomb: 1 }, difficulty: 'expert' },
 
-  181: { world: 37, level: 1, pairs: 6, timeLimit: 120, theme: 'halloween', unlockReward: 210, difficulty: 'very_easy' },
-  182: { world: 37, level: 2, pairs: 8, timeLimit: 100, theme: 'halloween', unlockReward: 220, obstacles: { virus: 2 }, difficulty: 'easy' },
-  183: { world: 37, level: 3, pairs: 10, timeLimit: 80, theme: 'halloween', unlockReward: 230, obstacles: { virus: 3, fire: 1 }, difficulty: 'hard' },
-  184: { world: 37, level: 4, pairs: 12, timeLimit: 60, theme: 'halloween', unlockReward: 240, obstacles: { virus: 4, fire: 2 }, difficulty: 'very_hard' },
-  185: { world: 37, level: 5, pairs: 14, timeLimit: 45, theme: 'halloween', unlockReward: 3700, obstacles: { virus: 5, fire: 3, bomb: 1 }, difficulty: 'expert' },
+  181: { world: 37, level: 1, pairs: 6, timeLimit: 120, theme: 'dinosaurs', unlockReward: 210, difficulty: 'very_easy' },
+  182: { world: 37, level: 2, pairs: 8, timeLimit: 100, theme: 'dinosaurs', unlockReward: 220, obstacles: { virus: 2 }, difficulty: 'easy' },
+  183: { world: 37, level: 3, pairs: 10, timeLimit: 80, theme: 'dinosaurs', unlockReward: 230, obstacles: { virus: 3, fire: 1 }, difficulty: 'hard' },
+  184: { world: 37, level: 4, pairs: 12, timeLimit: 60, theme: 'dinosaurs', unlockReward: 240, obstacles: { virus: 4, fire: 2 }, difficulty: 'very_hard' },
+  185: { world: 37, level: 5, pairs: 14, timeLimit: 45, theme: 'dinosaurs', unlockReward: 3700, obstacles: { virus: 5, fire: 3, bomb: 1 }, difficulty: 'expert' },
 
-  186: { world: 38, level: 1, pairs: 6, timeLimit: 120, theme: 'christmas', unlockReward: 220, difficulty: 'very_easy' },
-  187: { world: 38, level: 2, pairs: 8, timeLimit: 100, theme: 'christmas', unlockReward: 230, obstacles: { virus: 2 }, difficulty: 'easy' },
-  188: { world: 38, level: 3, pairs: 10, timeLimit: 80, theme: 'christmas', unlockReward: 240, obstacles: { virus: 3, fire: 1 }, difficulty: 'hard' },
-  189: { world: 38, level: 4, pairs: 12, timeLimit: 60, theme: 'christmas', unlockReward: 250, obstacles: { virus: 4, fire: 2 }, difficulty: 'very_hard' },
-  190: { world: 38, level: 5, pairs: 14, timeLimit: 45, theme: 'christmas', unlockReward: 3800, obstacles: { virus: 5, fire: 3, bomb: 1 }, difficulty: 'expert' },
+  186: { world: 38, level: 1, pairs: 6, timeLimit: 120, theme: 'music', unlockReward: 220, difficulty: 'very_easy' },
+  187: { world: 38, level: 2, pairs: 8, timeLimit: 100, theme: 'music', unlockReward: 230, obstacles: { virus: 2 }, difficulty: 'easy' },
+  188: { world: 38, level: 3, pairs: 10, timeLimit: 80, theme: 'music', unlockReward: 240, obstacles: { virus: 3, fire: 1 }, difficulty: 'hard' },
+  189: { world: 38, level: 4, pairs: 12, timeLimit: 60, theme: 'music', unlockReward: 250, obstacles: { virus: 4, fire: 2 }, difficulty: 'very_hard' },
+  190: { world: 38, level: 5, pairs: 14, timeLimit: 45, theme: 'music', unlockReward: 3800, obstacles: { virus: 5, fire: 3, bomb: 1 }, difficulty: 'expert' },
 
   191: { world: 39, level: 1, pairs: 6, timeLimit: 120, theme: 'summer', unlockReward: 230, difficulty: 'very_easy' },
   192: { world: 39, level: 2, pairs: 8, timeLimit: 100, theme: 'summer', unlockReward: 240, obstacles: { virus: 2 }, difficulty: 'easy' },
@@ -304,11 +304,11 @@ export const LEVELS: Record<number, LevelConfig> = {
   244: { world: 49, level: 4, pairs: 12, timeLimit: 60, theme: 'treasures', unlockReward: 360, obstacles: { virus: 4, fire: 2 }, difficulty: 'very_hard' },
   245: { world: 49, level: 5, pairs: 14, timeLimit: 45, theme: 'treasures', unlockReward: 4900, obstacles: { virus: 5, fire: 3, bomb: 1 }, difficulty: 'expert' },
 
-  246: { world: 50, level: 1, pairs: 6, timeLimit: 120, theme: 'magic', unlockReward: 340, difficulty: 'very_easy' },
-  247: { world: 50, level: 2, pairs: 8, timeLimit: 100, theme: 'magic', unlockReward: 350, obstacles: { virus: 2 }, difficulty: 'easy' },
-  248: { world: 50, level: 3, pairs: 10, timeLimit: 80, theme: 'magic', unlockReward: 360, obstacles: { virus: 3, fire: 1 }, difficulty: 'hard' },
-  249: { world: 50, level: 4, pairs: 12, timeLimit: 60, theme: 'magic', unlockReward: 370, obstacles: { virus: 4, fire: 2 }, difficulty: 'very_hard' },
-  250: { world: 50, level: 5, pairs: 14, timeLimit: 45, theme: 'magic', unlockReward: 5000, obstacles: { virus: 5, fire: 3, bomb: 1 }, difficulty: 'expert' },
+  246: { world: 50, level: 1, pairs: 6, timeLimit: 120, theme: 'volcano', unlockReward: 340, difficulty: 'very_easy' },
+  247: { world: 50, level: 2, pairs: 8, timeLimit: 100, theme: 'volcano', unlockReward: 350, obstacles: { virus: 2 }, difficulty: 'easy' },
+  248: { world: 50, level: 3, pairs: 10, timeLimit: 80, theme: 'volcano', unlockReward: 360, obstacles: { virus: 3, fire: 1 }, difficulty: 'hard' },
+  249: { world: 50, level: 4, pairs: 12, timeLimit: 60, theme: 'volcano', unlockReward: 370, obstacles: { virus: 4, fire: 2 }, difficulty: 'very_hard' },
+  250: { world: 50, level: 5, pairs: 14, timeLimit: 45, theme: 'volcano', unlockReward: 5000, obstacles: { virus: 5, fire: 3, bomb: 1 }, difficulty: 'expert' },
 };
 
 export function getLevelConfig(levelId: number): LevelConfig | undefined {

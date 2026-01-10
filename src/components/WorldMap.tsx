@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, Trophy as TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot, ChevronDown, ChevronUp, Star } from 'lucide-react';
+import { Lock, Trophy, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Coins, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, Trophy as TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot, ChevronDown, ChevronUp, Star, Wand2, Castle, TreePine, Mountain, Snowflake, MapPin, Sparkle, Zap, Sun, Flower2, Wind, CloudSnow, Film, BookOpen, Shield, Bot, Rocket as AlienIcon, Flag, Coins as TreasureIcon, Flame } from 'lucide-react';
 import { canEnterWorld, isWorldCompleted, purchaseWorld, ensureWorld, WORLD_COSTS, canPlayLevel } from '../lib/worldProgress';
 import { getLocalCoins, getCurrentLevel } from '../lib/progression';
 import { soundManager } from '../lib/sound';
@@ -7,7 +7,7 @@ import { LEVELS, getGlobalLevelId } from '../lib/levels';
 import { LanguageSelector } from './LanguageSelector';
 import { useLanguage } from '../hooks/useLanguage';
 
-const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot];
+const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot, Wand2, Castle, TreePine, Mountain, Snowflake, MapPin, Sparkle, Zap, Skull, Music, Sun, Flower2, Wind, CloudSnow, Film, BookOpen, Shield, Bot, AlienIcon, Flag, TreasureIcon, Flame];
 const worldColors = [
   { from: 'from-emerald-500', to: 'to-green-700' },
   { from: 'from-yellow-500', to: 'to-orange-700' },
@@ -37,6 +37,28 @@ const worldColors = [
   { from: 'from-lime-500', to: 'to-emerald-700' },
   { from: 'from-red-500', to: 'to-yellow-500' },
   { from: 'from-green-500', to: 'to-emerald-700' },
+  { from: 'from-violet-600', to: 'to-purple-800' },
+  { from: 'from-stone-500', to: 'to-gray-700' },
+  { from: 'from-green-600', to: 'to-teal-800' },
+  { from: 'from-amber-600', to: 'to-orange-800' },
+  { from: 'from-sky-500', to: 'to-blue-700' },
+  { from: 'from-zinc-500', to: 'to-slate-700' },
+  { from: 'from-fuchsia-600', to: 'to-purple-800' },
+  { from: 'from-blue-600', to: 'to-indigo-800' },
+  { from: 'from-green-700', to: 'to-emerald-900' },
+  { from: 'from-purple-500', to: 'to-violet-700' },
+  { from: 'from-yellow-600', to: 'to-orange-700' },
+  { from: 'from-pink-600', to: 'to-rose-800' },
+  { from: 'from-orange-600', to: 'to-red-800' },
+  { from: 'from-cyan-600', to: 'to-blue-800' },
+  { from: 'from-slate-700', to: 'to-gray-900' },
+  { from: 'from-indigo-600', to: 'to-blue-800' },
+  { from: 'from-red-600', to: 'to-rose-800' },
+  { from: 'from-teal-600', to: 'to-cyan-800' },
+  { from: 'from-violet-700', to: 'to-purple-900' },
+  { from: 'from-emerald-600', to: 'to-green-800' },
+  { from: 'from-amber-700', to: 'to-yellow-900' },
+  { from: 'from-orange-700', to: 'to-red-900' },
 ];
 
 interface WorldMapProps {
@@ -56,7 +78,13 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
     t.worlds.farm, t.worlds.art, t.worlds.transport, t.worlds.clothing,
     t.worlds.dinosaurs, t.worlds.sweets, t.worlds.tshirts, t.worlds.eyes,
     t.worlds.professions, t.worlds.emotions, t.worlds.pirates, t.worlds.jewels,
-    t.worlds.videogames, t.worlds.insects, t.worlds.fruits, t.worlds.vegetables
+    t.worlds.videogames, t.worlds.insects, t.worlds.fruits, t.worlds.vegetables,
+    t.worlds.mythology, t.worlds.medieval, t.worlds.jungle, t.worlds.desert,
+    t.worlds.arctic, t.worlds.urban, t.worlds.fantasy, t.worlds.scifi,
+    t.worlds.dinosaurs, t.worlds.music, t.worlds.summer, t.worlds.spring,
+    t.worlds.autumn, t.worlds.winter, t.worlds.cinema, t.worlds.history,
+    t.worlds.superheroes, t.worlds.robots, t.worlds.aliens, t.worlds.castles,
+    t.worlds.treasures, t.worlds.volcano
   ];
   const [worldAccess, setWorldAccess] = useState<Record<number, boolean>>({ 1: true });
   const [worldsComplete, setWorldsComplete] = useState<Record<number, boolean>>({});
@@ -78,7 +106,7 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
       const access: Record<number, boolean> = { 1: true };
       const complete: Record<number, boolean> = {};
 
-      for (let i = 1; i <= 28; i++) {
+      for (let i = 1; i <= 50; i++) {
         await ensureWorld(`world-${i}`, 5);
 
         if (i > 1) {
@@ -143,7 +171,7 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
 
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-white mb-2">{t.menu.worldMap}</h1>
-        <p className="text-white/90 text-lg mb-4">28 {t.menu.worldMap} · 140 {t.common.level}s</p>
+        <p className="text-white/90 text-lg mb-4">50 {t.menu.worldMap} · 250 {t.common.level}s</p>
 
         <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 max-w-md mx-auto border-2 border-white/30">
           <div className="flex items-center justify-center gap-3 mb-2">
@@ -161,7 +189,7 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
       </div>
 
       <div className="grid grid-cols-1 gap-4 max-w-md mx-auto">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28].map((worldId) => {
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50].map((worldId) => {
           const isUnlocked = worldAccess[worldId] ?? false;
           const Icon = worldIcons[worldId - 1];
           const colors = worldColors[worldId - 1];
