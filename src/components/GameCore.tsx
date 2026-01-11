@@ -1058,7 +1058,14 @@ export const GameCore = ({
       // Get pairs (both cards) and check if at least one has obstacles
       const pairsWithObstacles = Array.from(allPairsByImage.values())
         .filter(pair => pair.length === 2) // Ensure it's a complete pair
-        .filter(pair => pair.some(card => card.obstacle && (card.obstacleHealth ?? 0) > 0)); // At least one has obstacle
+        .filter(pair => pair.some(card => {
+          // Include all obstacle types: ice, stone, iron, virus, fire, bomb
+          if (!card.obstacle) return false;
+          // For obstacles without health, consider them active if they exist
+          if (card.obstacle === 'virus' || card.obstacle === 'fire' || card.obstacle === 'bomb') return true;
+          // For obstacles with health, check if health > 0
+          return (card.obstacleHealth ?? 0) > 0;
+        })); // At least one has obstacle
 
       // Helper: Check if a card is adjacent to locked cards (4-column grid)
       const getAdjacentScore = (pair: Card[]) => {
@@ -1079,7 +1086,10 @@ export const GameCore = ({
           const adjacentLockedCount = adjacentPositions.filter(pos => {
             if (pos < 0 || pos >= cards.length) return false;
             const adjacentCard = cards[pos];
-            return adjacentCard && adjacentCard.obstacle && (adjacentCard.obstacleHealth ?? 0) > 0;
+            if (!adjacentCard || !adjacentCard.obstacle) return false;
+            // Include all obstacle types
+            if (adjacentCard.obstacle === 'virus' || adjacentCard.obstacle === 'fire' || adjacentCard.obstacle === 'bomb') return true;
+            return (adjacentCard.obstacleHealth ?? 0) > 0;
           }).length;
 
           return total + adjacentLockedCount;
@@ -1137,6 +1147,21 @@ export const GameCore = ({
           else if (c.obstacle === 'iron' && (c.obstacleHealth ?? 0) === 1) {
             console.log(`[PowerUp] Removing iron (health 1) from card ${c.id}`);
             return { ...c, obstacle: null, obstacleHealth: 0 };
+          }
+          // Virus: Clear virus from card (no propagation during power-up)
+          else if (c.obstacle === 'virus') {
+            console.log(`[PowerUp] Removing virus from card ${c.id}`);
+            return { ...c, obstacle: null, obstacleHealth: 0, isInfected: false, isWildcard: false };
+          }
+          // Fire: Clear fire from card (no propagation during power-up)
+          else if (c.obstacle === 'fire') {
+            console.log(`[PowerUp] Removing fire from card ${c.id}`);
+            return { ...c, obstacle: null, obstacleHealth: 0 };
+          }
+          // Bomb: Clear bomb from card
+          else if (c.obstacle === 'bomb') {
+            console.log(`[PowerUp] Removing bomb from card ${c.id}`);
+            return { ...c, obstacle: null, obstacleHealth: 0, bombCountdown: undefined };
           }
         }
         return c;
