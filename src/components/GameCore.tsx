@@ -598,15 +598,24 @@ export const GameCore = ({
       return;
     }
 
-    // Iniciar timer global si hay virus y no está activo
-    startGlobalVirusTimer(cards, setCards, globalVirusTimer, setGlobalVirusTimer);
+    // Verificar cuántos virus hay
+    const virusCount = cards.filter(c => c.obstacle === 'virus' && !c.isMatched).length;
 
-    return () => {
+    if (virusCount > 0) {
+      // Hay virus - asegurar que el timer esté activo
+      if (!globalVirusTimer?.isActive) {
+        console.log('[GameCore] Iniciando timer global de virus. Virus count:', virusCount);
+        startGlobalVirusTimer(cards, setCards, globalVirusTimer, setGlobalVirusTimer);
+      }
+    } else if (virusCount === 0 && globalVirusTimer?.isActive) {
+      // No hay virus - detener el timer
+      console.log('[GameCore] No hay más virus, deteniendo timer');
       if (globalVirusTimer?.intervalId) {
         clearInterval(globalVirusTimer.intervalId);
       }
-    };
-  }, [enableProgressiveVirus, cards, isPreview, gameOver, isTimerPaused]);
+      setGlobalVirusTimer(null);
+    }
+  }, [enableProgressiveVirus, isPreview, gameOver, isTimerPaused, cards.filter(c => c.obstacle === 'virus' && !c.isMatched).length]);
 
   useEffect(() => {
     const totalPairs = levelConfig?.pairs || 6;

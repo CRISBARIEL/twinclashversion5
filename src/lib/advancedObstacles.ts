@@ -187,11 +187,17 @@ export const startGlobalVirusTimer = (
   globalVirusTimer: GlobalVirusTimerData | null,
   setGlobalVirusTimer: React.Dispatch<React.SetStateAction<GlobalVirusTimerData | null>>
 ) => {
+  console.log('[startGlobalVirusTimer] Llamada a función. GlobalTimer activo?', globalVirusTimer?.isActive);
+
   // Verificar si hay cartas con virus
   const hasVirus = cards.some(c => c.obstacle === 'virus' && !c.isMatched);
+  const virusCount = cards.filter(c => c.obstacle === 'virus' && !c.isMatched).length;
+
+  console.log('[startGlobalVirusTimer] Virus detectados:', virusCount);
 
   if (!hasVirus) {
     // No hay virus, limpiar timer si existe
+    console.log('[startGlobalVirusTimer] No hay virus, limpiando timer');
     if (globalVirusTimer?.intervalId) {
       clearInterval(globalVirusTimer.intervalId);
     }
@@ -201,21 +207,34 @@ export const startGlobalVirusTimer = (
 
   // Si ya hay un timer activo, no crear uno nuevo
   if (globalVirusTimer?.isActive) {
+    console.log('[startGlobalVirusTimer] Timer ya activo, no creando nuevo');
     return;
   }
 
+  console.log('[startGlobalVirusTimer] Creando nuevo timer global');
+
   // Crear nuevo timer global
   const intervalId = window.setInterval(() => {
+    console.log('[VirusTimer] Tick del timer');
     setGlobalVirusTimer(prev => {
-      if (!prev) return null;
+      if (!prev) {
+        console.log('[VirusTimer] Prev es null, deteniendo');
+        return null;
+      }
 
       const newTimeLeft = prev.timeLeft - 1;
+      console.log('[VirusTimer] Tiempo restante:', newTimeLeft);
 
       if (newTimeLeft <= 0) {
         // Timer llegó a 0, contagiar cartas adyacentes
-        setCards(currentCards => spreadVirus(currentCards));
+        console.log('[VirusTimer] ¡Tiempo agotado! Propagando virus...');
+        setCards(currentCards => {
+          console.log('[VirusTimer] Llamando a spreadVirus con', currentCards.length, 'cartas');
+          return spreadVirus(currentCards);
+        });
 
         // Reiniciar timer a 20 segundos
+        console.log('[VirusTimer] Reiniciando timer a 20s');
         return { ...prev, timeLeft: 20 };
       }
 
@@ -223,30 +242,37 @@ export const startGlobalVirusTimer = (
     });
   }, 1000);
 
+  console.log('[startGlobalVirusTimer] Timer creado con ID:', intervalId);
   setGlobalVirusTimer({ timeLeft: 20, intervalId, isActive: true });
 };
 
 // Función para propagar el virus a cartas adyacentes
 const spreadVirus = (cards: Card[]): Card[] => {
-  const gridSize = Math.ceil(Math.sqrt(cards.length));
+  console.log('[spreadVirus] Iniciando propagación. Total cartas:', cards.length);
 
   // Encontrar todas las cartas con virus que no están emparejadas
   const virusCards = cards
     .map((c, idx) => ({ card: c, idx }))
     .filter(({ card }) => card.obstacle === 'virus' && !card.isMatched);
 
-  if (virusCards.length === 0) return cards;
+  console.log('[spreadVirus] Virus encontrados:', virusCards.length);
+
+  if (virusCards.length === 0) {
+    console.log('[spreadVirus] No hay virus, retornando cartas sin cambios');
+    return cards;
+  }
 
   // Para cada virus, encontrar una carta adyacente para infectar
   const toInfect: number[] = [];
 
   virusCards.forEach(({ card, idx }) => {
     const adjacentIndices = getAdjacentIndices(card.id, cards);
+    console.log('[spreadVirus] Virus en índice', idx, 'tiene adyacentes:', adjacentIndices);
 
     // Filtrar cartas adyacentes válidas para infección
     const validTargets = adjacentIndices.filter(adjIdx => {
       const adjCard = cards[adjIdx];
-      return (
+      const isValid = (
         adjCard &&
         !adjCard.isMatched &&
         adjCard.obstacle !== 'virus' &&
@@ -254,18 +280,32 @@ const spreadVirus = (cards: Card[]): Card[] => {
         adjCard.obstacle !== 'bomb' &&
         !toInfect.includes(adjIdx)
       );
+      if (!isValid && adjCard) {
+        console.log('[spreadVirus] Carta en índice', adjIdx, 'no es válida:', {
+          isMatched: adjCard.isMatched,
+          obstacle: adjCard.obstacle,
+          alreadyInfected: toInfect.includes(adjIdx)
+        });
+      }
+      return isValid;
     });
+
+    console.log('[spreadVirus] Targets válidos para virus en', idx, ':', validTargets.length);
 
     // Infectar una carta aleatoria de las válidas
     if (validTargets.length > 0) {
       const randomTarget = validTargets[Math.floor(Math.random() * validTargets.length)];
+      console.log('[spreadVirus] Infectando carta en índice:', randomTarget);
       toInfect.push(randomTarget);
     }
   });
 
+  console.log('[spreadVirus] Total de cartas a infectar:', toInfect.length, '- índices:', toInfect);
+
   // Aplicar las infecciones
-  return cards.map((card, idx) => {
+  const result = cards.map((card, idx) => {
     if (toInfect.includes(idx)) {
+      console.log('[spreadVirus] Convirtiendo carta en índice', idx, 'a virus');
       return {
         ...card,
         obstacle: 'virus',
@@ -275,6 +315,9 @@ const spreadVirus = (cards: Card[]): Card[] => {
     }
     return card;
   });
+
+  console.log('[spreadVirus] Propagación completa');
+  return result;
 };
 
 // Eliminar virus cuando se hace match adyacente
