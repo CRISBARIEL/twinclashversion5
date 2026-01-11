@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { RotateCcw, Share2, Trophy, List, ArrowLeft } from 'lucide-react';
+import { RotateCcw, Share2, Trophy, List, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { GameCard } from './GameCard';
 import { Leaderboard } from './Leaderboard';
 import { PowerUpButtons } from './PowerUpButtons';
@@ -19,6 +19,7 @@ import { getLevelConfig } from '../lib/levels';
 import { getThemeImages, getThemeBackground } from '../lib/themes';
 import { soundManager } from '../lib/sound';
 import { useBackExitGuard } from '../hooks/useBackExitGuard';
+import { startGlobalVirusTimer, handleVirusMatch, GlobalVirusTimerData } from '../lib/advancedObstacles';
 
 interface GameCoreProps {
   level: number;
@@ -119,6 +120,8 @@ export const GameCore = ({
   const [lastAdjacentPairMatchedAtMs, setLastAdjacentPairMatchedAtMs] = useState(0);
   const [hazardMessage, setHazardMessage] = useState<string | null>(null);
   const hazardTickRef = useRef<number | null>(null);
+  const [globalVirusTimer, setGlobalVirusTimer] = useState<GlobalVirusTimerData | null>(null);
+  const [enableProgressiveVirus, setEnableProgressiveVirus] = useState(false);
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -223,6 +226,14 @@ export const GameCore = ({
     setEnableHazards(hazardsOn);
     setLastAdjacentPairMatchedAtMs(Date.now());
     setHazardMessage(null);
+
+    // Activar virus progresivo en mundo 40+, niveles very_hard y expert
+    const shouldEnableProgressiveVirus =
+      worldId >= 40 &&
+      (config?.difficulty === 'very_hard' || config?.difficulty === 'expert') &&
+      (config?.obstacles?.virus ?? 0) > 0;
+    setEnableProgressiveVirus(shouldEnableProgressiveVirus);
+    console.log('[GameCore] Progressive virus enabled:', shouldEnableProgressiveVirus, { worldId, difficulty: config?.difficulty, hasVirus: (config?.obstacles?.virus ?? 0) > 0 });
 
     const themeImages = getThemeImages(theme);
     const selectedImages = themeImages.slice(0, pairs);
@@ -576,6 +587,27 @@ export const GameCore = ({
     };
   }, [enableHazards, isPreview, gameOver, isTimerPaused, lastAdjacentPairMatchedAtMs, cards]);
 
+  // useEffect para virus progresivo (mundo 40+, very_hard y expert)
+  useEffect(() => {
+    if (!enableProgressiveVirus || isPreview || gameOver || isTimerPaused) {
+      // Limpiar timer si está activo
+      if (globalVirusTimer?.intervalId) {
+        clearInterval(globalVirusTimer.intervalId);
+        setGlobalVirusTimer(null);
+      }
+      return;
+    }
+
+    // Iniciar timer global si hay virus y no está activo
+    startGlobalVirusTimer(cards, setCards, globalVirusTimer, setGlobalVirusTimer);
+
+    return () => {
+      if (globalVirusTimer?.intervalId) {
+        clearInterval(globalVirusTimer.intervalId);
+      }
+    };
+  }, [enableProgressiveVirus, cards, isPreview, gameOver, isTimerPaused]);
+
   useEffect(() => {
     const totalPairs = levelConfig?.pairs || 6;
     if (matchedPairs === totalPairs && matchedPairs > 0 && !levelCompletedRef.current) {
@@ -918,6 +950,11 @@ export const GameCore = ({
             return c;
           })
         );
+
+        // Llamar a handleVirusMatch si el virus progresivo está activado
+        if (enableProgressiveVirus) {
+          handleVirusMatch([firstId, secondId], cards, setCards, globalVirusTimer, setGlobalVirusTimer);
+        }
 
         setMatchedPairs((prev) => prev + 1);
         setFlippedCards([]);
@@ -1319,6 +1356,24 @@ export const GameCore = ({
             )}
           </div>
         </div>
+        {enableProgressiveVirus && globalVirusTimer && !isPreview && (
+          <div className="mt-2 p-2 bg-gradient-to-r from-purple-100 to-red-100 rounded-lg border-2 border-purple-400">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className={`${globalVirusTimer.timeLeft <= 5 ? 'text-red-600 animate-pulse' : 'text-purple-600'}`} size={20} />
+                <span className="text-sm font-bold text-purple-800">
+                  Virus Progresivo
+                </span>
+              </div>
+              <div className={`text-lg font-black ${globalVirusTimer.timeLeft <= 5 ? 'text-red-600 animate-pulse' : 'text-purple-700'}`}>
+                🦠 {globalVirusTimer.timeLeft}s
+              </div>
+            </div>
+            <div className="mt-1 text-xs text-purple-700">
+              {globalVirusTimer.timeLeft <= 5 ? '⚠️ El virus se está propagando...' : 'Elimina los virus haciendo matches adyacentes'}
+            </div>
+          </div>
+        )}
         {isDailyChallenge && (
           <div className="flex gap-4 mb-3 text-sm font-semibold text-gray-700">
             <span>Tiempo: {timeElapsed}s</span>

@@ -12,6 +12,12 @@ export interface VirusTimerData {
   intervalId?: number;
 }
 
+export interface GlobalVirusTimerData {
+  timeLeft: number;
+  intervalId?: number;
+  isActive: boolean;
+}
+
 export const getAdjacentIndices = (cardId: number, cards: Card[]): number[] => {
   const idx = cards.findIndex(c => c.id === cardId);
   if (idx === -1) return [];
@@ -173,6 +179,156 @@ export const handleBombMismatch = (
   setTimeout(() => clearInterval(freezeInterval), 3000);
 };
 
+// Nueva implementación de virus progresivo con timer global
+// Se activa en mundo 40+, niveles very_hard y expert
+export const startGlobalVirusTimer = (
+  cards: Card[],
+  setCards: React.Dispatch<React.SetStateAction<Card[]>>,
+  globalVirusTimer: GlobalVirusTimerData | null,
+  setGlobalVirusTimer: React.Dispatch<React.SetStateAction<GlobalVirusTimerData | null>>
+) => {
+  // Verificar si hay cartas con virus
+  const hasVirus = cards.some(c => c.obstacle === 'virus' && !c.isMatched);
+
+  if (!hasVirus) {
+    // No hay virus, limpiar timer si existe
+    if (globalVirusTimer?.intervalId) {
+      clearInterval(globalVirusTimer.intervalId);
+    }
+    setGlobalVirusTimer(null);
+    return;
+  }
+
+  // Si ya hay un timer activo, no crear uno nuevo
+  if (globalVirusTimer?.isActive) {
+    return;
+  }
+
+  // Crear nuevo timer global
+  const intervalId = window.setInterval(() => {
+    setGlobalVirusTimer(prev => {
+      if (!prev) return null;
+
+      const newTimeLeft = prev.timeLeft - 1;
+
+      if (newTimeLeft <= 0) {
+        // Timer llegó a 0, contagiar cartas adyacentes
+        setCards(currentCards => spreadVirus(currentCards));
+
+        // Reiniciar timer a 20 segundos
+        return { ...prev, timeLeft: 20 };
+      }
+
+      return { ...prev, timeLeft: newTimeLeft };
+    });
+  }, 1000);
+
+  setGlobalVirusTimer({ timeLeft: 20, intervalId, isActive: true });
+};
+
+// Función para propagar el virus a cartas adyacentes
+const spreadVirus = (cards: Card[]): Card[] => {
+  const gridSize = Math.ceil(Math.sqrt(cards.length));
+
+  // Encontrar todas las cartas con virus que no están emparejadas
+  const virusCards = cards
+    .map((c, idx) => ({ card: c, idx }))
+    .filter(({ card }) => card.obstacle === 'virus' && !card.isMatched);
+
+  if (virusCards.length === 0) return cards;
+
+  // Para cada virus, encontrar una carta adyacente para infectar
+  const toInfect: number[] = [];
+
+  virusCards.forEach(({ card, idx }) => {
+    const adjacentIndices = getAdjacentIndices(card.id, cards);
+
+    // Filtrar cartas adyacentes válidas para infección
+    const validTargets = adjacentIndices.filter(adjIdx => {
+      const adjCard = cards[adjIdx];
+      return (
+        adjCard &&
+        !adjCard.isMatched &&
+        adjCard.obstacle !== 'virus' &&
+        adjCard.obstacle !== 'fire' &&
+        adjCard.obstacle !== 'bomb' &&
+        !toInfect.includes(adjIdx)
+      );
+    });
+
+    // Infectar una carta aleatoria de las válidas
+    if (validTargets.length > 0) {
+      const randomTarget = validTargets[Math.floor(Math.random() * validTargets.length)];
+      toInfect.push(randomTarget);
+    }
+  });
+
+  // Aplicar las infecciones
+  return cards.map((card, idx) => {
+    if (toInfect.includes(idx)) {
+      return {
+        ...card,
+        obstacle: 'virus',
+        blockedHealth: 1,
+        obstacleHealth: 0
+      };
+    }
+    return card;
+  });
+};
+
+// Eliminar virus cuando se hace match adyacente
+export const handleVirusMatch = (
+  cardIds: number[],
+  cards: Card[],
+  setCards: React.Dispatch<React.SetStateAction<Card[]>>,
+  globalVirusTimer: GlobalVirusTimerData | null,
+  setGlobalVirusTimer: React.Dispatch<React.SetStateAction<GlobalVirusTimerData | null>>
+) => {
+  // Para cada carta emparejada, eliminar virus en cartas adyacentes
+  cardIds.forEach(cardId => {
+    const adjacentIndices = getAdjacentIndices(cardId, cards);
+
+    adjacentIndices.forEach(idx => {
+      if (idx === -1) return;
+      const card = cards[idx];
+      if (!card || card.isMatched) return;
+
+      // Si la carta adyacente tiene virus, reducir su blockedHealth
+      if (card.obstacle === 'virus' && (card.blockedHealth ?? 0) > 0) {
+        setCards(prev => prev.map((c, i) => {
+          if (i !== idx) return c;
+
+          const newBlockedHealth = (c.blockedHealth ?? 0) - 1;
+
+          if (newBlockedHealth <= 0) {
+            // Virus eliminado
+            return { ...c, obstacle: null, blockedHealth: 0 };
+          }
+
+          return { ...c, blockedHealth: newBlockedHealth };
+        }));
+      }
+    });
+  });
+
+  // Verificar si todavía quedan virus
+  setTimeout(() => {
+    setCards(currentCards => {
+      const stillHasVirus = currentCards.some(c => c.obstacle === 'virus' && !c.isMatched);
+
+      if (!stillHasVirus && globalVirusTimer?.intervalId) {
+        // No quedan virus, detener timer
+        clearInterval(globalVirusTimer.intervalId);
+        setGlobalVirusTimer(null);
+      }
+
+      return currentCards;
+    });
+  }, 100);
+};
+
+// Funciones antiguas mantenidas por compatibilidad (pero no se usan)
 export const handleVirusMismatch = (
   cardId: number,
   cards: Card[],
@@ -180,76 +336,6 @@ export const handleVirusMismatch = (
   virusTimers: Map<number, VirusTimerData>,
   setVirusTimers: React.Dispatch<React.SetStateAction<Map<number, VirusTimerData>>>
 ) => {
-  const adjacentIndices = getAdjacentIndices(cardId, cards);
-
-  adjacentIndices.forEach(idx => {
-    const card = cards[idx];
-    if (!card || card.isMatched || virusTimers.has(card.id)) return;
-
-    const intervalId = window.setInterval(() => {
-      const timerData = virusTimers.get(card.id);
-      if (!timerData) return;
-
-      const newTimeLeft = timerData.timeLeft - 1;
-
-      if (newTimeLeft <= 0) {
-        clearInterval(intervalId);
-        virusTimers.delete(card.id);
-        setVirusTimers(new Map(virusTimers));
-
-        setCards(prev => prev.map(c =>
-          c.id === card.id ? { ...c, isWildcard: true, isInfected: false } : c
-        ));
-
-        const newAdjacents = getAdjacentIndices(card.id, cards);
-        newAdjacents.forEach(adjIdx => {
-          const adjCard = cards[adjIdx];
-          if (adjCard && !adjCard.isMatched && !virusTimers.has(adjCard.id)) {
-            handleVirusMismatch(adjCard.id, cards, setCards, virusTimers, setVirusTimers);
-          }
-        });
-      } else {
-        timerData.timeLeft = newTimeLeft;
-        setVirusTimers(new Map(virusTimers));
-      }
-    }, 1000);
-
-    virusTimers.set(card.id, { cardId: card.id, timeLeft: 8, intervalId });
-    setCards(prev => prev.map(c =>
-      c.id === card.id ? { ...c, isInfected: true } : c
-    ));
-  });
-
-  setVirusTimers(new Map(virusTimers));
-};
-
-export const handleVirusMatch = (
-  cardIds: number[],
-  cards: Card[],
-  virusTimers: Map<number, VirusTimerData>,
-  setVirusTimers: React.Dispatch<React.SetStateAction<Map<number, VirusTimerData>>>,
-  setCards: React.Dispatch<React.SetStateAction<Card[]>>
-) => {
-  cardIds.forEach(cardId => {
-    const adjacentIndices = getAdjacentIndices(cardId, cards);
-    const affectedIndices = [cards.findIndex(c => c.id === cardId), ...adjacentIndices];
-
-    affectedIndices.forEach(idx => {
-      if (idx === -1) return;
-      const card = cards[idx];
-      if (!card) return;
-
-      const timerData = virusTimers.get(card.id);
-      if (timerData?.intervalId) {
-        clearInterval(timerData.intervalId);
-      }
-      virusTimers.delete(card.id);
-
-      setCards(prev => prev.map(c =>
-        c.id === card.id ? { ...c, isInfected: false, isWildcard: false } : c
-      ));
-    });
-  });
-
-  setVirusTimers(new Map(virusTimers));
+  // Esta función ya no se usa, mantenida por compatibilidad
+  console.warn('[advancedObstacles] handleVirusMismatch is deprecated, use startGlobalVirusTimer instead');
 };
