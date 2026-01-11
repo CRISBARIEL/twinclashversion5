@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Sparkles, Waves, Pizza, Music, Sparkle, Cpu } from 'lucide-react';
+import { Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Sparkles, Waves, Pizza, Music, Sparkle, Cpu, Building2, Microscope, Tractor, Palette, Car, Shirt, Bone, Candy, Eye, Users, Smile, Skull, Gem, Bug, Apple, Carrot, Wine, Castle, Trees, Mountain, Snowflake, MapPin, Coffee, Zap, Film, Scroll, Shield, Bot, User, TrendingUp, Flame } from 'lucide-react';
 import { soundManager } from '../lib/sound';
 
 interface WorldIntroScreenProps {
@@ -87,6 +87,326 @@ const worldData = [
     description: 'El futuro digital es ahora',
     color: { from: 'from-cyan-500', to: 'to-blue-700', bg: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600' },
     features: ['10 parejas', '30-15 segundos', '660 monedas totales']
+  },
+  {
+    name: 'Ciudad',
+    icon: Building2,
+    emoji: '🏙️',
+    description: 'La vida urbana te espera',
+    color: { from: 'from-gray-500', to: 'to-slate-700', bg: 'bg-gradient-to-br from-gray-400 via-slate-500 to-zinc-600' },
+    features: ['10 parejas', '28-14 segundos', '740 monedas totales']
+  },
+  {
+    name: 'Ciencia',
+    icon: Microscope,
+    emoji: '🔬',
+    description: 'Descubre los secretos del universo',
+    color: { from: 'from-green-500', to: 'to-emerald-700', bg: 'bg-gradient-to-br from-green-400 via-emerald-500 to-teal-600' },
+    features: ['10 parejas', '26-13 segundos', '820 monedas totales']
+  },
+  {
+    name: 'Granja',
+    icon: Tractor,
+    emoji: '🚜',
+    description: 'La vida en el campo',
+    color: { from: 'from-amber-500', to: 'to-yellow-700', bg: 'bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-600' },
+    features: ['10 parejas', '24-12 segundos', '900 monedas totales']
+  },
+  {
+    name: 'Arte',
+    icon: Palette,
+    emoji: '🎨',
+    description: 'Expresa tu creatividad',
+    color: { from: 'from-violet-500', to: 'to-purple-700', bg: 'bg-gradient-to-br from-violet-400 via-purple-500 to-fuchsia-600' },
+    features: ['10 parejas', '22-11 segundos', '980 monedas totales']
+  },
+  {
+    name: 'Transporte',
+    icon: Car,
+    emoji: '🚗',
+    description: 'Muévete por el mundo',
+    color: { from: 'from-red-500', to: 'to-rose-700', bg: 'bg-gradient-to-br from-red-400 via-rose-500 to-pink-600' },
+    features: ['10 parejas', '20-10 segundos', '1060 monedas totales']
+  },
+  {
+    name: 'Ropa',
+    icon: Shirt,
+    emoji: '👕',
+    description: 'La moda está en tus manos',
+    color: { from: 'from-pink-500', to: 'to-rose-700', bg: 'bg-gradient-to-br from-pink-400 via-rose-500 to-red-600' },
+    features: ['10 parejas', '120-45 segundos', '1160 monedas totales']
+  },
+  {
+    name: 'Dinosaurios',
+    icon: Bone,
+    emoji: '🦕',
+    description: 'Viaja a la era prehistórica',
+    color: { from: 'from-lime-500', to: 'to-green-700', bg: 'bg-gradient-to-br from-lime-400 via-green-500 to-emerald-600' },
+    features: ['10 parejas', '100-40 segundos', '1260 monedas totales']
+  },
+  {
+    name: 'Dulces',
+    icon: Candy,
+    emoji: '🍬',
+    description: 'Un mundo de azúcar',
+    color: { from: 'from-fuchsia-500', to: 'to-pink-700', bg: 'bg-gradient-to-br from-fuchsia-400 via-pink-500 to-rose-600' },
+    features: ['10 parejas', '80-35 segundos', '1360 monedas totales']
+  },
+  {
+    name: 'Camisetas',
+    icon: Shirt,
+    emoji: '👕',
+    description: 'Estilo y diseño únicos',
+    color: { from: 'from-sky-500', to: 'to-blue-700', bg: 'bg-gradient-to-br from-sky-400 via-blue-500 to-cyan-600' },
+    features: ['10 parejas', '60-30 segundos', '1460 monedas totales']
+  },
+  {
+    name: 'Ojos',
+    icon: Eye,
+    emoji: '👁️',
+    description: 'Observa con atención',
+    color: { from: 'from-teal-500', to: 'to-cyan-700', bg: 'bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-600' },
+    features: ['10 parejas', '50-28 segundos', '1560 monedas totales']
+  },
+  {
+    name: 'Profesiones',
+    icon: Users,
+    emoji: '👨‍⚕️',
+    description: 'El mundo del trabajo',
+    color: { from: 'from-blue-500', to: 'to-indigo-700', bg: 'bg-gradient-to-br from-blue-400 via-indigo-500 to-purple-600' },
+    features: ['10 parejas', '45-26 segundos', '1660 monedas totales']
+  },
+  {
+    name: 'Emociones',
+    icon: Smile,
+    emoji: '😊',
+    description: 'Expresa tus sentimientos',
+    color: { from: 'from-yellow-500', to: 'to-amber-700', bg: 'bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-600' },
+    features: ['10 parejas', '40-24 segundos', '1760 monedas totales']
+  },
+  {
+    name: 'Piratas',
+    icon: Skull,
+    emoji: '🏴‍☠️',
+    description: 'Zarpa hacia la aventura',
+    color: { from: 'from-slate-500', to: 'to-gray-700', bg: 'bg-gradient-to-br from-slate-400 via-gray-500 to-zinc-600' },
+    features: ['10 parejas', '38-22 segundos', '1860 monedas totales']
+  },
+  {
+    name: 'Joyas',
+    icon: Gem,
+    emoji: '💎',
+    description: 'Tesoros brillantes',
+    color: { from: 'from-purple-500', to: 'to-pink-700', bg: 'bg-gradient-to-br from-purple-400 via-pink-500 to-fuchsia-600' },
+    features: ['10 parejas', '36-20 segundos', '1960 monedas totales']
+  },
+  {
+    name: 'Videojuegos',
+    icon: Gamepad2,
+    emoji: '🎮',
+    description: 'El nivel definitivo',
+    color: { from: 'from-indigo-500', to: 'to-blue-700', bg: 'bg-gradient-to-br from-indigo-400 via-blue-500 to-cyan-600' },
+    features: ['10 parejas', '34-18 segundos', '2060 monedas totales']
+  },
+  {
+    name: 'Insectos',
+    icon: Bug,
+    emoji: '🐛',
+    description: 'El mundo de los pequeños',
+    color: { from: 'from-green-500', to: 'to-lime-700', bg: 'bg-gradient-to-br from-green-400 via-lime-500 to-emerald-600' },
+    features: ['10 parejas', '32-16 segundos', '2160 monedas totales']
+  },
+  {
+    name: 'Frutas',
+    icon: Apple,
+    emoji: '🍎',
+    description: 'Sabores naturales',
+    color: { from: 'from-red-500', to: 'to-orange-700', bg: 'bg-gradient-to-br from-red-400 via-orange-500 to-yellow-600' },
+    features: ['10 parejas', '30-15 segundos', '2260 monedas totales']
+  },
+  {
+    name: 'Verduras',
+    icon: Carrot,
+    emoji: '🥕',
+    description: 'Nutrición y salud',
+    color: { from: 'from-orange-500', to: 'to-green-700', bg: 'bg-gradient-to-br from-orange-400 via-green-500 to-lime-600' },
+    features: ['10 parejas', '28-14 segundos', '2360 monedas totales']
+  },
+  {
+    name: 'Botellas',
+    icon: Wine,
+    emoji: '🍾',
+    description: 'Colección especial',
+    color: { from: 'from-rose-500', to: 'to-red-700', bg: 'bg-gradient-to-br from-rose-400 via-red-500 to-pink-600' },
+    features: ['10 parejas', '26-13 segundos', '2460 monedas totales']
+  },
+  {
+    name: 'Castillo',
+    icon: Castle,
+    emoji: '🏰',
+    description: 'Fortalezas medievales',
+    color: { from: 'from-stone-500', to: 'to-gray-700', bg: 'bg-gradient-to-br from-stone-400 via-gray-500 to-slate-600' },
+    features: ['10 parejas', '24-12 segundos', '2560 monedas totales']
+  },
+  {
+    name: 'Bosque',
+    icon: Trees,
+    emoji: '🌲',
+    description: 'La naturaleza salvaje',
+    color: { from: 'from-emerald-500', to: 'to-green-700', bg: 'bg-gradient-to-br from-emerald-400 via-green-500 to-lime-600' },
+    features: ['10 parejas', '22-11 segundos', '2660 monedas totales']
+  },
+  {
+    name: 'Montañas',
+    icon: Mountain,
+    emoji: '⛰️',
+    description: 'Conquista las cumbres',
+    color: { from: 'from-gray-500', to: 'to-blue-700', bg: 'bg-gradient-to-br from-gray-400 via-blue-500 to-cyan-600' },
+    features: ['10 parejas', '20-10 segundos', '2760 monedas totales']
+  },
+  {
+    name: 'Nieve',
+    icon: Snowflake,
+    emoji: '❄️',
+    description: 'El frío invernal',
+    color: { from: 'from-cyan-500', to: 'to-blue-700', bg: 'bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600' },
+    features: ['10 parejas', '120-45 segundos', '2860 monedas totales']
+  },
+  {
+    name: 'Lugares',
+    icon: MapPin,
+    emoji: '🗺️',
+    description: 'Viaja por el mundo',
+    color: { from: 'from-amber-500', to: 'to-orange-700', bg: 'bg-gradient-to-br from-amber-400 via-orange-500 to-red-600' },
+    features: ['10 parejas', '100-40 segundos', '2960 monedas totales']
+  },
+  {
+    name: 'Tazas',
+    icon: Coffee,
+    emoji: '☕',
+    description: 'La hora del café',
+    color: { from: 'from-brown-500', to: 'to-amber-700', bg: 'bg-gradient-to-br from-amber-600 via-orange-700 to-red-800' },
+    features: ['10 parejas', '80-35 segundos', '3060 monedas totales']
+  },
+  {
+    name: 'Energía',
+    icon: Zap,
+    emoji: '⚡',
+    description: 'Poder eléctrico',
+    color: { from: 'from-yellow-500', to: 'to-orange-700', bg: 'bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600' },
+    features: ['10 parejas', '60-30 segundos', '3160 monedas totales']
+  },
+  {
+    name: 'Dinosaurios',
+    icon: Bone,
+    emoji: '🦖',
+    description: 'Criaturas prehistóricas',
+    color: { from: 'from-lime-500', to: 'to-green-700', bg: 'bg-gradient-to-br from-lime-400 via-green-500 to-emerald-600' },
+    features: ['10 parejas', '50-28 segundos', '3260 monedas totales']
+  },
+  {
+    name: 'Música',
+    icon: Music,
+    emoji: '🎶',
+    description: 'Melodías inolvidables',
+    color: { from: 'from-pink-500', to: 'to-purple-700', bg: 'bg-gradient-to-br from-pink-400 via-purple-500 to-indigo-600' },
+    features: ['10 parejas', '45-26 segundos', '3360 monedas totales']
+  },
+  {
+    name: 'Verano',
+    icon: Flame,
+    emoji: '☀️',
+    description: 'El calor del verano',
+    color: { from: 'from-yellow-500', to: 'to-orange-700', bg: 'bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600' },
+    features: ['10 parejas', '40-24 segundos', '3460 monedas totales']
+  },
+  {
+    name: 'Primavera',
+    icon: Sparkles,
+    emoji: '🌸',
+    description: 'Flores y colores',
+    color: { from: 'from-pink-500', to: 'to-rose-700', bg: 'bg-gradient-to-br from-pink-400 via-rose-500 to-fuchsia-600' },
+    features: ['10 parejas', '38-22 segundos', '3560 monedas totales']
+  },
+  {
+    name: 'Otoño',
+    icon: Leaf,
+    emoji: '🍂',
+    description: 'La caída de las hojas',
+    color: { from: 'from-orange-500', to: 'to-red-700', bg: 'bg-gradient-to-br from-orange-400 via-red-500 to-amber-600' },
+    features: ['10 parejas', '36-20 segundos', '3660 monedas totales']
+  },
+  {
+    name: 'Invierno',
+    icon: Snowflake,
+    emoji: '⛄',
+    description: 'La estación helada',
+    color: { from: 'from-blue-500', to: 'to-cyan-700', bg: 'bg-gradient-to-br from-blue-400 via-cyan-500 to-teal-600' },
+    features: ['10 parejas', '34-18 segundos', '3760 monedas totales']
+  },
+  {
+    name: 'Cine',
+    icon: Film,
+    emoji: '🎬',
+    description: 'La magia del séptimo arte',
+    color: { from: 'from-gray-500', to: 'to-slate-700', bg: 'bg-gradient-to-br from-gray-400 via-slate-500 to-zinc-600' },
+    features: ['10 parejas', '32-16 segundos', '3860 monedas totales']
+  },
+  {
+    name: 'Historia',
+    icon: Scroll,
+    emoji: '📜',
+    description: 'Viaja en el tiempo',
+    color: { from: 'from-amber-500', to: 'to-yellow-700', bg: 'bg-gradient-to-br from-amber-400 via-yellow-500 to-orange-600' },
+    features: ['10 parejas', '30-15 segundos', '3960 monedas totales']
+  },
+  {
+    name: 'Superhéroes',
+    icon: Shield,
+    emoji: '🦸',
+    description: 'Poderes extraordinarios',
+    color: { from: 'from-red-500', to: 'to-blue-700', bg: 'bg-gradient-to-br from-red-400 via-blue-500 to-purple-600' },
+    features: ['10 parejas', '28-14 segundos', '4060 monedas totales']
+  },
+  {
+    name: 'Robots',
+    icon: Bot,
+    emoji: '🤖',
+    description: 'La era de las máquinas',
+    color: { from: 'from-slate-500', to: 'to-gray-700', bg: 'bg-gradient-to-br from-slate-400 via-gray-500 to-zinc-600' },
+    features: ['10 parejas', '26-13 segundos', '4160 monedas totales']
+  },
+  {
+    name: 'Astronautas',
+    icon: User,
+    emoji: '👨‍🚀',
+    description: 'Exploradores del espacio',
+    color: { from: 'from-indigo-500', to: 'to-purple-700', bg: 'bg-gradient-to-br from-indigo-400 via-purple-500 to-pink-600' },
+    features: ['10 parejas', '24-12 segundos', '4260 monedas totales']
+  },
+  {
+    name: 'Castillos',
+    icon: Castle,
+    emoji: '🏰',
+    description: 'Fortalezas legendarias',
+    color: { from: 'from-stone-500', to: 'to-gray-700', bg: 'bg-gradient-to-br from-stone-400 via-gray-500 to-slate-600' },
+    features: ['10 parejas', '22-11 segundos', '4360 monedas totales']
+  },
+  {
+    name: 'Tesoros',
+    icon: TrendingUp,
+    emoji: '💰',
+    description: 'Riquezas ocultas',
+    color: { from: 'from-yellow-500', to: 'to-orange-700', bg: 'bg-gradient-to-br from-yellow-400 via-orange-500 to-amber-600' },
+    features: ['10 parejas', '20-10 segundos', '4460 monedas totales']
+  },
+  {
+    name: 'Volcán',
+    icon: Flame,
+    emoji: '🌋',
+    description: 'El desafío final',
+    color: { from: 'from-red-500', to: 'to-orange-700', bg: 'bg-gradient-to-br from-red-600 via-orange-600 to-yellow-500' },
+    features: ['10 parejas', '18-9 segundos', '4560 monedas totales']
   }
 ];
 
