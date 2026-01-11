@@ -1151,17 +1151,17 @@ export const GameCore = ({
           // Virus: Clear virus from card (no propagation during power-up)
           else if (c.obstacle === 'virus') {
             console.log(`[PowerUp] Removing virus from card ${c.id}`);
-            return { ...c, obstacle: null, obstacleHealth: 0, isInfected: false, isWildcard: false };
+            return { ...c, obstacle: null, obstacleHealth: 0, blockedHealth: 0, isInfected: false, isWildcard: false };
           }
           // Fire: Clear fire from card (no propagation during power-up)
           else if (c.obstacle === 'fire') {
             console.log(`[PowerUp] Removing fire from card ${c.id}`);
-            return { ...c, obstacle: null, obstacleHealth: 0 };
+            return { ...c, obstacle: null, obstacleHealth: 0, blockedHealth: 0 };
           }
           // Bomb: Clear bomb from card
           else if (c.obstacle === 'bomb') {
             console.log(`[PowerUp] Removing bomb from card ${c.id}`);
-            return { ...c, obstacle: null, obstacleHealth: 0, bombCountdown: undefined };
+            return { ...c, obstacle: null, obstacleHealth: 0, blockedHealth: 0, bombCountdown: undefined };
           }
         }
         return c;
@@ -1378,9 +1378,9 @@ export const GameCore = ({
         )}
       </div>
 
-      <div className="flex-1 flex items-center justify-center overflow-hidden px-4">
+      <div className="flex-1 flex items-center justify-center overflow-hidden px-4 pb-8">
         <div className="w-full max-w-lg">
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-4 gap-3 relative z-10">
             {cards.map((card) => (
               <div
                 key={card.id}
