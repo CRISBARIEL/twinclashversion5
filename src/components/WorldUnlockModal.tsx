@@ -37,8 +37,20 @@ export function WorldUnlockModal({
     return () => intervals.forEach(clearTimeout);
   }, []);
 
-  const worldNames = ['', 'Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio', 'Océano', 'Comida', 'Música', 'Belleza', 'Tecnología', 'Ciudad', 'Ciencia', 'Granja', 'Arte', 'Transporte'];
-  const worldEmojis = ['', '🌿', '⚽', '🎮', '🐾', '🚀', '🌊', '🍕', '🎵', '💄', '💻', '🏙️', '🔬', '🚜', '🎨', '🚗'];
+  const worldNames = [
+    '', 'Naturaleza', 'Deportes', 'Juegos', 'Animales', 'Espacio', 'Océano', 'Comida', 'Música', 'Belleza', 'Tecnología',
+    'Ciudad', 'Ciencia', 'Granja', 'Arte', 'Transporte', 'Ropa', 'Dinosaurios', 'Dulces', 'Camisetas', 'Ojos',
+    'Profesiones', 'Emociones', 'Piratas', 'Joyas', 'Videojuegos', 'Insectos', 'Frutas', 'Verduras', 'Botellas', 'Castillo',
+    'Bosque', 'Montañas', 'Nieve', 'Lugares', 'Tazas', 'Energía', 'Dinosaurios', 'Música', 'Verano', 'Primavera',
+    'Otoño', 'Invierno', 'Cine', 'Historia', 'Superhéroes', 'Robots', 'Astronautas', 'Castillos', 'Tesoros', 'Volcán'
+  ];
+  const worldEmojis = [
+    '', '🌿', '⚽', '🎮', '🐾', '🚀', '🌊', '🍕', '🎵', '💄', '💻',
+    '🏙️', '🔬', '🚜', '🎨', '🚗', '👕', '🦕', '🍬', '👕', '👁️',
+    '👨‍⚕️', '😊', '🏴‍☠️', '💎', '🎮', '🐛', '🍎', '🥕', '🍾', '🏰',
+    '🌲', '⛰️', '❄️', '🗺️', '☕', '⚡', '🦖', '🎶', '☀️', '🌸',
+    '🍂', '⛄', '🎬', '📜', '🦸', '🤖', '👨‍🚀', '🏰', '💰', '🌋'
+  ];
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
@@ -127,11 +139,11 @@ export function WorldUnlockModal({
           {isGameComplete ? '¡Vamos!' : `Explorar Mundo ${unlockedWorld}`}
         </button>
 
-        <div className="mt-4 flex justify-center gap-2 flex-wrap">
-          {[...Array(15)].map((_, i) => (
+        <div className="mt-4 flex justify-center gap-1 flex-wrap max-w-md mx-auto">
+          {[...Array(50)].map((_, i) => (
             <div
               key={i}
-              className={`w-3 h-3 rounded-full ${
+              className={`w-2 h-2 rounded-full ${
                 i < completedWorld ? 'bg-yellow-400' : 'bg-gray-300'
               }`}
             />

@@ -78,7 +78,7 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
       console.log('[GameShell] 🎉 END OF WORLD', config.world);
       const nextWorld = config.world + 1;
 
-      if (nextWorld <= 15) {
+      if (nextWorld <= 50) {
         setWorldUnlockEvent({
           completedWorld: config.world,
           unlockedWorld: nextWorld,
