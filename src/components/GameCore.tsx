@@ -1340,13 +1340,21 @@ export const GameCore = ({
           </div>
         )}
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold text-gray-800">
-              {isDailyChallenge ? 'Reto Diario' : `Nivel ${level}`}
-            </h2>
-            <div className="bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-3 py-1 rounded-full font-bold text-sm shadow-md flex items-center gap-1">
-              🪙 {currentCoins}
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center gap-3">
+              <h2 className="text-xl font-bold text-gray-800">
+                {isDailyChallenge ? 'Reto Diario' : `Nivel ${level}`}
+              </h2>
+              <div className="bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-3 py-1 rounded-full font-bold text-sm shadow-md flex items-center gap-1">
+                🪙 {currentCoins}
+              </div>
             </div>
+            {!isDailyChallenge && (
+              <div className="text-xs text-gray-600">
+                🌍 Mundo {levelConfig?.world || '?'} • {levelConfig?.difficulty === 'expert' ? '🔴 Expert' : levelConfig?.difficulty === 'very_hard' ? '🟠 Muy Difícil' : levelConfig?.difficulty === 'hard' ? '🟡 Difícil' : '🟢 Normal'}
+                {enableProgressiveVirus && ' • 🦠 Virus Progresivo ACTIVO'}
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-3">
             <SoundGear />
@@ -1365,21 +1373,21 @@ export const GameCore = ({
             )}
           </div>
         </div>
-        {enableProgressiveVirus && globalVirusTimer && !isPreview && (
+        {enableProgressiveVirus && !isPreview && (
           <div className="mt-2 p-2 bg-gradient-to-r from-purple-100 to-red-100 rounded-lg border-2 border-purple-400">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <AlertTriangle className={`${globalVirusTimer.timeLeft <= 5 ? 'text-red-600 animate-pulse' : 'text-purple-600'}`} size={20} />
+                <AlertTriangle className={`${globalVirusTimer && globalVirusTimer.timeLeft <= 5 ? 'text-red-600 animate-pulse' : 'text-purple-600'}`} size={20} />
                 <span className="text-sm font-bold text-purple-800">
-                  Virus Progresivo
+                  Virus Progresivo - 🦠 {cards.filter(c => c.obstacle === 'virus' && !c.isMatched).length} virus
                 </span>
               </div>
-              <div className={`text-lg font-black ${globalVirusTimer.timeLeft <= 5 ? 'text-red-600 animate-pulse' : 'text-purple-700'}`}>
-                🦠 {globalVirusTimer.timeLeft}s
+              <div className={`text-lg font-black ${globalVirusTimer && globalVirusTimer.timeLeft <= 5 ? 'text-red-600 animate-pulse' : 'text-purple-700'}`}>
+                {globalVirusTimer ? `⏱️ ${globalVirusTimer.timeLeft}s` : '⏳ Iniciando...'}
               </div>
             </div>
             <div className="mt-1 text-xs text-purple-700">
-              {globalVirusTimer.timeLeft <= 5 ? '⚠️ El virus se está propagando...' : 'Elimina los virus haciendo matches adyacentes'}
+              {globalVirusTimer && globalVirusTimer.timeLeft <= 5 ? '⚠️ El virus se está propagando...' : 'Elimina los virus haciendo matches adyacentes'}
             </div>
           </div>
         )}
