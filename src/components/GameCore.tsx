@@ -1620,7 +1620,7 @@ export const GameCore = ({
               )}
             </div>
             <div className="flex flex-col gap-2">
-              {!isDailyChallenge && !isDuel && (
+              {!isDailyChallenge && !isDuel && activeLevel < 250 && (
                 <button
                   onClick={() => {
                     console.log('[GameCore] ===== CLICK SIGUIENTE NIVEL =====');
@@ -1635,6 +1635,12 @@ export const GameCore = ({
                 >
                   Nivel {activeLevel + 1} 🎯
                 </button>
+              )}
+              {!isDailyChallenge && !isDuel && activeLevel === 250 && (
+                <div className="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-6 px-4 rounded-xl font-bold text-center shadow-lg">
+                  <div className="text-2xl mb-2">🎉 ¡FELICIDADES! 🎉</div>
+                  <div className="text-lg">Has completado todos los niveles del juego</div>
+                </div>
               )}
               <div className="flex gap-2">
                 <button
