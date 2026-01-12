@@ -214,7 +214,7 @@ class SoundManager {
   public playLevelMusic(level: number): void {
     if (!this.userInteracted) return;
 
-    const trackNumber = Math.min(level, 10);
+    const trackNumber = Math.min(Math.floor((level - 1) / 5) + 1, 10);
     const newTrack = this.levelTracks.get(trackNumber);
     if (!newTrack) {
       console.warn(`Level ${level} music not found, using track ${trackNumber}`);
