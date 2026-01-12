@@ -18,6 +18,12 @@ export interface GlobalVirusTimerData {
   isActive: boolean;
 }
 
+export interface GlobalBombTimerData {
+  timeLeft: number;
+  intervalId?: number;
+  isActive: boolean;
+}
+
 export const getAdjacentIndices = (cardId: number, cards: Card[]): number[] => {
   const idx = cards.findIndex(c => c.id === cardId);
   if (idx === -1) return [];
@@ -381,4 +387,163 @@ export const handleVirusMismatch = (
 ) => {
   // Esta función ya no se usa, mantenida por compatibilidad
   console.warn('[advancedObstacles] handleVirusMismatch is deprecated, use startGlobalVirusTimer instead');
+};
+
+// Sistema de timer global para bomba progresiva
+// Se activa en mundo 40+, niveles very_hard y expert
+export const startGlobalBombTimer = (
+  cards: Card[],
+  setCards: React.Dispatch<React.SetStateAction<Card[]>>,
+  globalBombTimer: GlobalBombTimerData | null,
+  setGlobalBombTimer: React.Dispatch<React.SetStateAction<GlobalBombTimerData | null>>
+) => {
+  console.log('[startGlobalBombTimer] Llamada a función. GlobalTimer activo?', globalBombTimer?.isActive);
+
+  // Verificar si hay cartas con bomba
+  const hasBomb = cards.some(c => c.obstacle === 'bomb' && !c.isMatched);
+  const bombCount = cards.filter(c => c.obstacle === 'bomb' && !c.isMatched).length;
+
+  console.log('[startGlobalBombTimer] Bombas detectadas:', bombCount);
+
+  if (!hasBomb) {
+    // No hay bombas, limpiar timer si existe
+    console.log('[startGlobalBombTimer] No hay bombas, limpiando timer');
+    if (globalBombTimer?.intervalId) {
+      clearInterval(globalBombTimer.intervalId);
+    }
+    setGlobalBombTimer(null);
+    return;
+  }
+
+  // Si ya hay un timer activo, no crear uno nuevo
+  if (globalBombTimer?.isActive) {
+    console.log('[startGlobalBombTimer] Timer ya activo, no creando nuevo');
+    return;
+  }
+
+  console.log('[startGlobalBombTimer] Creando nuevo timer global de bomba');
+
+  // Crear nuevo timer global (30 segundos)
+  const intervalId = window.setInterval(() => {
+    console.log('[BombTimer] Tick del timer');
+    setGlobalBombTimer(prev => {
+      if (!prev) {
+        console.log('[BombTimer] Prev es null, deteniendo');
+        return null;
+      }
+
+      const newTimeLeft = prev.timeLeft - 1;
+      console.log('[BombTimer] Tiempo restante:', newTimeLeft);
+
+      if (newTimeLeft <= 0) {
+        // Timer llegó a 0, propagar fuego desde las bombas
+        console.log('[BombTimer] ¡Tiempo agotado! Propagando fuego desde bombas...');
+        setCards(currentCards => {
+          console.log('[BombTimer] Llamando a spreadFireFromBomb con', currentCards.length, 'cartas');
+          return spreadFireFromBomb(currentCards);
+        });
+
+        // Reiniciar timer a 30 segundos
+        console.log('[BombTimer] Reiniciando timer a 30s');
+        return { ...prev, timeLeft: 30 };
+      }
+
+      return { ...prev, timeLeft: newTimeLeft };
+    });
+  }, 1000);
+
+  console.log('[startGlobalBombTimer] Timer creado con ID:', intervalId);
+  setGlobalBombTimer({ timeLeft: 30, intervalId, isActive: true });
+};
+
+// Función para propagar fuego desde las bombas a cartas adyacentes
+const spreadFireFromBomb = (cards: Card[]): Card[] => {
+  console.log('[spreadFireFromBomb] Iniciando propagación. Total cartas:', cards.length);
+
+  // Encontrar todas las cartas con bomba que no están emparejadas
+  const bombCards = cards
+    .map((c, idx) => ({ card: c, idx }))
+    .filter(({ card }) => card.obstacle === 'bomb' && !card.isMatched);
+
+  console.log('[spreadFireFromBomb] Bombas encontradas:', bombCards.length);
+
+  if (bombCards.length === 0) {
+    console.log('[spreadFireFromBomb] No hay bombas, retornando cartas sin cambios');
+    return cards;
+  }
+
+  // Para cada bomba, encontrar una carta adyacente para incendiar
+  const toIgnite: number[] = [];
+
+  bombCards.forEach(({ card, idx }) => {
+    const adjacentIndices = getAdjacentIndices(card.id, cards);
+    console.log('[spreadFireFromBomb] Bomba en índice', idx, 'tiene adyacentes:', adjacentIndices);
+
+    // Filtrar cartas adyacentes válidas para incendiar
+    const validTargets = adjacentIndices.filter(adjIdx => {
+      const adjCard = cards[adjIdx];
+      const isValid = (
+        adjCard &&
+        !adjCard.isMatched &&
+        adjCard.obstacle !== 'fire' &&
+        adjCard.obstacle !== 'bomb' &&
+        adjCard.obstacle !== 'virus' &&
+        !toIgnite.includes(adjIdx)
+      );
+      if (!isValid && adjCard) {
+        console.log('[spreadFireFromBomb] Carta en índice', adjIdx, 'no es válida:', {
+          isMatched: adjCard.isMatched,
+          obstacle: adjCard.obstacle,
+          alreadyIgnited: toIgnite.includes(adjIdx)
+        });
+      }
+      return isValid;
+    });
+
+    console.log('[spreadFireFromBomb] Targets válidos para bomba en', idx, ':', validTargets.length);
+
+    // Incendiar una carta aleatoria de las válidas
+    if (validTargets.length > 0) {
+      const randomTarget = validTargets[Math.floor(Math.random() * validTargets.length)];
+      console.log('[spreadFireFromBomb] Incendiando carta en índice:', randomTarget);
+      toIgnite.push(randomTarget);
+    }
+  });
+
+  console.log('[spreadFireFromBomb] Total de cartas a incendiar:', toIgnite.length, '- índices:', toIgnite);
+
+  // Aplicar el fuego
+  const result = cards.map((card, idx) => {
+    if (toIgnite.includes(idx)) {
+      console.log('[spreadFireFromBomb] Convirtiendo carta en índice', idx, 'a fuego');
+      return {
+        ...card,
+        obstacle: 'fire'
+      };
+    }
+    return card;
+  });
+
+  console.log('[spreadFireFromBomb] Propagación completa');
+  return result;
+};
+
+// Eliminar bomba cuando se hace match
+export const handleBombMatch = (
+  cardIds: number[],
+  cards: Card[],
+  globalBombTimer: GlobalBombTimerData | null,
+  setGlobalBombTimer: React.Dispatch<React.SetStateAction<GlobalBombTimerData | null>>
+) => {
+  // Verificar si todavía quedan bombas después del match
+  setTimeout(() => {
+    const stillHasBomb = cards.some(c => c.obstacle === 'bomb' && !c.isMatched && !cardIds.includes(c.id));
+
+    if (!stillHasBomb && globalBombTimer?.intervalId) {
+      // No quedan bombas, detener timer
+      console.log('[handleBombMatch] No quedan bombas, deteniendo timer');
+      clearInterval(globalBombTimer.intervalId);
+      setGlobalBombTimer(null);
+    }
+  }, 100);
 };

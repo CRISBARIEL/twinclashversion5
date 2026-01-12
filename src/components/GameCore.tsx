@@ -19,7 +19,14 @@ import { getLevelConfig } from '../lib/levels';
 import { getThemeImages, getThemeBackground } from '../lib/themes';
 import { soundManager } from '../lib/sound';
 import { useBackExitGuard } from '../hooks/useBackExitGuard';
-import { startGlobalVirusTimer, handleVirusMatch, GlobalVirusTimerData } from '../lib/advancedObstacles';
+import {
+  startGlobalVirusTimer,
+  handleVirusMatch,
+  GlobalVirusTimerData,
+  startGlobalBombTimer,
+  handleBombMatch,
+  GlobalBombTimerData
+} from '../lib/advancedObstacles';
 
 interface GameCoreProps {
   level: number;
@@ -122,6 +129,8 @@ export const GameCore = ({
   const hazardTickRef = useRef<number | null>(null);
   const [globalVirusTimer, setGlobalVirusTimer] = useState<GlobalVirusTimerData | null>(null);
   const [enableProgressiveVirus, setEnableProgressiveVirus] = useState(false);
+  const [globalBombTimer, setGlobalBombTimer] = useState<GlobalBombTimerData | null>(null);
+  const [enableProgressiveBomb, setEnableProgressiveBomb] = useState(false);
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -234,6 +243,14 @@ export const GameCore = ({
       (config?.obstacles?.virus ?? 0) > 0;
     setEnableProgressiveVirus(shouldEnableProgressiveVirus);
     console.log('[GameCore] Progressive virus enabled:', shouldEnableProgressiveVirus, { worldId, difficulty: config?.difficulty, hasVirus: (config?.obstacles?.virus ?? 0) > 0 });
+
+    // Activar bomba progresiva en mundo 40+, niveles very_hard y expert
+    const shouldEnableProgressiveBomb =
+      worldId >= 40 &&
+      (config?.difficulty === 'very_hard' || config?.difficulty === 'expert') &&
+      (config?.obstacles?.bomb ?? 0) > 0;
+    setEnableProgressiveBomb(shouldEnableProgressiveBomb);
+    console.log('[GameCore] Progressive bomb enabled:', shouldEnableProgressiveBomb, { worldId, difficulty: config?.difficulty, hasBomb: (config?.obstacles?.bomb ?? 0) > 0 });
 
     const themeImages = getThemeImages(theme);
     const selectedImages = themeImages.slice(0, pairs);
@@ -617,6 +634,36 @@ export const GameCore = ({
     }
   }, [enableProgressiveVirus, isPreview, gameOver, isTimerPaused, cards.filter(c => c.obstacle === 'virus' && !c.isMatched).length]);
 
+  // useEffect para bomba progresiva (mundo 40+, very_hard y expert)
+  useEffect(() => {
+    if (!enableProgressiveBomb || isPreview || gameOver || isTimerPaused) {
+      // Limpiar timer si está activo
+      if (globalBombTimer?.intervalId) {
+        clearInterval(globalBombTimer.intervalId);
+        setGlobalBombTimer(null);
+      }
+      return;
+    }
+
+    // Verificar cuántas bombas hay
+    const bombCount = cards.filter(c => c.obstacle === 'bomb' && !c.isMatched).length;
+
+    if (bombCount > 0) {
+      // Hay bombas - asegurar que el timer esté activo
+      if (!globalBombTimer?.isActive) {
+        console.log('[GameCore] Iniciando timer global de bomba. Bomb count:', bombCount);
+        startGlobalBombTimer(cards, setCards, globalBombTimer, setGlobalBombTimer);
+      }
+    } else if (bombCount === 0 && globalBombTimer?.isActive) {
+      // No hay bombas - detener el timer
+      console.log('[GameCore] No hay más bombas, deteniendo timer');
+      if (globalBombTimer?.intervalId) {
+        clearInterval(globalBombTimer.intervalId);
+      }
+      setGlobalBombTimer(null);
+    }
+  }, [enableProgressiveBomb, isPreview, gameOver, isTimerPaused, cards.filter(c => c.obstacle === 'bomb' && !c.isMatched).length]);
+
   useEffect(() => {
     const totalPairs = levelConfig?.pairs || 6;
     if (matchedPairs === totalPairs && matchedPairs > 0 && !levelCompletedRef.current) {
@@ -963,6 +1010,11 @@ export const GameCore = ({
         // Llamar a handleVirusMatch si el virus progresivo está activado
         if (enableProgressiveVirus) {
           handleVirusMatch([firstId, secondId], cards, setCards, globalVirusTimer, setGlobalVirusTimer);
+        }
+
+        // Llamar a handleBombMatch si la bomba progresiva está activada
+        if (enableProgressiveBomb) {
+          handleBombMatch([firstId, secondId], cards, globalBombTimer, setGlobalBombTimer);
         }
 
         setMatchedPairs((prev) => prev + 1);
@@ -1353,6 +1405,7 @@ export const GameCore = ({
               <div className="text-xs text-gray-600">
                 🌍 Mundo {levelConfig?.world || '?'} • {levelConfig?.difficulty === 'expert' ? '🔴 Expert' : levelConfig?.difficulty === 'very_hard' ? '🟠 Muy Difícil' : levelConfig?.difficulty === 'hard' ? '🟡 Difícil' : '🟢 Normal'}
                 {enableProgressiveVirus && ' • 🦠 Virus Progresivo ACTIVO'}
+                {enableProgressiveBomb && ' • 💣 Bomba Progresiva ACTIVA'}
               </div>
             )}
           </div>
@@ -1388,6 +1441,24 @@ export const GameCore = ({
             </div>
             <div className="mt-1 text-xs text-purple-700">
               {globalVirusTimer && globalVirusTimer.timeLeft <= 5 ? '⚠️ El virus se está propagando...' : 'Elimina los virus haciendo matches adyacentes'}
+            </div>
+          </div>
+        )}
+        {enableProgressiveBomb && !isPreview && (
+          <div className="mt-2 p-2 bg-gradient-to-r from-orange-100 to-red-100 rounded-lg border-2 border-orange-400">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className={`${globalBombTimer && globalBombTimer.timeLeft <= 10 ? 'text-red-600 animate-pulse' : 'text-orange-600'}`} size={20} />
+                <span className="text-sm font-bold text-orange-800">
+                  Bomba Progresiva - 💣 {cards.filter(c => c.obstacle === 'bomb' && !c.isMatched).length} bomba(s)
+                </span>
+              </div>
+              <div className={`text-lg font-black ${globalBombTimer && globalBombTimer.timeLeft <= 10 ? 'text-red-600 animate-pulse' : 'text-orange-700'}`}>
+                {globalBombTimer ? `⏱️ ${globalBombTimer.timeLeft}s` : '⏳ Iniciando...'}
+              </div>
+            </div>
+            <div className="mt-1 text-xs text-orange-700">
+              {globalBombTimer && globalBombTimer.timeLeft <= 10 ? '⚠️ El fuego se está propagando...' : 'Elimina las bombas haciendo match de la pareja'}
             </div>
           </div>
         )}
