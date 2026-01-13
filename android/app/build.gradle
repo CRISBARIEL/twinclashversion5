@@ -41,7 +41,17 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
 
+    // AdMob
     implementation 'com.google.android.gms:play-services-ads:24.9.0'
+
+    // Firebase BoM - gestiona todas las versiones de Firebase
+    implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
+
+    // Firebase Cloud Messaging para notificaciones push
+    implementation("com.google.firebase:firebase-messaging")
+
+    // Firebase Analytics (opcional pero recomendado)
+    implementation("com.google.firebase:firebase-analytics")
 }
 
 apply from: 'capacitor.build.gradle'
