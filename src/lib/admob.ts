@@ -23,8 +23,8 @@ const TEST_IDS = {
 // ===== IDs DE PRODUCCIÓN (TUS IDS REALES) =====
 // Estos son tus IDs reales aprobados de AdMob
 const PRODUCTION_IDS = {
-  rewarded: 'ca-app-pub-2140112688604592/7419668822',
-  interstitial: 'ca-app-pub-2140112688604592/5693128960',
+  rewarded: 'ca-app-pub-2140112688604592/7419668822', // VERIFICA: ¿Tienes un Ad Unit de tipo Rewarded en AdMob?
+  interstitial: 'ca-app-pub-2140112688604592/9336940052', // ACTUALIZADO con el ID de la captura
 };
 
 class AdMobService {
