@@ -7,11 +7,14 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         google()
         mavenCentral()
         maven { url 'https://jitpack.io' }
+        flatDir {
+            dirs 'capacitor-cordova-android-plugins/src/main/libs', 'app/libs'
+        }
     }
 }
 
