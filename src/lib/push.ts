@@ -1,6 +1,40 @@
 import { getMessaging, getToken } from 'firebase/messaging';
+import { Capacitor } from '@capacitor/core';
+
+declare global {
+  interface Window {
+    NotificationPermission?: {
+      checkPermission: () => Promise<{ granted: boolean }>;
+      requestPermission: () => Promise<{ granted: boolean }>;
+    };
+  }
+}
 
 export async function ensureNotificationPermission(): Promise<NotificationPermission> {
+  // En Android nativo, usar el plugin nativo
+  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') {
+    try {
+      const NotificationPermission = (window as any).NotificationPermission;
+
+      if (NotificationPermission) {
+        // Primero verificar si ya tiene permiso
+        const checkResult = await NotificationPermission.checkPermission();
+        if (checkResult.granted) {
+          console.log('[PUSH] Permission already granted (native)');
+          return 'granted';
+        }
+
+        // Si no tiene permiso, pedirlo
+        const result = await NotificationPermission.requestPermission();
+        console.log('[PUSH] Permission result (native):', result.granted);
+        return result.granted ? 'granted' : 'denied';
+      }
+    } catch (error) {
+      console.warn('[PUSH] Native permission error, falling back to web:', error);
+    }
+  }
+
+  // Web o fallback
   if (!('Notification' in window)) {
     console.warn('[PUSH] Notifications not supported');
     return 'denied';
