@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "809339875668",
+    "project_id": "twinclash-c6eac",
+    "storage_bucket": "twinclash-c6eac.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:809339875668:android:147ff6e12356f401fb18c1",
+        "android_client_info": {
+          "package_name": "com.twinclash.game"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJCUH5vopCzc0vLxAcrcmdic8K7stz9hA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      },
+      "admob_app_id": "ca-app-pub-2140112688604592~6170461480"
+    }
+  ],
+  "configuration_version": "1"
+}
