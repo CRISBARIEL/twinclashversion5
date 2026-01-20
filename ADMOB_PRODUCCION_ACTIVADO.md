@@ -28,7 +28,7 @@ Tu cuenta de AdMob está aprobada y el código ahora usa tus IDs reales de produ
 ```typescript
 PRODUCTION_IDS = {
   rewarded: 'ca-app-pub-2140112688604592/7419668822',     // Anuncio Recompensado
-  interstitial: 'ca-app-pub-2140112688604592/5693128960', // Anuncio Intersticial
+  interstitial: 'ca-app-pub-2140112688604592/4482879255', // Anuncio Intersticial
 }
 ```
 
