@@ -10,7 +10,7 @@ interface UseAdMobReturn {
   testMode: boolean;
 }
 
-export function useAdMob(autoInitialize: boolean = true, testMode: boolean = false): UseAdMobReturn { // PRODUCCIÓN: false por defecto
+export function useAdMob(autoInitialize: boolean = true, testMode: boolean = true): UseAdMobReturn { // DEFAULT: testMode true para verificar
   const [initialized, setInitialized] = useState(false);
   const [isRewardedReady, setIsRewardedReady] = useState(false);
   const [isInterstitialReady, setIsInterstitialReady] = useState(false);

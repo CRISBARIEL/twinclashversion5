@@ -21,15 +21,16 @@ const TEST_IDS = {
 };
 
 // ===== IDs DE PRODUCCIÓN (TUS IDS REALES) =====
-// Estos son tus IDs reales aprobados de AdMob
+// App ID: ca-app-pub-2140112688604592~6170461480
+// Bloque de anuncios: ca-app-pub-2140112688604592/4482879255
 const PRODUCTION_IDS = {
-  rewarded: 'ca-app-pub-2140112688604592/7419668822', // VERIFICA: ¿Tienes un Ad Unit de tipo Rewarded en AdMob?
-  interstitial: 'ca-app-pub-2140112688604592/4482879255', // ACTUALIZADO con el ID de la captura
+  rewarded: 'ca-app-pub-2140112688604592/4482879255',
+  interstitial: 'ca-app-pub-2140112688604592/4482879255',
 };
 
 class AdMobService {
   private initialized = false;
-  private testMode = false; // PRODUCCIÓN: false = IDs reales | true = IDs de prueba
+  private testMode = true; // MODO PRUEBA: Cambiar a false cuando verifiques que funciona
   private rewardedAdLoaded = false;
   private interstitialAdLoaded = false;
   private isNativePlatform = false;
@@ -38,7 +39,7 @@ class AdMobService {
     this.isNativePlatform = Capacitor.isNativePlatform();
   }
 
-  async initialize(testMode: boolean = false): Promise<void> { // PRODUCCIÓN: false por defecto
+  async initialize(testMode: boolean = true): Promise<void> { // DEFAULT: testMode true para verificar
     if (this.initialized) {
       console.log('[AdMob] Already initialized');
       return;
@@ -52,6 +53,13 @@ class AdMobService {
 
     try {
       this.testMode = testMode;
+      const adIds = this.getAdIds();
+
+      console.log('[AdMob] Initializing...', {
+        testMode,
+        rewardedId: adIds.rewarded,
+        interstitialId: adIds.interstitial
+      });
 
       await AdMob.initialize({
         requestTrackingAuthorization: true,
@@ -60,12 +68,12 @@ class AdMobService {
       });
 
       this.initialized = true;
-      console.log('[AdMob] Initialized successfully', { testMode });
+      console.log('[AdMob] ✅ Initialized successfully', { testMode });
 
       this.preloadRewardedAd();
       this.preloadInterstitialAd();
     } catch (error) {
-      console.error('[AdMob] Initialization failed:', error);
+      console.error('[AdMob] ❌ Initialization failed:', error);
       throw error;
     }
   }
