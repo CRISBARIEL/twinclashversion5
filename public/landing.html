@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Twin Clash - Memori contrarreloj + duelos. Encuentra parejas antes de que se acabe el tiempo.">
+  <meta name="theme-color" content="#000000">
+
+  <title>Twin Clash ⚡ - Juego de Memoria Contrarreloj</title>
+
+  <link rel="icon" type="image/png" href="/twinlogo.png">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Twin Clash - Memori Contrarreloj">
+  <meta property="og:description" content="Encuentra parejas antes de que se acabe el tiempo. Duelos en tiempo real.">
+  <meta property="og:image" content="https://twinclash.org/twinlogo.png">
+  <meta property="og:type" content="website">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #1a1a1a;
+    }
+
+    .tc-hero {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 20px 28px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 40px;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .tc-hero__content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .tc-badge {
+      display: inline-block;
+      width: fit-content;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tc-title {
+      margin: 0;
+      font-size: 56px;
+      line-height: 1.05;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .tc-subtitle {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.95);
+      max-width: 480px;
+    }
+
+    .tc-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .tc-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 28px;
+      border-radius: 16px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+    }
+
+    .tc-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .tc-btn--primary {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #fff;
+      min-width: 260px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .tc-btn--primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    .tc-btn--ghost {
+      background: rgba(255, 255, 255, 0.95);
+      color: #1a1a1a;
+      border: 2px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .tc-btn--ghost:hover {
+      background: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .tc-note {
+      margin: 8px 0 0;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .tc-hero__media {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .tc-video, .tc-gif, .tc-placeholder {
+      width: 100%;
+      max-width: 360px;
+      aspect-ratio: 9/16;
+      border-radius: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      object-fit: cover;
+      background: #000;
+    }
+
+    .tc-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #fff;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .tc-placeholder svg {
+      width: 80px;
+      height: 80px;
+      opacity: 0.6;
+    }
+
+    .tc-placeholder p {
+      font-size: 14px;
+      opacity: 0.7;
+      max-width: 200px;
+    }
+
+    .tc-features {
+      max-width: 1100px;
+      margin: 60px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .tc-feature {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 32px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    }
+
+    .tc-feature h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+    }
+
+    .tc-feature p {
+      color: #666;
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .tc-footer {
+      max-width: 1100px;
+      margin: 80px auto 40px;
+      padding: 0 20px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+    }
+
+    .tc-footer a {
+      color: #fff;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+      transition: border-color 0.2s;
+    }
+
+    .tc-footer a:hover {
+      border-color: #fff;
+    }
+
+    @media (max-width: 880px) {
+      .tc-hero {
+        grid-template-columns: 1fr;
+        padding: 32px 20px;
+        gap: 48px;
+      }
+
+      .tc-title {
+        font-size: 42px;
+      }
+
+      .tc-subtitle {
+        font-size: 16px;
+      }
+
+      .tc-btn--primary {
+        width: 100%;
+      }
+
+      .tc-hero__media {
+        order: -1;
+      }
+
+      .tc-video, .tc-gif, .tc-placeholder {
+        max-width: 280px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .tc-title {
+        font-size: 36px;
+      }
+
+      .tc-actions {
+        flex-direction: column;
+      }
+
+      .tc-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="tc-hero">
+    <div class="tc-hero__content">
+      <span class="tc-badge">🎮 Juego casual</span>
+      <h1 class="tc-title">Twin Clash</h1>
+      <p class="tc-subtitle">Memori contrarreloj + duelos. Encuentra parejas antes de que se acabe el tiempo.</p>
+
+      <div class="tc-actions">
+        <a class="tc-btn tc-btn--primary" id="btnDownload" href="#">
+          📱 Descargar en Google Play
+        </a>
+        <a class="tc-btn tc-btn--ghost" id="btnReview" href="#">
+          Dejar reseña ⭐
+        </a>
+      </div>
+
+      <p class="tc-note">✨ Disponible para Android</p>
+    </div>
+
+    <div class="tc-hero__media">
+      <!-- Video (reemplaza con tu video real) -->
+      <video class="tc-video" autoplay muted loop playsinline preload="metadata" poster="/assets/poster.jpg" style="display: none;">
+        <source src="/assets/gameplay.mp4" type="video/mp4" />
+      </video>
+
+      <!-- Placeholder mientras no hay video -->
+      <div class="tc-placeholder">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="23 7 16 12 23 17 23 7"></polygon>
+          <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+        </svg>
+        <p>Video de gameplay próximamente</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="tc-features">
+    <div class="tc-feature">
+      <h3>⚡ Modo Contrarreloj</h3>
+      <p>Desafía tu memoria con niveles cronometrados. Cada segundo cuenta.</p>
+    </div>
+    <div class="tc-feature">
+      <h3>⚔️ Duelos en Vivo</h3>
+      <p>Compite contra otros jugadores en tiempo real. ¿Quién es más rápido?</p>
+    </div>
+    <div class="tc-feature">
+      <h3>🎨 Múltiples Temas</h3>
+      <p>Desbloquea temas únicos y personaliza tu experiencia de juego.</p>
+    </div>
+  </section>
+
+  <footer class="tc-footer">
+    <p>&copy; 2025 Twin Clash. Todos los derechos reservados.</p>
+    <p style="margin-top: 8px;">
+      <a href="/app">Jugar ahora en web</a>
+    </p>
+  </footer>
+
+  <script>
+    const PACKAGE = "com.twinclash.game";
+    const playDetailsWeb = `https://play.google.com/store/apps/details?id=${PACKAGE}`;
+    const playReviewsWeb = `https://play.google.com/store/apps/details?id=${PACKAGE}&showAllReviews=true`;
+    const playDetailsMarket = `market://details?id=${PACKAGE}`;
+
+    function isAndroid() {
+      return /Android/i.test(navigator.userAgent);
+    }
+
+    // Intentar cargar el video si existe
+    const video = document.querySelector('.tc-video');
+    const placeholder = document.querySelector('.tc-placeholder');
+
+    if (video) {
+      video.addEventListener('loadeddata', () => {
+        video.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+      });
+
+      video.addEventListener('error', () => {
+        video.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'flex';
+      });
+    }
+
+    // Botón descarga
+    const btnDownload = document.getElementById("btnDownload");
+    if (btnDownload) {
+      btnDownload.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.location.href = isAndroid() ? playDetailsMarket : playDetailsWeb;
+      });
+    }
+
+    // Botón reseña
+    const btnReview = document.getElementById("btnReview");
+    if (btnReview) {
+      btnReview.addEventListener("click", (e) => {
+        e.preventDefault();
+        window.location.href = isAndroid() ? playDetailsMarket : playReviewsWeb;
+      });
+    }
+
+    // Analytics (opcional)
+    console.log('[Twin Clash] Landing page loaded');
+    console.log('[Twin Clash] User Agent:', navigator.userAgent);
+    console.log('[Twin Clash] Is Android:', isAndroid());
+  </script>
+
+</body>
+</html>
