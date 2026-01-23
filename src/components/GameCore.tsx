@@ -10,6 +10,7 @@ import { ShareModal } from './ShareModal';
 import { ShatterEffect, ShatterTheme } from './ShatterEffect';
 import { CountdownOverlay } from './CountdownOverlay';
 import { DifficultyOverlay } from './DifficultyOverlay';
+import { SatisfactionModal, ReviewRequestModal, FeedbackModal } from './ReviewModals';
 import { Card, PREVIEW_TIME, FLIP_DELAY, GameMetrics, BestScore } from '../types';
 import { createConfetti } from '../utils/confetti';
 import { getSeedFromURLorToday, shuffleWithSeed } from '../lib/seed';
@@ -19,6 +20,7 @@ import { getLevelConfig } from '../lib/levels';
 import { getThemeImages, getThemeBackground } from '../lib/themes';
 import { soundManager } from '../lib/sound';
 import { useBackExitGuard } from '../hooks/useBackExitGuard';
+import { useReviewFlow } from '../hooks/useReviewFlow';
 import {
   startGlobalVirusTimer,
   handleVirusMatch,
@@ -142,6 +144,16 @@ export const GameCore = ({
     onConfirmExit: handleExitConfirmed,
     isLevelCompleted: showWinModal,
   });
+
+  const {
+    currentStep: reviewStep,
+    checkAndTriggerReview,
+    onPositiveResponse,
+    onNegativeResponse,
+    onReviewNow,
+    onReviewLater,
+    closeModal: closeReviewModal,
+  } = useReviewFlow();
 
   const isCheckingRef = useRef(false);
   const timerRef = useRef<number | null>(null);
@@ -740,6 +752,10 @@ export const GameCore = ({
           setTimeout(() => {
             setShowWinModal(true);
             setTimeout(() => setShowCoinAnimation(true), 500);
+            setTimeout(() => {
+              console.log('[GameCore] Triggering review check for level:', activeLevel);
+              checkAndTriggerReview(activeLevel, true);
+            }, 2500);
           }, 1500);
         } else {
           try {
@@ -759,6 +775,10 @@ export const GameCore = ({
           setTimeout(() => {
             setShowWinModal(true);
             setTimeout(() => setShowCoinAnimation(true), 500);
+            setTimeout(() => {
+              console.log('[GameCore] Triggering review check for level:', activeLevel);
+              checkAndTriggerReview(activeLevel, true);
+            }, 2500);
           }, 1500);
         }
       };
@@ -1758,6 +1778,28 @@ export const GameCore = ({
             </button>
           </div>
         </div>
+      )}
+
+      {reviewStep === 'satisfaction' && (
+        <SatisfactionModal
+          onPositive={onPositiveResponse}
+          onNegative={onNegativeResponse}
+          onClose={closeReviewModal}
+        />
+      )}
+
+      {reviewStep === 'review-request' && (
+        <ReviewRequestModal
+          onReview={onReviewNow}
+          onLater={onReviewLater}
+          onClose={closeReviewModal}
+        />
+      )}
+
+      {reviewStep === 'feedback' && (
+        <FeedbackModal
+          onClose={closeReviewModal}
+        />
       )}
 
       <ShatterEffect trigger={shatterTrigger} theme={shatterTheme} />
