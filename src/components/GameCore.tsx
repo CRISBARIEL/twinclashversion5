@@ -1588,10 +1588,10 @@ export const GameCore = ({
               </button>
               <button
                 onClick={async () => {
-                  const shouldShowAd = activeLevel >= 5 && activeLevel % 4 === 0 && isInterstitialReady;
+                  const shouldShowAd = levelConfig?.difficulty === 'expert' && isInterstitialReady;
 
                   if (shouldShowAd) {
-                    console.log('[GameCore] Showing interstitial ad after game over (level', activeLevel, ')');
+                    console.log('[GameCore] Showing interstitial ad after game over on expert level', activeLevel);
                     await showInterstitialAd();
                   }
 
@@ -1665,10 +1665,10 @@ export const GameCore = ({
                     console.log('[GameCore] ===== CLICK SIGUIENTE NIVEL =====');
                     console.log('[GameCore] Current level:', activeLevel);
 
-                    const shouldShowAd = activeLevel % 3 === 0 && activeLevel >= 3 && isInterstitialReady;
+                    const shouldShowAd = levelConfig?.difficulty === 'expert' && isInterstitialReady;
 
                     if (shouldShowAd) {
-                      console.log('[GameCore] Showing interstitial ad after level', activeLevel);
+                      console.log('[GameCore] Showing interstitial ad after completing expert level', activeLevel);
                       await showInterstitialAd();
                     }
 
