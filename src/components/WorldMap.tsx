@@ -6,6 +6,7 @@ import { soundManager } from '../lib/sound';
 import { LEVELS, getGlobalLevelId } from '../lib/levels';
 import { LanguageSelector } from './LanguageSelector';
 import { useLanguage } from '../hooks/useLanguage';
+import { trackTikTokWorldUnlock } from '../lib/tiktok';
 
 const worldIcons = [Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Building2, FlaskConical, Tractor, Palette, Car, Shirt, Drama, Candy, TrophyIcon, Eye, Briefcase, Smile, Anchor, Gem, Gamepad, Bug, Apple, Carrot, Wand2, Castle, TreePine, Mountain, Snowflake, MapPin, Sparkle, Zap, Skull, Music2, Sun, Flower2, Wind, CloudSnow, Film, BookOpen, Shield, Bot, AlienIcon, Flag, TreasureIcon, Flame];
 const worldColors = [
@@ -151,6 +152,7 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
       setWorldAccess({ ...worldAccess, [purchaseModalWorld]: true });
       setCoins(getLocalCoins());
       setPurchaseModalWorld(null);
+      trackTikTokWorldUnlock(purchaseModalWorld).catch(console.error);
       onSelectWorld(purchaseModalWorld);
     } else {
       alert(result.reason);

@@ -8,6 +8,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.getcapacitor.BridgeActivity;
 import com.google.android.gms.ads.MobileAds;
+import com.tiktok.TikTokBusinessSdk;
+import com.tiktok.appevents.TTPIdentifyHandler;
+import com.tiktok.util.TTConsentStatus;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MainActivity extends BridgeActivity {
   private static final int NOTIFICATION_PERMISSION_REQUEST_CODE = 1001;
@@ -19,6 +24,7 @@ public class MainActivity extends BridgeActivity {
     // Registrar plugins personalizados
     registerPlugin(NotificationPermissionPlugin.class);
     registerPlugin(InterstitialAdPlugin.class);
+    registerPlugin(TikTokPlugin.class);
 
     // Inicializar AdMob
     new Thread(
@@ -27,8 +33,33 @@ public class MainActivity extends BridgeActivity {
       }
     ).start();
 
+    // Inicializar TikTok SDK
+    initTikTokSDK();
+
     // Pedir permiso de notificaciones automáticamente (Android 13+)
     requestNotificationPermissionIfNeeded();
+  }
+
+  private void initTikTokSDK() {
+    try {
+      JSONObject config = new JSONObject();
+      config.put("app_id", "YOUR_TIKTOK_APP_ID");
+      config.put("tiktok_app_id", "YOUR_TIKTOK_APP_ID");
+
+      TikTokBusinessSdk.initialize(
+        getApplicationContext(),
+        config,
+        false
+      );
+
+      TikTokBusinessSdk.setGDPR(TTConsentStatus.GRANTED);
+
+      TTPIdentifyHandler.identify(null, null, null);
+
+      System.out.println("[TikTok] SDK initialized successfully");
+    } catch (JSONException e) {
+      System.err.println("[TikTok] Error initializing SDK: " + e.getMessage());
+    }
   }
 
   private void requestNotificationPermissionIfNeeded() {

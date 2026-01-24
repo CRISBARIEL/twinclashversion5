@@ -30,6 +30,7 @@ import {
   handleBombMatch,
   GlobalBombTimerData
 } from '../lib/advancedObstacles';
+import { trackTikTokLevelComplete, trackTikTokGameStart } from '../lib/tiktok';
 
 interface GameCoreProps {
   level: number;
@@ -752,6 +753,8 @@ export const GameCore = ({
           addCoins(baseCoins);
           setCurrentCoins(getLocalCoins());
 
+          trackTikTokLevelComplete(activeLevel).catch(console.error);
+
           setTimeout(() => {
             setShowWinModal(true);
             setTimeout(() => setShowCoinAnimation(true), 500);
@@ -774,6 +777,8 @@ export const GameCore = ({
           setCoinsEarned(baseCoins);
           addCoins(baseCoins);
           setCurrentCoins(getLocalCoins());
+
+          trackTikTokLevelComplete(activeLevel).catch(console.error);
 
           setTimeout(() => {
             setShowWinModal(true);
@@ -1399,6 +1404,8 @@ export const GameCore = ({
           onComplete={() => {
             setShowCountdown(false);
             setIsPreview(false);
+            const worldId = Math.ceil(activeLevel / 10);
+            trackTikTokGameStart(worldId, activeLevel).catch(console.error);
           }}
         />
       )}

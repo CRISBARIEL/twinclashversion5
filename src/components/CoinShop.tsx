@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Coins, CreditCard, Sparkles, X, ArrowLeft } from 'lucide-react';
 import { getLocalCoins, loadFromSupabase } from '../lib/progression';
+import { trackTikTokPurchase, trackTikTokShopView } from '../lib/tiktok';
 
 interface CoinPackage {
   id: string;
@@ -54,21 +55,34 @@ export function CoinShop({ onClose }: CoinShopProps) {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get('payment');
+    const packageId = urlParams.get('packageId');
 
     if (paymentStatus === 'success') {
       loadFromSupabase().then(() => {
         setCurrentCoins(getLocalCoins());
         alert('¡Pago exitoso! Tus monedas han sido añadidas a tu cuenta.');
+
+        if (packageId) {
+          const pkg = coinPackages.find(p => p.id === packageId);
+          if (pkg) {
+            const totalCoins = pkg.coins + (pkg.bonus || 0);
+            trackTikTokPurchase('EUR', pkg.price, pkg.id).catch(console.error);
+          }
+        }
       });
 
       const url = new URL(window.location.href);
       url.searchParams.delete('payment');
+      url.searchParams.delete('packageId');
       window.history.replaceState({}, '', url.toString());
     } else if (paymentStatus === 'cancelled') {
       const url = new URL(window.location.href);
       url.searchParams.delete('payment');
+      url.searchParams.delete('packageId');
       window.history.replaceState({}, '', url.toString());
     }
+
+    trackTikTokShopView().catch(console.error);
   }, []);
 
   const handleSelectPackage = (pkg: CoinPackage) => {
