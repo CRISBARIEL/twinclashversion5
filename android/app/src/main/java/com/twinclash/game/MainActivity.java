@@ -16,8 +16,9 @@ public class MainActivity extends BridgeActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    // Registrar plugin de notificaciones
+    // Registrar plugins personalizados
     registerPlugin(NotificationPermissionPlugin.class);
+    registerPlugin(InterstitialAdPlugin.class);
 
     // Inicializar AdMob
     new Thread(

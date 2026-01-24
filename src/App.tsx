@@ -14,6 +14,7 @@ import { NotificationBellButton } from './components/NotificationBellButton';
 import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 import { initializeFirebase } from './lib/firebase';
+import { nativeInterstitialService } from './lib/nativeInterstitial';
 import { AlertCircle } from 'lucide-react';
 import { LanguageContext, useLanguageState } from './hooks/useLanguage';
 
@@ -118,6 +119,8 @@ function App() {
       setIsLoadingProgress(false);
 
       initializeFirebase();
+
+      nativeInterstitialService.initialize(false);
     };
 
     initializeApp();

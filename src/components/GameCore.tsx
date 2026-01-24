@@ -21,6 +21,7 @@ import { getThemeImages, getThemeBackground } from '../lib/themes';
 import { soundManager } from '../lib/sound';
 import { useBackExitGuard } from '../hooks/useBackExitGuard';
 import { useReviewFlow } from '../hooks/useReviewFlow';
+import { useNativeInterstitial } from '../hooks/useNativeInterstitial';
 import {
   startGlobalVirusTimer,
   handleVirusMatch,
@@ -108,6 +109,8 @@ export const GameCore = ({
   const [crewId, setCrewId] = useState(() => getCrewIdFromURL());
   const [finalTime, setFinalTime] = useState(0);
   const [finalMoves, setFinalMoves] = useState(0);
+
+  const { showAd: showInterstitialAd, isReady: isInterstitialReady } = useNativeInterstitial(true, false);
   const [hintCards, setHintCards] = useState<number[]>([]);
   const [consecutiveMisses, setConsecutiveMisses] = useState(0);
   const [showCoinShop, setShowCoinShop] = useState(false);
@@ -1577,7 +1580,16 @@ export const GameCore = ({
                 Salir
               </button>
               <button
-                onClick={handleRestart}
+                onClick={async () => {
+                  const shouldShowAd = activeLevel >= 5 && activeLevel % 4 === 0 && isInterstitialReady;
+
+                  if (shouldShowAd) {
+                    console.log('[GameCore] Showing interstitial ad after game over (level', activeLevel, ')');
+                    await showInterstitialAd();
+                  }
+
+                  handleRestart();
+                }}
                 className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
               >
                 Reintentar
@@ -1642,9 +1654,17 @@ export const GameCore = ({
             <div className="flex flex-col gap-2">
               {!isDailyChallenge && !isDuel && activeLevel < 250 && (
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     console.log('[GameCore] ===== CLICK SIGUIENTE NIVEL =====');
                     console.log('[GameCore] Current level:', activeLevel);
+
+                    const shouldShowAd = activeLevel % 3 === 0 && activeLevel >= 3 && isInterstitialReady;
+
+                    if (shouldShowAd) {
+                      console.log('[GameCore] Showing interstitial ad after level', activeLevel);
+                      await showInterstitialAd();
+                    }
+
                     console.log('[GameCore] Calling onComplete...');
                     setShowWinModal(false);
                     setTimeout(() => {
