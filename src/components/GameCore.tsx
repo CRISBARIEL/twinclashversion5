@@ -538,6 +538,24 @@ export const GameCore = ({
     };
   }, [level, initializeLevel]);
 
+  // Cargar vidas del usuario
+  useEffect(() => {
+    const loadUserLives = async () => {
+      if (isDailyChallenge || isDuel) return; // No usar vidas en desafíos o duelos
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const lives = await getUserLives(user.id);
+      if (lives) {
+        console.log('[GameCore] Lives loaded:', lives.currentLives, '/', lives.maxLives);
+        setLivesLeft(lives.currentLives);
+      }
+    };
+
+    loadUserLives();
+  }, [isDailyChallenge, isDuel]);
+
   useEffect(() => {
     if (isPreview || gameOver || isTimerPaused) {
       if (timerRef.current) clearInterval(timerRef.current);

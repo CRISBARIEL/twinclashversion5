@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { X, Coins, Check, Lock, ShoppingBag, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu } from 'lucide-react';
+import { X, Coins, Check, Lock, ShoppingBag, Leaf, Dumbbell, Gamepad2, PawPrint, Rocket, Waves, Pizza, Music, Sparkles, Cpu, Heart } from 'lucide-react';
 import { getLocalCoins } from '../lib/progression';
 import { CoinShop } from './CoinShop';
 import { purchaseWorld, isWorldPurchased, WORLD_COSTS } from '../lib/worldProgress';
+import { buyLives, getUserLives } from '../lib/progressionService';
+import { supabase } from '../lib/supabase';
 
 interface ShopProps {
   onClose: () => void;
@@ -30,24 +32,36 @@ export const Shop = ({ onClose, onSkinChanged }: ShopProps) => {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<number | null>(null);
   const [showCoinShop, setShowCoinShop] = useState(false);
+  const [currentLives, setCurrentLives] = useState(5);
+  const [buyingLives, setBuyingLives] = useState(false);
 
   useEffect(() => {
-    const loadWorlds = async () => {
+    const loadData = async () => {
       try {
+        // Cargar mundos
         const owned: Record<number, boolean> = { 1: true };
         for (let i = 2; i <= 10; i++) {
           const purchased = await isWorldPurchased(`world-${i}`);
           owned[i] = purchased;
         }
         setOwnedWorlds(owned);
+
+        // Cargar vidas
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const lives = await getUserLives(user.id);
+          if (lives) {
+            setCurrentLives(lives.currentLives);
+          }
+        }
       } catch (error) {
-        console.error('Error loading worlds:', error);
+        console.error('Error loading data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadWorlds();
+    loadData();
   }, []);
 
   const handleBuyWorld = async (worldId: number) => {
@@ -78,13 +92,51 @@ export const Shop = ({ onClose, onSkinChanged }: ShopProps) => {
     }
   };
 
+  const handleBuyLives = async (amount: number, cost: number) => {
+    if (buyingLives) return;
+
+    if (coins < cost) {
+      alert('No tienes suficientes monedas');
+      return;
+    }
+
+    if (currentLives >= 5) {
+      alert('Ya tienes el máximo de vidas');
+      return;
+    }
+
+    setBuyingLives(true);
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert('Debes iniciar sesión para comprar vidas');
+        return;
+      }
+
+      const result = await buyLives(user.id, amount, cost);
+      if (result.success) {
+        setCoins(getLocalCoins());
+        setCurrentLives(result.newLivesCount);
+        alert(`¡Compraste ${amount} vida${amount > 1 ? 's' : ''}!`);
+      } else {
+        alert(result.error || 'Error al comprar vidas');
+      }
+    } catch (error) {
+      console.error('Error buying lives:', error);
+      alert('Error al comprar vidas');
+    } finally {
+      setBuyingLives(false);
+    }
+  };
+
   const ownedCount = Object.values(ownedWorlds).filter(Boolean).length;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl max-h-[80vh] flex flex-col">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-2xl font-bold text-gray-800">Tienda de Mundos</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Tienda</h2>
           <button
             type="button"
             onClick={onClose}
@@ -121,6 +173,60 @@ export const Shop = ({ onClose, onSkinChanged }: ShopProps) => {
           <ShoppingBag size={20} />
           Comprar Monedas
         </button>
+
+        {/* Sección de Vidas */}
+        <div className="bg-gradient-to-br from-red-50 to-pink-50 border-2 border-red-200 rounded-xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Heart size={24} className="text-red-500" />
+              <h3 className="text-lg font-bold text-gray-800">Vidas</h3>
+            </div>
+            <div className="bg-red-100 px-3 py-1 rounded-lg">
+              <span className="text-sm font-bold text-red-600">{currentLives}/5</span>
+            </div>
+          </div>
+
+          <p className="text-xs text-gray-600 mb-3">
+            💡 Las vidas se regeneran automáticamente (1 vida por hora)
+          </p>
+
+          <div className="space-y-2">
+            {/* 1 Vida */}
+            <button
+              onClick={() => handleBuyLives(1, 1000)}
+              disabled={buyingLives || coins < 1000 || currentLives >= 5}
+              className="w-full bg-gradient-to-r from-red-400 to-red-600 text-white py-3 rounded-lg font-semibold hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between px-4"
+            >
+              <div className="flex items-center gap-2">
+                <Heart size={18} />
+                <span>1 Vida</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Coins size={16} />
+                <span>1,000</span>
+              </div>
+            </button>
+
+            {/* 5 Vidas */}
+            <button
+              onClick={() => handleBuyLives(5, 4500)}
+              disabled={buyingLives || coins < 4500 || currentLives >= 5}
+              className="w-full bg-gradient-to-r from-red-500 to-red-700 text-white py-3 rounded-lg font-semibold hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-between px-4"
+            >
+              <div className="flex items-center gap-2">
+                <Heart size={18} />
+                <span>5 Vidas</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Coins size={16} />
+                <span className="line-through text-xs opacity-75 mr-1">5,000</span>
+                <span>4,500</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <h3 className="text-lg font-bold text-gray-800 mb-3">Mundos</h3>
 
         <div className="flex-1 overflow-y-auto">
           <div className="space-y-3">

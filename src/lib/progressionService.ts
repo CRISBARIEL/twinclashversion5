@@ -757,3 +757,50 @@ export function formatTimeUntilNextLife(ms: number): string {
   const seconds = Math.floor((ms % (60 * 1000)) / 1000);
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
+
+export async function buyLives(userId: string, amount: number, cost: number): Promise<{ success: boolean; newLivesCount: number; error?: string }> {
+  console.log('[progressionService] 💰 Buying lives:', { amount, cost });
+
+  // Verificar que el usuario tenga suficientes monedas
+  const currentCoins = getLocalCoins();
+  if (currentCoins < cost) {
+    console.warn('[progressionService] ⚠️ Insufficient coins. Has:', currentCoins, 'Needs:', cost);
+    return { success: false, newLivesCount: 0, error: 'Monedas insuficientes' };
+  }
+
+  // Obtener vidas actuales
+  const lives = await getUserLives(userId);
+  if (!lives) {
+    console.error('[progressionService] ❌ Could not get user lives');
+    return { success: false, newLivesCount: 0, error: 'Error al obtener vidas' };
+  }
+
+  // Calcular nuevas vidas (máximo 5)
+  const newLives = Math.min(lives.maxLives, lives.currentLives + amount);
+  const livesAdded = newLives - lives.currentLives;
+
+  if (livesAdded <= 0) {
+    console.warn('[progressionService] ⚠️ Already at max lives');
+    return { success: false, newLivesCount: lives.currentLives, error: 'Ya tienes el máximo de vidas' };
+  }
+
+  // Actualizar vidas en BD
+  const { error: updateError } = await supabase
+    .from('user_lives')
+    .update({
+      current_lives: newLives,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId);
+
+  if (updateError) {
+    console.error('[progressionService] ❌ Error updating lives:', updateError);
+    return { success: false, newLivesCount: lives.currentLives, error: 'Error al actualizar vidas' };
+  }
+
+  // Restar monedas
+  addCoins(-cost);
+
+  console.log('[progressionService] ✅ Lives purchased!', lives.currentLives, '→', newLives);
+  return { success: true, newLivesCount: newLives };
+}
