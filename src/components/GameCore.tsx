@@ -12,6 +12,7 @@ import { CountdownOverlay } from './CountdownOverlay';
 import { DifficultyOverlay } from './DifficultyOverlay';
 import { SatisfactionModal, ReviewRequestModal, FeedbackModal } from './ReviewModals';
 import { ChestRewardModal } from './ChestRewardModal';
+import { LivesDisplay } from './LivesDisplay';
 import { Card, PREVIEW_TIME, FLIP_DELAY, GameMetrics, BestScore } from '../types';
 import { createConfetti } from '../utils/confetti';
 import { getSeedFromURLorToday, shuffleWithSeed } from '../lib/seed';
@@ -37,6 +38,8 @@ import {
   calculateStarTargets,
   incrementChestProgress,
   updateMissionProgress,
+  loseLife,
+  getUserLives,
 } from '../lib/progressionService';
 import { supabase } from '../lib/supabase';
 
@@ -112,6 +115,8 @@ export const GameCore = ({
   const [starsEarned, setStarsEarned] = useState(0);
   const [coinReward, setCoinReward] = useState(0);
   const [showChestReward, setShowChestReward] = useState(false);
+  const [showNoLivesModal, setShowNoLivesModal] = useState(false);
+  const [livesLeft, setLivesLeft] = useState(5);
   const [bestScore, setBestScore] = useState<BestScore | null>(null);
   const [seed] = useState(() => {
     if (isDuel) return duelSeed as string;
@@ -842,6 +847,26 @@ export const GameCore = ({
   }, [matchedPairs, level, onComplete, isDailyChallenge, seed, crewId, moves]);
 
   useEffect(() => {
+    const handleGameOver = async () => {
+      if (!gameOver || isDuel || isDailyChallenge) return;
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Perder una vida
+      const result = await loseLife(user.id);
+      setLivesLeft(result.livesLeft);
+
+      // Si no tiene más vidas, mostrar modal
+      if (result.livesLeft <= 0) {
+        setShowNoLivesModal(true);
+      }
+    };
+
+    handleGameOver();
+  }, [gameOver, isDuel, isDailyChallenge]);
+
+  useEffect(() => {
     triggerIceBreakerRef.current = (centerCardId: number) => {
       const centerIdx = cards.findIndex(c => c.id === centerCardId);
       if (centerIdx === -1) return;
@@ -1470,13 +1495,14 @@ export const GameCore = ({
         )}
         <div className="flex items-center justify-between mb-2">
           <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <h2 className="text-xl font-bold text-gray-800">
                 {isDailyChallenge ? 'Reto Diario' : `Nivel ${level}`}
               </h2>
               <div className="bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-3 py-1 rounded-full font-bold text-sm shadow-md flex items-center gap-1">
                 🪙 {currentCoins}
               </div>
+              {!isDailyChallenge && !isDuel && <LivesDisplay />}
             </div>
             {!isDailyChallenge && (
               <div className="text-xs text-gray-600">
@@ -1546,28 +1572,28 @@ export const GameCore = ({
           </div>
         )}
 
-        <div className="flex gap-2 w-full">
+        <div className="flex gap-1.5 w-full">
           <button
             onClick={openExitModal}
-            className="bg-gray-500 text-white py-2 px-3 rounded-lg font-semibold flex items-center justify-center gap-1 hover:bg-gray-600 transition-colors text-sm"
+            className="bg-gray-500 text-white p-2 rounded-lg flex items-center justify-center hover:bg-gray-600 transition-colors"
+            title="Volver"
           >
-            <ArrowLeft size={16} />
-            Volver
+            <ArrowLeft size={18} />
           </button>
           <button
             onClick={handleRestart}
-            className="flex-1 bg-orange-500 text-white py-2 px-3 rounded-lg font-semibold flex items-center justify-center gap-1 hover:bg-orange-600 transition-colors text-sm"
+            className="flex-1 bg-orange-500 text-white py-1.5 px-2 rounded-lg font-semibold flex items-center justify-center gap-1 hover:bg-orange-600 transition-colors text-xs"
           >
-            <RotateCcw size={16} />
+            <RotateCcw size={14} />
             Reiniciar
           </button>
           {isDailyChallenge && (
             <button
               onClick={() => setShowLeaderboard(true)}
-              className="flex-1 bg-yellow-500 text-white py-2 px-3 rounded-lg font-semibold flex items-center justify-center gap-1 hover:bg-yellow-600 transition-colors text-sm"
+              className="bg-yellow-500 text-white p-2 rounded-lg flex items-center justify-center hover:bg-yellow-600 transition-colors"
+              title="Top"
             >
-              <List size={16} />
-              Top
+              <List size={18} />
             </button>
           )}
         </div>
@@ -1620,12 +1646,24 @@ export const GameCore = ({
         </div>
       </div>
 
-      {gameOver && (
+      {gameOver && !showNoLivesModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
             <div className="text-6xl mb-4">😢</div>
             <h3 className="text-3xl font-bold text-red-600 mb-2">Game Over</h3>
-            <p className="text-gray-600 mb-6">{hazardMessage ?? 'Se acabó el tiempo'}</p>
+            <p className="text-gray-600 mb-2">{hazardMessage ?? 'Se acabó el tiempo'}</p>
+
+            {!isDuel && !isDailyChallenge && (
+              <div className="bg-red-50 rounded-xl p-3 mb-4">
+                <div className="text-red-600 font-semibold text-sm mb-1">
+                  💔 Perdiste una vida
+                </div>
+                <div className="text-xs text-red-500">
+                  Vidas restantes: {livesLeft}/5
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-3">
               <button
                 onClick={onBackToMenu}
@@ -1644,11 +1682,41 @@ export const GameCore = ({
 
                   handleRestart();
                 }}
-                className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
+                disabled={!isDuel && !isDailyChallenge && livesLeft <= 0}
+                className="flex-1 bg-gradient-to-r from-orange-500 to-red-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Reintentar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showNoLivesModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <div className="text-6xl mb-4">💔</div>
+            <h3 className="text-3xl font-bold text-red-600 mb-2">Sin Vidas</h3>
+            <p className="text-gray-600 mb-4">
+              Te quedaste sin vidas. Espera 1 hora para recuperarlas o regresa más tarde.
+            </p>
+
+            <div className="bg-gradient-to-r from-red-100 to-pink-100 rounded-xl p-4 mb-6">
+              <div className="text-4xl mb-2">⏰</div>
+              <div className="text-sm text-gray-700">
+                Las vidas se regeneran cada hora
+              </div>
+              <div className="text-xs text-gray-500 mt-1">
+                Máximo 5 vidas
+              </div>
+            </div>
+
+            <button
+              onClick={onBackToMenu}
+              className="w-full bg-gradient-to-r from-gray-500 to-gray-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
+            >
+              Volver al Menú
+            </button>
           </div>
         </div>
       )}

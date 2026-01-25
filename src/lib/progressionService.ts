@@ -624,3 +624,124 @@ export async function claimMission(missionId: string): Promise<{ coins: number; 
 
   return { coins: data.reward_coins, boosts: data.reward_boosts };
 }
+
+// SISTEMA DE VIDAS
+
+export interface UserLives {
+  userId: string;
+  currentLives: number;
+  maxLives: number;
+  lastLifeLostAt: Date | null;
+}
+
+const LIFE_REGEN_TIME_MS = 60 * 60 * 1000; // 1 hora
+
+export async function getUserLives(userId: string): Promise<UserLives | null> {
+  const { data, error } = await supabase
+    .from('user_lives')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error('[progressionService] Error getting user lives:', error);
+    return null;
+  }
+
+  if (!data) {
+    // Crear registro inicial con 5 vidas
+    const { data: newData, error: insertError } = await supabase
+      .from('user_lives')
+      .insert({
+        user_id: userId,
+        current_lives: 5,
+        max_lives: 5,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error('[progressionService] Error creating user lives:', insertError);
+      return null;
+    }
+
+    return {
+      userId: newData.user_id,
+      currentLives: newData.current_lives,
+      maxLives: newData.max_lives,
+      lastLifeLostAt: null,
+    };
+  }
+
+  // Calcular vidas regeneradas
+  let currentLives = data.current_lives;
+  const lastLifeLost = data.last_life_lost_at ? new Date(data.last_life_lost_at) : null;
+
+  if (lastLifeLost && currentLives < data.max_lives) {
+    const now = Date.now();
+    const timeSinceLastLoss = now - lastLifeLost.getTime();
+    const livesRegained = Math.floor(timeSinceLastLoss / LIFE_REGEN_TIME_MS);
+
+    if (livesRegained > 0) {
+      currentLives = Math.min(data.max_lives, currentLives + livesRegained);
+
+      // Actualizar en base de datos
+      await supabase
+        .from('user_lives')
+        .update({
+          current_lives: currentLives,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', userId);
+    }
+  }
+
+  return {
+    userId: data.user_id,
+    currentLives,
+    maxLives: data.max_lives,
+    lastLifeLostAt: lastLifeLost,
+  };
+}
+
+export async function loseLife(userId: string): Promise<{ success: boolean; livesLeft: number }> {
+  const lives = await getUserLives(userId);
+  if (!lives || lives.currentLives <= 0) {
+    return { success: false, livesLeft: 0 };
+  }
+
+  const newLives = lives.currentLives - 1;
+
+  const { error } = await supabase
+    .from('user_lives')
+    .update({
+      current_lives: newLives,
+      last_life_lost_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('[progressionService] Error losing life:', error);
+    return { success: false, livesLeft: lives.currentLives };
+  }
+
+  return { success: true, livesLeft: newLives };
+}
+
+export function getTimeUntilNextLife(lives: UserLives): number | null {
+  if (lives.currentLives >= lives.maxLives) return null;
+  if (!lives.lastLifeLostAt) return null;
+
+  const now = Date.now();
+  const timeSinceLastLoss = now - lives.lastLifeLostAt.getTime();
+  const timeUntilNextLife = LIFE_REGEN_TIME_MS - (timeSinceLastLoss % LIFE_REGEN_TIME_MS);
+
+  return timeUntilNextLife;
+}
+
+export function formatTimeUntilNextLife(ms: number): string {
+  const minutes = Math.floor(ms / (60 * 1000));
+  const seconds = Math.floor((ms % (60 * 1000)) / 1000);
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+}

@@ -46,33 +46,33 @@ export function PowerUpButtons({ onPowerUpUsed, onFreezeTime, disabled, hasObsta
 
   return (
     <>
-      <div className="flex gap-2 justify-center">
+      <div className="flex gap-1.5 justify-center">
         <button
           onClick={() => handlePurchase(20)}
           disabled={disabled || coins < 600}
-          className={`w-14 h-14 rounded-full font-bold text-xs shadow-lg transition-all flex flex-col items-center justify-center ${
+          className={`w-11 h-11 rounded-full font-bold text-xs shadow-md transition-all flex flex-col items-center justify-center ${
             disabled || coins < 600
               ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
               : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:scale-110 active:scale-95'
           } ${shouldPulse && !(disabled || coins < 600) ? 'animate-heartbeat' : ''}`}
           title="Revelar 20% - 600 monedas"
         >
-          <Zap size={14} />
-          <span className="text-[10px] leading-none mt-0.5">20%</span>
+          <Zap size={12} />
+          <span className="text-[9px] leading-none mt-0.5">20%</span>
         </button>
 
         <button
           onClick={() => handlePurchase(40)}
           disabled={disabled || coins < 1000}
-          className={`w-14 h-14 rounded-full font-bold text-xs shadow-lg transition-all flex flex-col items-center justify-center ${
+          className={`w-11 h-11 rounded-full font-bold text-xs shadow-md transition-all flex flex-col items-center justify-center ${
             disabled || coins < 1000
               ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
               : 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white hover:scale-110 active:scale-95'
           } ${shouldPulse && !(disabled || coins < 1000) ? 'animate-heartbeat' : ''}`}
           title="Revelar 40% - 1000 monedas"
         >
-          <Sparkles size={14} />
-          <span className="text-[10px] leading-none mt-0.5">40%</span>
+          <Sparkles size={12} />
+          <span className="text-[9px] leading-none mt-0.5">40%</span>
         </button>
 
         {onFreezeTime && (
@@ -80,29 +80,29 @@ export function PowerUpButtons({ onPowerUpUsed, onFreezeTime, disabled, hasObsta
             <button
               onClick={() => handlePurchase('freeze10')}
               disabled={disabled || coins < 1000}
-              className={`w-14 h-14 rounded-full font-bold text-xs shadow-lg transition-all flex flex-col items-center justify-center ${
+              className={`w-11 h-11 rounded-full font-bold text-xs shadow-md transition-all flex flex-col items-center justify-center ${
                 disabled || coins < 1000
                   ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                   : 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white hover:scale-110 active:scale-95'
               } ${shouldPulse && !(disabled || coins < 1000) ? 'animate-heartbeat' : ''}`}
               title="Congelar +10s - 1000 monedas"
             >
-              <Clock size={14} />
-              <span className="text-[10px] leading-none mt-0.5">+10s</span>
+              <Clock size={12} />
+              <span className="text-[9px] leading-none mt-0.5">+10s</span>
             </button>
 
             <button
               onClick={() => handlePurchase('freeze15')}
               disabled={disabled || coins < 1400}
-              className={`w-14 h-14 rounded-full font-bold text-xs shadow-lg transition-all flex flex-col items-center justify-center ${
+              className={`w-11 h-11 rounded-full font-bold text-xs shadow-md transition-all flex flex-col items-center justify-center ${
                 disabled || coins < 1400
                   ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                   : 'bg-gradient-to-r from-purple-500 to-pink-600 text-white hover:scale-110 active:scale-95'
               } ${shouldPulse && !(disabled || coins < 1400) ? 'animate-heartbeat' : ''}`}
               title="Congelar +15s - 1400 monedas"
             >
-              <Clock size={14} />
-              <span className="text-[10px] leading-none mt-0.5">+15s</span>
+              <Clock size={12} />
+              <span className="text-[9px] leading-none mt-0.5">+15s</span>
             </button>
           </>
         )}
