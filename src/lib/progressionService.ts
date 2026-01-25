@@ -272,11 +272,21 @@ export async function getChestProgress(userId: string): Promise<ChestProgress | 
 }
 
 export async function incrementChestProgress(userId: string): Promise<{ shouldOpenChest: boolean; progress: ChestProgress | null }> {
+  console.log('[progressionService] 🎁 incrementChestProgress called for user:', userId);
+
   const current = await getChestProgress(userId);
-  if (!current) return { shouldOpenChest: false, progress: null };
+  console.log('[progressionService] Current chest progress:', current);
+
+  if (!current) {
+    console.warn('[progressionService] ⚠️ No chest progress found for user');
+    return { shouldOpenChest: false, progress: null };
+  }
 
   const newProgress = current.progress + 1;
   const shouldOpenChest = newProgress >= 3;
+
+  console.log('[progressionService] Old progress:', current.progress, '→ New progress:', newProgress);
+  console.log('[progressionService] Should open chest?', shouldOpenChest);
 
   const { data, error } = await supabase
     .from('chest_progress')
@@ -289,9 +299,11 @@ export async function incrementChestProgress(userId: string): Promise<{ shouldOp
     .single();
 
   if (error) {
-    console.error('[progressionService] Error incrementing chest progress:', error);
+    console.error('[progressionService] ❌ Error incrementing chest progress:', error);
     return { shouldOpenChest: false, progress: current };
   }
+
+  console.log('[progressionService] ✅ Chest progress updated. Updated data:', data);
 
   return {
     shouldOpenChest,

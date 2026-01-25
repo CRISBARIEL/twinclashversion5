@@ -812,13 +812,16 @@ export const GameCore = ({
 
               // Actualizar progreso de cofre
               const chestResult = await incrementChestProgress(user.id);
-              console.log('[GameCore] Chest progress result:', chestResult);
+              console.log('[GameCore] 🎁 Chest progress result:', {
+                shouldOpenChest: chestResult.shouldOpenChest,
+                progress: chestResult.progress
+              });
+
               if (chestResult.shouldOpenChest) {
-                console.log('[GameCore] 🎁 SHOWING CHEST REWARD!');
-                // Esperar un poco antes de mostrar el cofre para que el modal de victoria se vea primero
-                setTimeout(() => {
-                  setShowChestReward(true);
-                }, 1500);
+                console.log('[GameCore] ✅ CHEST SHOULD OPEN! Setting showChestReward to true');
+                setShowChestReward(true);
+              } else {
+                console.log('[GameCore] ⏳ Chest progress:', chestResult.progress?.progress, '/3');
               }
 
               // Actualizar misiones diarias
@@ -1626,13 +1629,9 @@ export const GameCore = ({
 
           {/* Display de vidas */}
           {!isDailyChallenge && !isDuel && (
-            <div className="flex items-center gap-0.5 ml-1 bg-red-100 px-2 py-1 rounded-lg">
-              {Array.from({ length: livesLeft }).map((_, i) => (
-                <span key={i} className="text-xs">❤️</span>
-              ))}
-              {Array.from({ length: 5 - livesLeft }).map((_, i) => (
-                <span key={`empty-${i}`} className="text-xs opacity-30">💔</span>
-              ))}
+            <div className="flex items-center gap-1 ml-1 bg-red-100 px-2 py-1 rounded-lg">
+              <span className="text-sm font-bold text-red-600">{livesLeft}</span>
+              <span className="text-sm">❤️</span>
             </div>
           )}
         </div>
@@ -1760,7 +1759,7 @@ export const GameCore = ({
         </div>
       )}
 
-      {showWinModal && !showChestReward && (
+      {showWinModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
             <div className="text-6xl mb-4">🎉</div>
