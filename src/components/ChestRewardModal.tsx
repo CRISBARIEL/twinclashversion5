@@ -43,7 +43,7 @@ export const ChestRewardModal = ({ onClose }: ChestRewardModalProps) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]">
       <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl p-8 max-w-md w-full text-center shadow-2xl relative overflow-hidden">
         {!opened && (
           <button

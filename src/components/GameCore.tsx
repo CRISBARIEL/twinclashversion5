@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { RotateCcw, Share2, Trophy, List, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { RotateCcw, Share2, Trophy, List, ArrowLeft, AlertTriangle, Gift, Target } from 'lucide-react';
 import { GameCard } from './GameCard';
 import { Leaderboard } from './Leaderboard';
 import { PowerUpButtons } from './PowerUpButtons';
@@ -13,6 +13,8 @@ import { DifficultyOverlay } from './DifficultyOverlay';
 import { SatisfactionModal, ReviewRequestModal, FeedbackModal } from './ReviewModals';
 import { ChestRewardModal } from './ChestRewardModal';
 import { LivesDisplay } from './LivesDisplay';
+import { DailyLoginPanel } from './DailyLoginPanel';
+import { DailyMissionsPanel } from './DailyMissionsPanel';
 import { Card, PREVIEW_TIME, FLIP_DELAY, GameMetrics, BestScore } from '../types';
 import { createConfetti } from '../utils/confetti';
 import { getSeedFromURLorToday, shuffleWithSeed } from '../lib/seed';
@@ -117,6 +119,8 @@ export const GameCore = ({
   const [showChestReward, setShowChestReward] = useState(false);
   const [showNoLivesModal, setShowNoLivesModal] = useState(false);
   const [livesLeft, setLivesLeft] = useState(5);
+  const [showDailyLogin, setShowDailyLogin] = useState(false);
+  const [showDailyMissions, setShowDailyMissions] = useState(false);
   const [bestScore, setBestScore] = useState<BestScore | null>(null);
   const [seed] = useState(() => {
     if (isDuel) return duelSeed as string;
@@ -1572,28 +1576,46 @@ export const GameCore = ({
           </div>
         )}
 
-        <div className="flex gap-1.5 w-full">
+        <div className="flex gap-1 w-full items-center">
           <button
             onClick={openExitModal}
-            className="bg-gray-500 text-white p-2 rounded-lg flex items-center justify-center hover:bg-gray-600 transition-colors"
+            className="bg-gray-500 text-white p-1.5 rounded-lg flex items-center justify-center hover:bg-gray-600 transition-colors shadow-sm"
             title="Volver"
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} />
           </button>
           <button
             onClick={handleRestart}
-            className="flex-1 bg-orange-500 text-white py-1.5 px-2 rounded-lg font-semibold flex items-center justify-center gap-1 hover:bg-orange-600 transition-colors text-xs"
+            className="bg-orange-500 text-white p-1.5 rounded-lg flex items-center justify-center hover:bg-orange-600 transition-colors shadow-sm"
+            title="Reiniciar"
           >
-            <RotateCcw size={14} />
-            Reiniciar
+            <RotateCcw size={16} />
           </button>
+          {!isDailyChallenge && !isDuel && (
+            <>
+              <button
+                onClick={() => setShowDailyLogin(true)}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-1.5 rounded-lg flex items-center justify-center hover:from-purple-600 hover:to-pink-600 transition-colors shadow-sm"
+                title="Regalos Diarios"
+              >
+                <Gift size={16} />
+              </button>
+              <button
+                onClick={() => setShowDailyMissions(true)}
+                className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-1.5 rounded-lg flex items-center justify-center hover:from-blue-600 hover:to-cyan-600 transition-colors shadow-sm"
+                title="Misiones Diarias"
+              >
+                <Target size={16} />
+              </button>
+            </>
+          )}
           {isDailyChallenge && (
             <button
               onClick={() => setShowLeaderboard(true)}
-              className="bg-yellow-500 text-white p-2 rounded-lg flex items-center justify-center hover:bg-yellow-600 transition-colors"
+              className="bg-yellow-500 text-white p-1.5 rounded-lg flex items-center justify-center hover:bg-yellow-600 transition-colors shadow-sm"
               title="Top"
             >
-              <List size={18} />
+              <List size={16} />
             </button>
           )}
         </div>
@@ -1721,7 +1743,7 @@ export const GameCore = ({
         </div>
       )}
 
-      {showWinModal && (
+      {showWinModal && !showChestReward && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
             <div className="text-6xl mb-4">🎉</div>
@@ -1979,6 +2001,34 @@ export const GameCore = ({
         <ChestRewardModal
           onClose={() => setShowChestReward(false)}
         />
+      )}
+
+      {showDailyLogin && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="relative">
+            <DailyLoginPanel />
+            <button
+              onClick={() => setShowDailyLogin(false)}
+              className="absolute top-2 right-2 bg-gray-800/80 hover:bg-gray-800 text-white rounded-full p-2 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showDailyMissions && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="relative">
+            <DailyMissionsPanel />
+            <button
+              onClick={() => setShowDailyMissions(false)}
+              className="absolute top-2 right-2 bg-gray-800/80 hover:bg-gray-800 text-white rounded-full p-2 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
       )}
 
       <ShatterEffect trigger={shatterTrigger} theme={shatterTheme} />
