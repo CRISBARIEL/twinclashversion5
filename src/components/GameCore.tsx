@@ -11,6 +11,7 @@ import { ShatterEffect, ShatterTheme } from './ShatterEffect';
 import { CountdownOverlay } from './CountdownOverlay';
 import { DifficultyOverlay } from './DifficultyOverlay';
 import { SatisfactionModal, ReviewRequestModal, FeedbackModal } from './ReviewModals';
+import { ChestRewardModal } from './ChestRewardModal';
 import { Card, PREVIEW_TIME, FLIP_DELAY, GameMetrics, BestScore } from '../types';
 import { createConfetti } from '../utils/confetti';
 import { getSeedFromURLorToday, shuffleWithSeed } from '../lib/seed';
@@ -31,6 +32,13 @@ import {
   GlobalBombTimerData
 } from '../lib/advancedObstacles';
 import { trackTikTokLevelComplete, trackTikTokGameStart } from '../lib/tiktok';
+import {
+  saveLevelResult,
+  calculateStarTargets,
+  incrementChestProgress,
+  updateMissionProgress,
+} from '../lib/progressionService';
+import { supabase } from '../lib/supabase';
 
 interface GameCoreProps {
   level: number;
@@ -98,8 +106,12 @@ export const GameCore = ({
   const [timeLeft, setTimeLeft] = useState(levelConfig?.timeLimit || 60);
   const [gameOver, setGameOver] = useState(false);
   const [moves, setMoves] = useState(0);
+  const [mistakes, setMistakes] = useState(0);
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [showWinModal, setShowWinModal] = useState(false);
+  const [starsEarned, setStarsEarned] = useState(0);
+  const [coinReward, setCoinReward] = useState(0);
+  const [showChestReward, setShowChestReward] = useState(false);
   const [bestScore, setBestScore] = useState<BestScore | null>(null);
   const [seed] = useState(() => {
     if (isDuel) return duelSeed as string;
@@ -446,8 +458,12 @@ export const GameCore = ({
     setGameOver(false);
     setTimeLeft(timeLimit);
     setMoves(0);
+    setMistakes(0);
     setTimeElapsed(0);
     setShowWinModal(false);
+    setStarsEarned(0);
+    setCoinReward(0);
+    setShowChestReward(false);
     setHintCards([]);
     setConsecutiveMisses(0);
     setCrackedCards(new Set());
@@ -718,6 +734,9 @@ export const GameCore = ({
       }
 
       const handleLevelComplete = async () => {
+        const timeMs = finalTimeValue * 1000;
+        const totalAttempts = moves;
+
         if (isDailyChallenge) {
           const stored = localStorage.getItem(`best:${seed}`);
           let shouldSave = true;
@@ -739,7 +758,7 @@ export const GameCore = ({
           }
 
           try {
-            const result = await submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: activeLevel });
+            const result = await submitScoreAndReward({ seed, timeMs, moves, crewId, levelId: activeLevel });
             if (result.isPioneer) {
               setIsPioneer(true);
             }
@@ -764,8 +783,39 @@ export const GameCore = ({
             }, 2500);
           }, 1500);
         } else {
+          // Guardar estadísticas y calcular estrellas
+          const { data: { user } } = await supabase.auth.getUser();
+
+          if (user) {
+            try {
+              const result = await saveLevelResult(user.id, {
+                levelId: activeLevel,
+                timeMs,
+                moves,
+                mistakes,
+                totalAttempts,
+              });
+
+              console.log('[GameCore] Level stats saved:', result);
+              setStarsEarned(result.starsEarned);
+              setCoinReward(result.coinReward);
+              setCoinsEarned(result.coinReward);
+
+              // Actualizar progreso de cofre
+              const chestResult = await incrementChestProgress(user.id);
+              if (chestResult.shouldOpenChest) {
+                setShowChestReward(true);
+              }
+
+              // Actualizar misiones diarias
+              await updateMissionProgress(user.id, result.starsEarned, result.starsEarned === 3);
+            } catch (err) {
+              console.error('[GameCore] Failed to save progression:', err);
+            }
+          }
+
           try {
-            const result = await submitScoreAndReward({ seed, timeMs: finalTimeValue * 1000, moves, crewId, levelId: activeLevel });
+            const result = await submitScoreAndReward({ seed, timeMs, moves, crewId, levelId: activeLevel });
             if (result.isPioneer) {
               setIsPioneer(true);
             }
@@ -773,11 +823,7 @@ export const GameCore = ({
             console.error('[GameCore] Failed to submit score:', err);
           }
 
-          const baseCoins = 10;
-          setCoinsEarned(baseCoins);
-          addCoins(baseCoins);
           setCurrentCoins(getLocalCoins());
-
           trackTikTokLevelComplete(activeLevel).catch(console.error);
 
           setTimeout(() => {
@@ -1068,6 +1114,7 @@ export const GameCore = ({
       } else {
         setStreakMatches(0);
         setConsecutiveMisses((prev) => prev + 1);
+        setMistakes((prev) => prev + 1);
 
         if (firstCard?.obstacle === 'fire' || secondCard?.obstacle === 'fire') {
           setTimeLeft((prev) => Math.max(0, prev - 5));
@@ -1612,6 +1659,37 @@ export const GameCore = ({
             <div className="text-6xl mb-4">🎉</div>
             <h3 className="text-3xl font-bold text-green-600 mb-4">¡Completado!</h3>
 
+            {!isDailyChallenge && !isDuel && starsEarned > 0 && (
+              <div className="mb-4">
+                <div className="flex justify-center gap-2 mb-3">
+                  {[1, 2, 3].map((star) => (
+                    <div
+                      key={star}
+                      className={`text-5xl transition-all duration-300 ${
+                        star <= starsEarned ? 'scale-110' : 'opacity-30 grayscale'
+                      }`}
+                    >
+                      ⭐
+                    </div>
+                  ))}
+                </div>
+                <div className="text-sm text-gray-600">
+                  {starsEarned === 3 && '¡Perfecto! 3 estrellas'}
+                  {starsEarned === 2 && '¡Muy bien! 2 estrellas'}
+                  {starsEarned === 1 && '¡Completado! 1 estrella'}
+                </div>
+                {starsEarned < 3 && (() => {
+                  const targets = calculateStarTargets(activeLevel);
+                  return (
+                    <div className="text-xs text-gray-500 mt-2">
+                      {starsEarned < 2 && `2⭐: ${targets.targetMoves2} movimientos`}
+                      {starsEarned < 3 && ` • 3⭐: ${targets.targetMoves3} movimientos`}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+
             {isPioneer && (
               <div className="bg-gradient-to-r from-yellow-400 to-amber-500 rounded-xl p-4 mb-4">
                 <div className="text-3xl mb-2">🏆</div>
@@ -1826,6 +1904,12 @@ export const GameCore = ({
       {reviewStep === 'feedback' && (
         <FeedbackModal
           onClose={closeReviewModal}
+        />
+      )}
+
+      {showChestReward && (
+        <ChestRewardModal
+          onClose={() => setShowChestReward(false)}
         />
       )}
 

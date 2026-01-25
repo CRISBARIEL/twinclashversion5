@@ -4,6 +4,8 @@ import { getLevelsByWorld, getGlobalLevelId } from '../lib/levels';
 import { getThemeName } from '../lib/themes';
 import { canPlayLevel, purchaseLevel, getWorldState, ensureWorld, LEVEL_UNLOCK_COST } from '../lib/worldProgress';
 import { getLocalCoins } from '../lib/progression';
+import { getAllLevelStats, LevelStats } from '../lib/progressionService';
+import { supabase } from '../lib/supabase';
 
 interface LevelSelectorProps {
   world: number;
@@ -19,6 +21,7 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
   const [purchaseModalLevel, setPurchaseModalLevel] = useState<number | null>(null);
   const [coins, setCoins] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [levelStats, setLevelStats] = useState<Map<number, LevelStats>>(new Map());
 
   useEffect(() => {
     const loadLevelStates = async () => {
@@ -45,6 +48,14 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
       console.log('[LevelSelector] Final levelAccess:', access);
       setLevelAccess(access);
       setCoins(getLocalCoins());
+
+      // Cargar estadísticas de nivel
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const stats = await getAllLevelStats(user.id);
+        setLevelStats(stats);
+      }
+
       console.log('[LevelSelector] ====================================');
     };
 
@@ -115,12 +126,14 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
           const isUnlocked = levelAccess[lvl.level] ?? false;
           const globalLevel = getGlobalLevelId(world, lvl.level);
           const isCurrent = globalLevel === currentLevel;
+          const stats = levelStats.get(globalLevel);
+          const stars = stats?.bestStars || 0;
 
           return (
             <button
               key={lvl.level}
               onClick={() => handleLevelClick(lvl.level)}
-              className={`relative aspect-square rounded-2xl font-bold text-base sm:text-xl transition-all shadow-lg ${
+              className={`relative aspect-square rounded-2xl font-bold text-base sm:text-xl transition-all shadow-lg flex flex-col items-center justify-center ${
                 isUnlocked
                   ? isCurrent
                     ? 'bg-yellow-400 scale-110 shadow-xl text-yellow-900'
@@ -130,7 +143,19 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
             >
               {isUnlocked ? (
                 <>
-                  <span>{lvl.level}</span>
+                  <span className="mb-1">{lvl.level}</span>
+                  {stars > 0 && (
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3].map((s) => (
+                        <span
+                          key={s}
+                          className={`text-xs ${s <= stars ? 'opacity-100' : 'opacity-20'}`}
+                        >
+                          ⭐
+                        </span>
+                      ))}
+                    </div>
+                  )}
                   {isCurrent && (
                     <Star
                       className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 text-yellow-600 fill-yellow-400"

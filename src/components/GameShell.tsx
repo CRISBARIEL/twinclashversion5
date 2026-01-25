@@ -4,6 +4,9 @@ import { addCoins, setCurrentLevel } from '../lib/progression';
 import { getLevelConfig } from '../lib/levels';
 import { WorldUnlockModal } from './WorldUnlockModal';
 import { WorldIntroScreen } from './WorldIntroScreen';
+import { DailyLoginPanel } from './DailyLoginPanel';
+import { DailyMissionsPanel } from './DailyMissionsPanel';
+import { ChestProgressBar } from './ChestProgressBar';
 import { soundManager } from '../lib/sound';
 import { completeWorldLevel, getWorldIdForLevel, getLevelInWorld } from '../lib/worldProgress';
 
@@ -165,13 +168,22 @@ export const GameShell = ({ initialLevel, onBackToMenu, onShowWorldMap }: GameSh
           onStart={handleStartWorld}
         />
       ) : (
-        <section key={`level-${level}`}>
-          <GameCore
-            level={level}
-            onComplete={onLevelCompleted}
-            onBackToMenu={onBackToMenu}
-          />
-        </section>
+        <>
+          <section key={`level-${level}`}>
+            <GameCore
+              level={level}
+              onComplete={onLevelCompleted}
+              onBackToMenu={onBackToMenu}
+            />
+          </section>
+
+          <div className="fixed top-4 left-4 z-40">
+            <ChestProgressBar />
+          </div>
+
+          <DailyLoginPanel />
+          <DailyMissionsPanel />
+        </>
       )}
 
       {worldUnlockEvent && (
