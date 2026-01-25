@@ -3,16 +3,21 @@ import { Target, X, CheckCircle2, Circle } from 'lucide-react';
 import { getDailyMissions, claimMission, DailyMission } from '../lib/progressionService';
 import { supabase } from '../lib/supabase';
 
-export const DailyMissionsPanel = () => {
+interface DailyMissionsPanelProps {
+  forceOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const DailyMissionsPanel = ({ forceOpen = false, onClose }: DailyMissionsPanelProps = {}) => {
   const [showModal, setShowModal] = useState(false);
   const [missions, setMissions] = useState<DailyMission[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (showModal) {
+    if (showModal || forceOpen) {
       loadMissions();
     }
-  }, [showModal]);
+  }, [showModal, forceOpen]);
 
   const loadMissions = async () => {
     setLoading(true);
@@ -63,7 +68,12 @@ export const DailyMissionsPanel = () => {
     }
   };
 
-  if (!showModal) {
+  const handleClose = () => {
+    setShowModal(false);
+    if (onClose) onClose();
+  };
+
+  if (!showModal && !forceOpen) {
     return (
       <button
         onClick={() => setShowModal(true)}
@@ -80,10 +90,10 @@ export const DailyMissionsPanel = () => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+    <div className={forceOpen ? '' : 'fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50'}>
       <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-3xl p-8 max-w-md w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
         <button
-          onClick={() => setShowModal(false)}
+          onClick={handleClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
         >
           <X size={24} />

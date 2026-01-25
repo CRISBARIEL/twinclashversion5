@@ -3,7 +3,12 @@ import { Calendar, Star, Gift, X } from 'lucide-react';
 import { checkDailyLogin, claimDailyLogin } from '../lib/progressionService';
 import { supabase } from '../lib/supabase';
 
-export const DailyLoginPanel = () => {
+interface DailyLoginPanelProps {
+  forceOpen?: boolean;
+  onClose?: () => void;
+}
+
+export const DailyLoginPanel = ({ forceOpen = false, onClose }: DailyLoginPanelProps = {}) => {
   const [showModal, setShowModal] = useState(false);
   const [canClaim, setCanClaim] = useState(false);
   const [streak, setStreak] = useState(0);
@@ -52,7 +57,12 @@ export const DailyLoginPanel = () => {
     { coins: 300, boosts: 3, icon: '👑' },
   ];
 
-  if (!showModal) {
+  const handleClose = () => {
+    setShowModal(false);
+    if (onClose) onClose();
+  };
+
+  if (!showModal && !forceOpen) {
     return (
       <button
         onClick={() => setShowModal(true)}
@@ -67,10 +77,10 @@ export const DailyLoginPanel = () => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+    <div className={forceOpen ? '' : 'fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50'}>
       <div className="bg-gradient-to-br from-pink-50 to-rose-50 rounded-3xl p-8 max-w-md w-full shadow-2xl relative">
         <button
-          onClick={() => setShowModal(false)}
+          onClick={handleClose}
           className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
         >
           <X size={24} />

@@ -812,8 +812,13 @@ export const GameCore = ({
 
               // Actualizar progreso de cofre
               const chestResult = await incrementChestProgress(user.id);
+              console.log('[GameCore] Chest progress result:', chestResult);
               if (chestResult.shouldOpenChest) {
-                setShowChestReward(true);
+                console.log('[GameCore] 🎁 SHOWING CHEST REWARD!');
+                // Esperar un poco antes de mostrar el cofre para que el modal de victoria se vea primero
+                setTimeout(() => {
+                  setShowChestReward(true);
+                }, 1500);
               }
 
               // Actualizar misiones diarias
@@ -1591,7 +1596,7 @@ export const GameCore = ({
           >
             <RotateCcw size={16} />
           </button>
-          {!isDailyChallenge && !isDuel && (
+          {!isDuel && (
             <>
               <button
                 onClick={() => setShowDailyLogin(true)}
@@ -1617,6 +1622,18 @@ export const GameCore = ({
             >
               <List size={16} />
             </button>
+          )}
+
+          {/* Display de vidas */}
+          {!isDailyChallenge && !isDuel && (
+            <div className="flex items-center gap-0.5 ml-1 bg-red-100 px-2 py-1 rounded-lg">
+              {Array.from({ length: livesLeft }).map((_, i) => (
+                <span key={i} className="text-xs">❤️</span>
+              ))}
+              {Array.from({ length: 5 - livesLeft }).map((_, i) => (
+                <span key={`empty-${i}`} className="text-xs opacity-30">💔</span>
+              ))}
+            </div>
           )}
         </div>
 
@@ -2004,30 +2021,20 @@ export const GameCore = ({
       )}
 
       {showDailyLogin && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="relative">
-            <DailyLoginPanel />
-            <button
-              onClick={() => setShowDailyLogin(false)}
-              className="absolute top-2 right-2 bg-gray-800/80 hover:bg-gray-800 text-white rounded-full p-2 transition-colors"
-            >
-              ✕
-            </button>
-          </div>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+          <DailyLoginPanel
+            forceOpen={true}
+            onClose={() => setShowDailyLogin(false)}
+          />
         </div>
       )}
 
       {showDailyMissions && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="relative">
-            <DailyMissionsPanel />
-            <button
-              onClick={() => setShowDailyMissions(false)}
-              className="absolute top-2 right-2 bg-gray-800/80 hover:bg-gray-800 text-white rounded-full p-2 transition-colors"
-            >
-              ✕
-            </button>
-          </div>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+          <DailyMissionsPanel
+            forceOpen={true}
+            onClose={() => setShowDailyMissions(false)}
+          />
         </div>
       )}
 
