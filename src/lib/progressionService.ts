@@ -717,12 +717,18 @@ export async function getUserLives(userId: string): Promise<UserLives | null> {
 }
 
 export async function loseLife(userId: string): Promise<{ success: boolean; livesLeft: number }> {
+  console.log('[progressionService] 💔 loseLife called for userId:', userId);
+
   const lives = await getUserLives(userId);
+  console.log('[progressionService] Current lives data:', lives);
+
   if (!lives || lives.currentLives <= 0) {
+    console.warn('[progressionService] ⚠️ No lives to lose or already at 0');
     return { success: false, livesLeft: 0 };
   }
 
   const newLives = lives.currentLives - 1;
+  console.log('[progressionService] Updating lives:', lives.currentLives, '→', newLives);
 
   const { error } = await supabase
     .from('user_lives')
@@ -734,10 +740,11 @@ export async function loseLife(userId: string): Promise<{ success: boolean; live
     .eq('user_id', userId);
 
   if (error) {
-    console.error('[progressionService] Error losing life:', error);
+    console.error('[progressionService] ❌ Error losing life:', error);
     return { success: false, livesLeft: lives.currentLives };
   }
 
+  console.log('[progressionService] ✅ Life lost successfully! New count:', newLives);
   return { success: true, livesLeft: newLives };
 }
 

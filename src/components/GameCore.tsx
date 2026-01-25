@@ -878,17 +878,34 @@ export const GameCore = ({
 
   useEffect(() => {
     const handleGameOver = async () => {
-      if (!gameOver || isDuel || isDailyChallenge) return;
+      console.log('[GameCore] 💀 handleGameOver triggered', {
+        gameOver,
+        isDuel,
+        isDailyChallenge,
+        shouldProcess: gameOver && !isDuel && !isDailyChallenge
+      });
+
+      if (!gameOver || isDuel || isDailyChallenge) {
+        console.log('[GameCore] ⏭️ Skipping life loss - not applicable');
+        return;
+      }
 
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        console.warn('[GameCore] ⚠️ No user found for life loss');
+        return;
+      }
+
+      console.log('[GameCore] 💔 Losing life for user:', user.id);
 
       // Perder una vida
       const result = await loseLife(user.id);
+      console.log('[GameCore] ✅ Life lost. Lives remaining:', result.livesLeft);
       setLivesLeft(result.livesLeft);
 
       // Si no tiene más vidas, mostrar modal
       if (result.livesLeft <= 0) {
+        console.log('[GameCore] 🚫 No lives left - showing modal');
         setShowNoLivesModal(true);
       }
     };
