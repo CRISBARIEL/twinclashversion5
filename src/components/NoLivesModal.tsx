@@ -50,9 +50,9 @@ export const NoLivesModal = ({ onClose, onLivesPurchased }: NoLivesModalProps) =
   const handleBuyLife = async () => {
     if (buying) return;
 
-    const cost = 100;
+    const cost = 1000;
     if (coins < cost) {
-      alert('No tienes suficientes monedas. ¡Necesitas 100 monedas!');
+      alert('No tienes suficientes monedas. ¡Necesitas 1000 monedas!');
       return;
     }
 
@@ -123,11 +123,11 @@ export const NoLivesModal = ({ onClose, onLivesPurchased }: NoLivesModalProps) =
         <div className="space-y-3">
           <button
             onClick={handleBuyLife}
-            disabled={buying || coins < 100}
+            disabled={buying || coins < 1000}
             className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-gray-900 font-bold py-4 px-6 rounded-xl transition-all hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
           >
             <Coins size={24} />
-            <span>Comprar 1 Vida (100 monedas)</span>
+            <span>Comprar 1 Vida (1000 monedas)</span>
           </button>
 
           <div className="text-center text-sm text-white/70">

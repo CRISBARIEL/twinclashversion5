@@ -8,6 +8,9 @@ import { LanguageSelector } from './LanguageSelector';
 import { playSoundZap } from '../utils/soundManager';
 import { soundManager } from '../lib/sound';
 import { useLanguage } from '../hooks/useLanguage';
+import { NoLivesModal } from './NoLivesModal';
+import { getUserLives } from '../lib/progressionService';
+import { supabase } from '../lib/supabase';
 
 interface InitialScreenProps {
   onStartGame: () => void;
@@ -24,9 +27,24 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
   const [coins, setCoins] = useState(0);
   const [showDailyReward, setShowDailyReward] = useState(false);
   const [savedLevel, setSavedLevel] = useState(1);
+  const [showNoLivesModal, setShowNoLivesModal] = useState(false);
   const logoPlayedRef = useRef(false);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<number | null>(null);
+
+  const checkLivesAndStart = async (startCallback: () => void) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id || null;
+
+    const lives = await getUserLives(userId);
+    if (!lives || lives.currentLives <= 0) {
+      console.log('[InitialScreen] No lives available - showing modal');
+      setShowNoLivesModal(true);
+      return;
+    }
+
+    startCallback();
+  };
 
   useEffect(() => {
     loadFromSupabase().then(() => {
@@ -77,8 +95,16 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center p-4 relative overflow-hidden">
-      <LanguageSelector />
+    <>
+      {showNoLivesModal && (
+        <NoLivesModal
+          onClose={() => setShowNoLivesModal(false)}
+          onLivesPurchased={() => setShowNoLivesModal(false)}
+        />
+      )}
+
+      <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center p-4 relative overflow-hidden">
+        <LanguageSelector />
       <div
         className="fixed top-0 left-0 w-32 h-32 z-40"
         onClick={handleAdminTap}
@@ -165,7 +191,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
           {savedLevel > 1 && onContinueGame && (
             <button
               type="button"
-              onClick={() => onContinueGame(savedLevel)}
+              onClick={() => checkLivesAndStart(() => onContinueGame(savedLevel))}
               className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
               ▶️ {t.menu.continueLevel} {savedLevel}
@@ -174,7 +200,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
           <div className="flex gap-3">
             <button
               type="button"
-              onClick={onStartGame}
+              onClick={() => checkLivesAndStart(onStartGame)}
               className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
               🆕 {t.common.start}
@@ -182,7 +208,7 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             {onShowWorldMap && (
               <button
                 type="button"
-                onClick={onShowWorldMap}
+                onClick={() => checkLivesAndStart(onShowWorldMap)}
                 className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
               >
                 <Map size={20} />
@@ -261,5 +287,6 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
         </div>
       )}
     </div>
+    </>
   );
 };

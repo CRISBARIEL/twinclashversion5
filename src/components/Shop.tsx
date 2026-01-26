@@ -48,11 +48,10 @@ export const Shop = ({ onClose, onSkinChanged }: ShopProps) => {
 
         // Cargar vidas
         const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const lives = await getUserLives(user.id);
-          if (lives) {
-            setCurrentLives(lives.currentLives);
-          }
+        const userId = user?.id || null;
+        const lives = await getUserLives(userId);
+        if (lives) {
+          setCurrentLives(lives.currentLives);
         }
       } catch (error) {
         console.error('Error loading data:', error);
