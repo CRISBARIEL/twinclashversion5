@@ -185,14 +185,6 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             <Coins size={20} className="text-white" />
             <span className="text-lg font-bold text-white">{coins}</span>
           </div>
-          <button
-            type="button"
-            onClick={() => setShowShop(true)}
-            className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-3 flex items-center justify-center gap-2 hover:shadow-lg transition-all cursor-pointer"
-          >
-            <ShoppingBag size={20} className="text-white" />
-            <span className="text-sm font-bold text-white">{t.menu.shop}</span>
-          </button>
         </div>
 
         <div className="space-y-4">
@@ -205,42 +197,51 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
               ▶️ {t.menu.continueLevel} {savedLevel}
             </button>
           )}
-          <div className="flex gap-3">
+
+          <button
+            type="button"
+            onClick={() => checkLivesAndStart(onStartGame)}
+            className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
+          >
+            {t.common.start}
+          </button>
+
+          {onShowWorldMap && (
             <button
               type="button"
-              onClick={() => checkLivesAndStart(onStartGame)}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
+              onClick={() => checkLivesAndStart(onShowWorldMap)}
+              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
             >
-              🆕 {t.common.start}
+              <Map size={24} />
+              <span>{t.menu.worldMap}</span>
             </button>
-            {onShowWorldMap && (
-              <button
-                type="button"
-                onClick={() => checkLivesAndStart(onShowWorldMap)}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-indigo-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
-              >
-                <Map size={20} />
-                <span className="text-sm">{t.menu.worldMap}</span>
-              </button>
-            )}
-          </div>
+          )}
+
+          <button
+            type="button"
+            onClick={() => setShowShop(true)}
+            className="w-full bg-gradient-to-r from-violet-500 to-purple-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+          >
+            <ShoppingBag size={24} />
+            <span>{t.menu.shop}</span>
+          </button>
 
           <button
             type="button"
             onClick={onStartDailyChallenge}
-            className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl p-3 font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
           >
-            <Calendar size={20} />
-            <span className="text-sm">{t.menu.dailyChallenge}</span>
+            <Calendar size={24} />
+            <span>{t.menu.dailyChallenge}</span>
           </button>
 
           <button
             type="button"
             onClick={onStartDuel}
-            className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl p-3 font-bold shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+            className="w-full bg-gradient-to-r from-red-500 to-pink-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
           >
-            <Swords size={20} />
-            <span className="text-sm">{t.menu.playDuel}</span>
+            <Swords size={24} />
+            <span>{t.menu.playDuel}</span>
           </button>
 
           <div className="flex justify-center">
