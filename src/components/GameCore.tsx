@@ -119,6 +119,7 @@ export const GameCore = ({
   const [showChestReward, setShowChestReward] = useState(false);
   const [showNoLivesModal, setShowNoLivesModal] = useState(false);
   const [livesLeft, setLivesLeft] = useState(5);
+  const [livesProcessed, setLivesProcessed] = useState(false);
   const [showDailyLogin, setShowDailyLogin] = useState(false);
   const [showDailyMissions, setShowDailyMissions] = useState(false);
   const [bestScore, setBestScore] = useState<BestScore | null>(null);
@@ -465,6 +466,7 @@ export const GameCore = ({
     setShowDifficulty(!isDailyChallenge && !!config?.difficulty);
     setIsPreview(true);
     setGameOver(false);
+    setLivesProcessed(false);
     setTimeLeft(timeLimit);
     setMoves(0);
     setMistakes(0);
@@ -885,14 +887,21 @@ export const GameCore = ({
         shouldProcess: gameOver && !isDuel && !isDailyChallenge
       });
 
-      if (!gameOver || isDuel || isDailyChallenge) {
-        console.log('[GameCore] ⏭️ Skipping life loss - not applicable');
+      if (!gameOver) {
+        return;
+      }
+
+      // Si es duelo o desafío diario, solo marcar como procesado (no restar vidas)
+      if (isDuel || isDailyChallenge) {
+        console.log('[GameCore] ⏭️ Skipping life loss - duel or daily challenge');
+        setLivesProcessed(true);
         return;
       }
 
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         console.warn('[GameCore] ⚠️ No user found for life loss');
+        setLivesProcessed(true);
         return;
       }
 
@@ -902,6 +911,7 @@ export const GameCore = ({
       const result = await loseLife(user.id);
       console.log('[GameCore] ✅ Life lost. Lives remaining:', result.livesLeft);
       setLivesLeft(result.livesLeft);
+      setLivesProcessed(true);
 
       // Si no tiene más vidas, mostrar modal
       if (result.livesLeft <= 0) {
@@ -1719,7 +1729,7 @@ export const GameCore = ({
         </div>
       </div>
 
-      {gameOver && !showNoLivesModal && (
+      {gameOver && !showNoLivesModal && livesProcessed && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
             <div className="text-6xl mb-4">😢</div>
