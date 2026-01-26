@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 import { getLevelConfig } from './levels';
-import { addCoins } from './progression';
+import { addCoins, getLocalCoins } from './progression';
 
 export interface LevelStats {
   userId: string;
@@ -647,8 +647,40 @@ export interface UserLives {
 }
 
 const LIFE_REGEN_TIME_MS = 60 * 60 * 1000; // 1 hora
+const STORAGE_KEY_LIVES = 'user_lives_local';
+const STORAGE_KEY_LAST_LIFE_LOST = 'last_life_lost_at_local';
 
-export async function getUserLives(userId: string): Promise<UserLives | null> {
+export async function getUserLives(userId: string | null): Promise<UserLives | null> {
+  // Si no hay usuario, usar localStorage
+  if (!userId) {
+    console.log('[progressionService] No userId - using localStorage for lives');
+    const storedLives = localStorage.getItem(STORAGE_KEY_LIVES);
+    const storedLastLost = localStorage.getItem(STORAGE_KEY_LAST_LIFE_LOST);
+
+    let currentLives = storedLives ? parseInt(storedLives, 10) : 5;
+    const maxLives = 5;
+    const lastLifeLost = storedLastLost ? new Date(storedLastLost) : null;
+
+    // Calcular vidas regeneradas
+    if (lastLifeLost && currentLives < maxLives) {
+      const now = Date.now();
+      const timeSinceLastLoss = now - lastLifeLost.getTime();
+      const livesRegained = Math.floor(timeSinceLastLoss / LIFE_REGEN_TIME_MS);
+
+      if (livesRegained > 0) {
+        currentLives = Math.min(maxLives, currentLives + livesRegained);
+        localStorage.setItem(STORAGE_KEY_LIVES, currentLives.toString());
+      }
+    }
+
+    return {
+      userId: 'local',
+      currentLives,
+      maxLives,
+      lastLifeLostAt: lastLifeLost,
+    };
+  }
+
   const { data, error } = await supabase
     .from('user_lives')
     .select('*')
@@ -716,7 +748,7 @@ export async function getUserLives(userId: string): Promise<UserLives | null> {
   };
 }
 
-export async function loseLife(userId: string): Promise<{ success: boolean; livesLeft: number }> {
+export async function loseLife(userId: string | null): Promise<{ success: boolean; livesLeft: number }> {
   console.log('[progressionService] 💔 loseLife called for userId:', userId);
 
   const lives = await getUserLives(userId);
@@ -729,6 +761,15 @@ export async function loseLife(userId: string): Promise<{ success: boolean; live
 
   const newLives = lives.currentLives - 1;
   console.log('[progressionService] Updating lives:', lives.currentLives, '→', newLives);
+
+  // Si no hay usuario, actualizar localStorage
+  if (!userId) {
+    console.log('[progressionService] Updating localStorage lives');
+    localStorage.setItem(STORAGE_KEY_LIVES, newLives.toString());
+    localStorage.setItem(STORAGE_KEY_LAST_LIFE_LOST, new Date().toISOString());
+    console.log('[progressionService] ✅ Life lost successfully (localStorage)! New count:', newLives);
+    return { success: true, livesLeft: newLives };
+  }
 
   const { error } = await supabase
     .from('user_lives')
@@ -765,7 +806,7 @@ export function formatTimeUntilNextLife(ms: number): string {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
-export async function buyLives(userId: string, amount: number, cost: number): Promise<{ success: boolean; newLivesCount: number; error?: string }> {
+export async function buyLives(userId: string | null, amount: number, cost: number): Promise<{ success: boolean; newLivesCount: number; error?: string }> {
   console.log('[progressionService] 💰 Buying lives:', { amount, cost });
 
   // Verificar que el usuario tenga suficientes monedas
@@ -789,6 +830,14 @@ export async function buyLives(userId: string, amount: number, cost: number): Pr
   if (livesAdded <= 0) {
     console.warn('[progressionService] ⚠️ Already at max lives');
     return { success: false, newLivesCount: lives.currentLives, error: 'Ya tienes el máximo de vidas' };
+  }
+
+  // Si no hay usuario, actualizar localStorage
+  if (!userId) {
+    localStorage.setItem(STORAGE_KEY_LIVES, newLives.toString());
+    addCoins(-cost);
+    console.log('[progressionService] ✅ Lives purchased (localStorage)!', lives.currentLives, '→', newLives);
+    return { success: true, newLivesCount: newLives };
   }
 
   // Actualizar vidas en BD

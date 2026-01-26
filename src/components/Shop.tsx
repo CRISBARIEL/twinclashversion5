@@ -109,12 +109,9 @@ export const Shop = ({ onClose, onSkinChanged }: ShopProps) => {
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        alert('Debes iniciar sesión para comprar vidas');
-        return;
-      }
+      const userId = user?.id || null;
 
-      const result = await buyLives(user.id, amount, cost);
+      const result = await buyLives(userId, amount, cost);
       if (result.success) {
         setCoins(getLocalCoins());
         setCurrentLives(result.newLivesCount);

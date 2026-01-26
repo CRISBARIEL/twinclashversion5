@@ -16,12 +16,9 @@ export const LivesDisplay = () => {
 
   const loadLives = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+    const userId = user?.id || null;
 
-    const userLives = await getUserLives(user.id);
+    const userLives = await getUserLives(userId);
     setLives(userLives);
     setLoading(false);
 

@@ -546,9 +546,9 @@ export const GameCore = ({
       if (isDailyChallenge || isDuel) return; // No usar vidas en desafíos o duelos
 
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const userId = user?.id || null;
 
-      const lives = await getUserLives(user.id);
+      const lives = await getUserLives(userId);
       if (lives) {
         console.log('[GameCore] Lives loaded:', lives.currentLives, '/', lives.maxLives);
         setLivesLeft(lives.currentLives);
@@ -899,16 +899,11 @@ export const GameCore = ({
       }
 
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        console.warn('[GameCore] ⚠️ No user found for life loss');
-        setLivesProcessed(true);
-        return;
-      }
+      const userId = user?.id || null;
+      console.log('[GameCore] 💔 Losing life for user:', userId || 'local (no auth)');
 
-      console.log('[GameCore] 💔 Losing life for user:', user.id);
-
-      // Perder una vida
-      const result = await loseLife(user.id);
+      // Perder una vida (funciona con o sin usuario)
+      const result = await loseLife(userId);
       console.log('[GameCore] ✅ Life lost. Lives remaining:', result.livesLeft);
       setLivesLeft(result.livesLeft);
       setLivesProcessed(true);
