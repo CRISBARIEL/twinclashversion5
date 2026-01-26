@@ -104,6 +104,7 @@ function App() {
   const [selectedWorld, setSelectedWorld] = useState(1);
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
   const [openShopDirectly, setOpenShopDirectly] = useState(false);
+  const [menuKey, setMenuKey] = useState(0);
   const [clientId] = useState(() => {
     let id = localStorage.getItem('clientId');
     if (!id) {
@@ -165,6 +166,7 @@ function App() {
   const handleBackToMenu = () => {
     soundManager.stopLevelMusic();
     soundManager.playStartMusic();
+    setMenuKey(prev => prev + 1);
     setScreen('menu');
   };
 
@@ -205,6 +207,7 @@ function App() {
       )}
       {screen === 'menu' && (
         <InitialScreen
+          key={menuKey}
           onStartGame={() => {
             setSelectedLevel(1);
             setScreen('game');

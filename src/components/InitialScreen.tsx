@@ -10,7 +10,9 @@ import { soundManager } from '../lib/sound';
 import { useLanguage } from '../hooks/useLanguage';
 import { NoLivesModal } from './NoLivesModal';
 import { getUserLives } from '../lib/progressionService';
-import { supabase } from '../lib/supabase';
+import { supabase, getOrCreateClientId } from '../lib/supabase';
+import { AvatarView } from './AvatarView';
+import { AvatarConfig } from '../types';
 
 interface InitialScreenProps {
   onStartGame: () => void;
@@ -31,6 +33,8 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
   const [showDailyReward, setShowDailyReward] = useState(false);
   const [savedLevel, setSavedLevel] = useState(1);
   const [showNoLivesModal, setShowNoLivesModal] = useState(false);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+  const [avatarConfig, setAvatarConfig] = useState<AvatarConfig | null>(null);
   const logoPlayedRef = useRef(false);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<number | null>(null);
@@ -50,6 +54,24 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
   };
 
   useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const clientId = getOrCreateClientId();
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('display_name, avatar_config')
+          .eq('client_id', clientId)
+          .maybeSingle();
+
+        if (profile) {
+          setDisplayName(profile.display_name);
+          setAvatarConfig(profile.avatar_config as AvatarConfig | null);
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+    };
+
     loadFromSupabase().then(() => {
       setCoins(getLocalCoins());
       setSavedLevel(getCurrentLevel());
@@ -58,6 +80,8 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
         setShowDailyReward(true);
       }
     });
+
+    loadProfile();
 
     if (!logoPlayedRef.current) {
       setTimeout(() => {
@@ -182,6 +206,24 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
         <p className="text-center text-gray-600 mb-6 text-sm font-medium">
           {t.menu.description}
         </p>
+
+        {(displayName || avatarConfig) && (
+          <div
+            onClick={onOpenAvatar}
+            className="mb-4 bg-gradient-to-r from-teal-100 to-cyan-100 rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:from-teal-200 hover:to-cyan-200 transition-all shadow-md"
+          >
+            <div className="bg-white rounded-full p-1 shadow-lg">
+              <AvatarView config={avatarConfig} size="medium" />
+            </div>
+            <div className="flex-1">
+              <div className="font-bold text-gray-800 text-lg">
+                {displayName || 'Jugador'}
+              </div>
+              <div className="text-xs text-gray-600">Toca para editar</div>
+            </div>
+            <User size={20} className="text-teal-600" />
+          </div>
+        )}
 
         <div className="flex gap-3 mb-6">
           <div className="flex-1 bg-gradient-to-r from-yellow-400 to-amber-500 rounded-xl p-3 flex items-center justify-center gap-2">
