@@ -180,6 +180,8 @@ function App() {
             setScreen('game');
           }}
           onStartDuel={handleStartDuel}
+          onOpenShop={() => setScreen('menu')}
+          onStartChallenge={handleStartDailyChallenge}
         />
       )}
       {screen === 'menu' && (

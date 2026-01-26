@@ -1,34 +1,46 @@
 import { useState, useEffect } from 'react';
-import { Swords } from 'lucide-react';
+import { Swords, ShoppingBag, Calendar } from 'lucide-react';
 import { loadFromSupabase, getCurrentLevel } from '../lib/progression';
 import { SoundGear } from './SoundGear';
 import { LanguageSelector } from './LanguageSelector';
 import { soundManager } from '../lib/sound';
 import { useLanguage } from '../hooks/useLanguage';
 import { NoLivesModal } from './NoLivesModal';
-import { getUserLives } from '../lib/progressionService';
+import { getUserLives, UserLives } from '../lib/progressionService';
 import { supabase } from '../lib/supabase';
 
 interface SimpleInitialScreenProps {
   onStartLevel1: () => void;
   onContinueLevel: (level: number) => void;
   onStartDuel: () => void;
+  onOpenShop?: () => void;
+  onStartChallenge?: () => void;
 }
 
-export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDuel }: SimpleInitialScreenProps) => {
+export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDuel, onOpenShop, onStartChallenge }: SimpleInitialScreenProps) => {
   const { t } = useLanguage();
   const [currentLevel, setCurrentLevel] = useState(1);
   const [loading, setLoading] = useState(true);
   const [showNoLivesModal, setShowNoLivesModal] = useState(false);
+  const [userLives, setUserLives] = useState<UserLives | null>(null);
 
   useEffect(() => {
-    loadFromSupabase().then(() => {
-      const level = getCurrentLevel();
-      setCurrentLevel(level);
-      setLoading(false);
-      soundManager.playStartMusic();
-    });
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    await loadFromSupabase();
+    const level = getCurrentLevel();
+    setCurrentLevel(level);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id || null;
+    const lives = await getUserLives(userId);
+    setUserLives(lives);
+
+    setLoading(false);
+    soundManager.playStartMusic();
+  };
 
   const checkLivesAndStart = async (startCallback: () => void) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -60,7 +72,12 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
       {showNoLivesModal && (
         <NoLivesModal
           onClose={() => setShowNoLivesModal(false)}
-          onLivesPurchased={() => setShowNoLivesModal(false)}
+          onLivesPurchased={() => {
+            setShowNoLivesModal(false);
+            loadData();
+          }}
+          onOpenShop={onOpenShop}
+          onStartChallenge={onStartChallenge}
         />
       )}
 
@@ -150,6 +167,32 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
             <Swords size={24} />
             <span>{t.menu.playDuel.toUpperCase()}</span>
           </button>
+
+          {userLives && userLives.currentLives <= 0 && (
+            <>
+              {onOpenShop && (
+                <button
+                  type="button"
+                  onClick={onOpenShop}
+                  className="w-full bg-gradient-to-r from-violet-500 to-purple-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+                >
+                  <ShoppingBag size={24} />
+                  <span>{t.menu.shop.toUpperCase()}</span>
+                </button>
+              )}
+
+              {onStartChallenge && (
+                <button
+                  type="button"
+                  onClick={onStartChallenge}
+                  className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+                >
+                  <Calendar size={24} />
+                  <span>{t.menu.dailyChallenge.toUpperCase()}</span>
+                </button>
+              )}
+            </>
+          )}
         </div>
 
         <div className="mt-6 pt-4 border-t border-white/30">
