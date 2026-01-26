@@ -101,6 +101,7 @@ function App() {
   const [selectedLevel, setSelectedLevel] = useState(1);
   const [selectedWorld, setSelectedWorld] = useState(1);
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
+  const [openShopDirectly, setOpenShopDirectly] = useState(false);
   const [clientId] = useState(() => {
     let id = localStorage.getItem('clientId');
     if (!id) {
@@ -130,7 +131,12 @@ function App() {
     if ((screen === 'simple' || screen === 'menu') && !isLoadingProgress) {
       soundManager.playStartMusic();
     }
-  }, [screen, isLoadingProgress]);
+
+    // Reset shop flag when leaving menu screen
+    if (screen !== 'menu' && openShopDirectly) {
+      setOpenShopDirectly(false);
+    }
+  }, [screen, isLoadingProgress, openShopDirectly]);
   // removed custom photo feature
 
   const handleStartGame = (level: number) => {
@@ -180,7 +186,10 @@ function App() {
             setScreen('game');
           }}
           onStartDuel={handleStartDuel}
-          onOpenShop={() => setScreen('menu')}
+          onOpenShop={() => {
+            setOpenShopDirectly(true);
+            setScreen('menu');
+          }}
           onStartChallenge={handleStartDailyChallenge}
         />
       )}
@@ -197,6 +206,7 @@ function App() {
           onShowWorldMap={() => setScreen('worldmap')}
           onStartDailyChallenge={handleStartDailyChallenge}
           onStartDuel={handleStartDuel}
+          openShopDirectly={openShopDirectly}
         />
       )}
       {screen === 'worldmap' && (

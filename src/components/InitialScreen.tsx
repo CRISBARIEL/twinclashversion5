@@ -18,11 +18,12 @@ interface InitialScreenProps {
   onStartDuel: () => void;
   onShowWorldMap?: () => void;
   onContinueGame?: (level: number) => void;
+  openShopDirectly?: boolean;
 }
 
-export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel, onShowWorldMap, onContinueGame }: InitialScreenProps) => {
+export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel, onShowWorldMap, onContinueGame, openShopDirectly }: InitialScreenProps) => {
   const { t } = useLanguage();
-  const [showShop, setShowShop] = useState(false);
+  const [showShop, setShowShop] = useState(openShopDirectly || false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [coins, setCoins] = useState(0);
   const [showDailyReward, setShowDailyReward] = useState(false);
