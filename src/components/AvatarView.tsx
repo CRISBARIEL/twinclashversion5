@@ -45,11 +45,11 @@ const HAIR_VARIANTS = [
   { d: 'M20 40 Q20 15 55 10 Q90 15 90 40 M25 25 Q30 20 35 25 M45 20 Q50 15 55 20 M65 20 Q70 15 75 20 M75 25 Q80 20 85 25' },
   { d: 'M18 48 Q18 10 55 6 Q92 10 92 48 Q88 45 85 48 Q82 45 78 48 Q74 45 70 48 Q66 45 62 48 Q58 45 54 48 Q50 45 46 48 Q42 45 38 48 Q34 45 30 48 Q26 45 22 48' },
   { d: 'M20 45 L25 20 L28 45 L33 18 L36 45 L41 15 L44 45 L49 12 L52 45 L57 15 L60 45 L65 18 L68 45 L73 20 L76 45 L81 22 L84 45 L88 25 L90 45' },
-  { d: 'M18 40 Q18 8 55 5 Q92 8 92 40 L92 50 Q92 65 88 75 L85 88 Q80 90 75 88 L70 85 Q68 80 68 75 L68 50 M22 50 L22 75 Q22 80 24 85 L27 88 Q32 90 37 88 L40 85 Q42 80 42 75 L42 50' },
-  { d: 'M15 42 Q15 10 55 6 Q95 10 95 42 L95 55 Q95 70 90 82 L86 90 L80 92 Q75 90 70 88 L65 85 Q62 78 62 70 L62 45 M20 45 L20 70 Q20 78 23 85 L27 88 Q30 90 35 92 L42 90 L48 85 Q50 78 50 70 L50 45' },
-  { d: 'M18 38 Q18 6 55 3 Q92 6 92 38 L92 52 Q92 68 88 80 L84 88 Q78 92 72 90 L66 86 Q63 78 63 68 L63 42 M22 42 L22 68 Q22 78 25 86 L30 90 Q36 92 42 88 L46 80 Q48 68 48 52 L48 42 M50 42 Q52 55 54 68 M56 42 Q58 55 60 68' },
-  { d: 'M16 45 Q16 8 55 4 Q94 8 94 45 L94 58 Q94 75 89 85 L84 92 Q76 95 68 92 L62 86 Q58 76 58 65 L58 48 M20 48 L20 65 Q20 76 24 86 L30 92 Q38 95 46 92 L52 85 Q56 75 56 58 L56 48 M55 45 Q55 60 55 75 Q55 85 52 92' },
-  { d: 'M14 42 Q14 6 55 2 Q96 6 96 42 L96 60 Q96 78 90 88 L83 94 Q73 98 63 94 L56 86 Q52 74 52 60 L52 44 M18 44 L18 60 Q18 74 22 86 L28 94 Q38 98 48 94 L54 88 Q58 78 58 60 L58 44' },
+  { d: 'M18 35 Q18 8 55 5 Q92 8 92 35 M17 35 Q17 40 18 50 L18 70 Q18 80 22 88 M92 35 Q92 40 91 50 L91 70 Q91 80 88 88' },
+  { d: 'M16 33 Q16 8 55 5 Q94 8 94 33 M15 33 Q15 38 15 48 L15 68 Q15 78 18 86 L20 92 M94 33 Q94 38 94 48 L94 68 Q94 78 91 86 L89 92' },
+  { d: 'M18 32 Q18 6 55 4 Q92 6 92 32 M17 32 L17 50 Q17 65 18 75 L19 85 Q20 90 23 94 M92 32 L92 50 Q92 65 91 75 L90 85 Q89 90 86 94' },
+  { d: 'M17 34 Q17 7 55 4 Q93 7 93 34 M16 34 Q16 42 16 52 L16 72 Q16 82 19 90 L21 95 M93 34 Q93 42 93 52 L93 72 Q93 82 90 90 L88 95' },
+  { d: 'M15 36 Q15 6 55 3 Q95 6 95 36 M14 36 Q14 44 14 54 L14 74 Q14 84 17 92 L19 98 M95 36 Q95 44 95 54 L95 74 Q95 84 92 92 L90 98' },
 ];
 
 const BEARD_VARIANTS = [
@@ -129,21 +129,6 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
         </linearGradient>
       </defs>
 
-      {headphones && headphones.d && (
-        <g>
-          <path
-            d={headphones.d}
-            fill={headphones.fill || 'none'}
-            stroke={headphones.stroke}
-            strokeWidth={headphones.strokeWidth}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <circle cx="25" cy="48" r="7" fill={headphones.accent} opacity="0.8" />
-          <circle cx="85" cy="48" r="7" fill={headphones.accent} opacity="0.8" />
-        </g>
-      )}
-
       <rect
         x="20"
         y="30"
@@ -164,6 +149,21 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
           strokeWidth="0.5"
           opacity="0.95"
         />
+      )}
+
+      {headphones && headphones.d && (
+        <g>
+          <path
+            d={headphones.d}
+            fill={headphones.fill || 'none'}
+            stroke={headphones.stroke}
+            strokeWidth={headphones.strokeWidth}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="25" cy="48" r="8" fill={headphones.accent} opacity="0.9" />
+          <circle cx="85" cy="48" r="8" fill={headphones.accent} opacity="0.9" />
+        </g>
       )}
 
       {eyes.fill ? (
