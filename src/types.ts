@@ -51,6 +51,7 @@ export interface AvatarConfig {
   beardId: number | null;
   mustacheId: number | null;
   glassesId: number | null;
+  headphonesId: number | null;
   accessoryId?: number | null;
 }
 

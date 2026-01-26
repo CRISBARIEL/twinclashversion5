@@ -45,6 +45,7 @@ const DEFAULT_CONFIG: AvatarConfig = {
   beardId: null,
   mustacheId: null,
   glassesId: null,
+  headphonesId: null,
 };
 
 export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
@@ -258,7 +259,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                 Boca
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
-                {[0, 1, 2, 3, 4].map((id) => (
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((id) => (
                   <button
                     key={id}
                     onClick={() => setAvatarConfig({ ...avatarConfig, mouthId: id })}
@@ -303,7 +304,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                 Cabello
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
-                {[0, 1, 2, 3, 4].map((id) => (
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((id) => (
                   <button
                     key={id}
                     onClick={() => setAvatarConfig({ ...avatarConfig, hairId: id })}
@@ -417,6 +418,40 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                   >
                     <AvatarView
                       config={{ ...DEFAULT_CONFIG, glassesId: id }}
+                      size="small"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-white font-semibold mb-2 text-base">
+                Cascos de Música
+              </label>
+              <div className="flex gap-2 justify-center flex-wrap">
+                <button
+                  onClick={() => setAvatarConfig({ ...avatarConfig, headphonesId: null })}
+                  className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                    avatarConfig.headphonesId === null
+                      ? 'border-white shadow-lg scale-110 bg-white/30'
+                      : 'border-white/30'
+                  }`}
+                >
+                  <span className="text-white text-xs">Sin</span>
+                </button>
+                {[0, 1, 2, 3, 4].map((id) => (
+                  <button
+                    key={id}
+                    onClick={() => setAvatarConfig({ ...avatarConfig, headphonesId: id })}
+                    className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                      avatarConfig.headphonesId === id
+                        ? 'border-white shadow-lg scale-110 bg-white/30'
+                        : 'border-white/30'
+                    }`}
+                  >
+                    <AvatarView
+                      config={{ ...DEFAULT_CONFIG, headphonesId: id }}
                       size="small"
                     />
                   </button>

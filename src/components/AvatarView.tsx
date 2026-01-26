@@ -16,6 +16,7 @@ const DEFAULT_CONFIG: AvatarConfig = {
   beardId: null,
   mustacheId: null,
   glassesId: null,
+  headphonesId: null,
 };
 
 const EYES_VARIANTS = [
@@ -27,11 +28,15 @@ const EYES_VARIANTS = [
 ];
 
 const MOUTH_VARIANTS = [
-  { path: 'M40 72 Q55 82 70 72', stroke: 2.5 },
-  { path: 'M40 72 Q55 77 70 72', stroke: 2.5 },
-  { path: 'M42 75 L68 75', stroke: 2.5 },
-  { path: 'M45 72 A10 8 0 0 0 65 72', stroke: 2.5 },
-  { path: 'M40 75 Q55 70 70 75', stroke: 2.5 },
+  { path: 'M40 72 Q55 82 70 72', stroke: 2.5, painted: false },
+  { path: 'M40 72 Q55 77 70 72', stroke: 2.5, painted: false },
+  { path: 'M42 75 L68 75', stroke: 2.5, painted: false },
+  { path: 'M45 72 A10 8 0 0 0 65 72', stroke: 2.5, painted: false },
+  { path: 'M40 75 Q55 70 70 75', stroke: 2.5, painted: false },
+  { path: 'M40 72 Q55 82 70 72 Z', stroke: 1.5, painted: true, fill: '#DC143C' },
+  { path: 'M40 72 Q55 77 70 72 Z', stroke: 1.5, painted: true, fill: '#C71585' },
+  { path: 'M38 74 Q42 70 46 72 Q50 74 55 74 Q60 74 64 72 Q68 70 72 74 Q68 78 64 76 Q60 75 55 75 Q50 75 46 76 Q42 78 38 74 Z', stroke: 1, painted: true, fill: '#FF1493' },
+  { path: 'M40 73 Q45 69 50 71 Q55 73 60 71 Q65 69 70 73 Q65 77 60 75 Q55 76 50 75 Q45 77 40 73 Z', stroke: 1, painted: true, fill: '#FF69B4' },
 ];
 
 const HAIR_VARIANTS = [
@@ -40,6 +45,11 @@ const HAIR_VARIANTS = [
   { d: 'M20 40 Q20 15 55 10 Q90 15 90 40 M25 25 Q30 20 35 25 M45 20 Q50 15 55 20 M65 20 Q70 15 75 20 M75 25 Q80 20 85 25' },
   { d: 'M18 48 Q18 10 55 6 Q92 10 92 48 Q88 45 85 48 Q82 45 78 48 Q74 45 70 48 Q66 45 62 48 Q58 45 54 48 Q50 45 46 48 Q42 45 38 48 Q34 45 30 48 Q26 45 22 48' },
   { d: 'M20 45 L25 20 L28 45 L33 18 L36 45 L41 15 L44 45 L49 12 L52 45 L57 15 L60 45 L65 18 L68 45 L73 20 L76 45 L81 22 L84 45 L88 25 L90 45' },
+  { d: 'M18 40 Q18 8 55 5 Q92 8 92 40 L92 50 Q92 65 88 75 L85 88 Q80 90 75 88 L70 85 Q68 80 68 75 L68 50 M22 50 L22 75 Q22 80 24 85 L27 88 Q32 90 37 88 L40 85 Q42 80 42 75 L42 50' },
+  { d: 'M15 42 Q15 10 55 6 Q95 10 95 42 L95 55 Q95 70 90 82 L86 90 L80 92 Q75 90 70 88 L65 85 Q62 78 62 70 L62 45 M20 45 L20 70 Q20 78 23 85 L27 88 Q30 90 35 92 L42 90 L48 85 Q50 78 50 70 L50 45' },
+  { d: 'M18 38 Q18 6 55 3 Q92 6 92 38 L92 52 Q92 68 88 80 L84 88 Q78 92 72 90 L66 86 Q63 78 63 68 L63 42 M22 42 L22 68 Q22 78 25 86 L30 90 Q36 92 42 88 L46 80 Q48 68 48 52 L48 42 M50 42 Q52 55 54 68 M56 42 Q58 55 60 68' },
+  { d: 'M16 45 Q16 8 55 4 Q94 8 94 45 L94 58 Q94 75 89 85 L84 92 Q76 95 68 92 L62 86 Q58 76 58 65 L58 48 M20 48 L20 65 Q20 76 24 86 L30 92 Q38 95 46 92 L52 85 Q56 75 56 58 L56 48 M55 45 Q55 60 55 75 Q55 85 52 92' },
+  { d: 'M14 42 Q14 6 55 2 Q96 6 96 42 L96 60 Q96 78 90 88 L83 94 Q73 98 63 94 L56 86 Q52 74 52 60 L52 44 M18 44 L18 60 Q18 74 22 86 L28 94 Q38 98 48 94 L54 88 Q58 78 58 60 L58 44' },
 ];
 
 const BEARD_VARIANTS = [
@@ -69,6 +79,15 @@ const GLASSES_VARIANTS = [
   { d: 'M22 46 L26 42 L46 42 L50 46 L50 52 L46 56 L26 56 L22 52 Z M60 46 L64 42 L84 42 L88 46 L88 52 L84 56 L64 56 L60 52 Z M50 48 L60 48', stroke: '#2a2a2a', strokeWidth: 3, fill: 'rgba(0,0,0,0.2)' },
 ];
 
+const HEADPHONES_VARIANTS = [
+  null,
+  { d: 'M20 35 Q20 15 55 10 Q90 15 90 35 M18 35 L18 50 Q18 54 22 56 L28 56 Q32 54 32 50 L32 35 M78 35 L78 50 Q78 54 82 56 L88 56 Q92 54 92 50 L92 35', stroke: '#2C3E50', strokeWidth: 3, fill: 'none', accent: '#E74C3C' },
+  { d: 'M22 38 Q22 18 55 12 Q88 18 88 38 M20 38 L20 52 Q20 56 24 58 L30 58 Q34 56 34 52 L34 38 M76 38 L76 52 Q76 56 80 58 L86 58 Q90 56 90 52 L90 38', stroke: '#34495E', strokeWidth: 2.8, fill: 'none', accent: '#3498DB' },
+  { d: 'M24 36 Q24 16 55 11 Q86 16 86 36 M22 36 L22 50 Q22 54 26 56 L32 56 Q36 54 36 50 L36 36 M74 36 L74 50 Q74 56 78 56 L84 56 Q88 54 88 50 L88 36', stroke: '#1ABC9C', strokeWidth: 2.5, fill: 'none', accent: '#16A085' },
+  { d: 'M21 37 Q21 17 55 11 Q89 17 89 37 M19 37 L19 51 Q19 55 23 57 L29 57 Q33 55 33 51 L33 37 M77 37 L77 51 Q77 55 81 57 L87 57 Q91 55 91 51 L91 37', stroke: '#9B59B6', strokeWidth: 2.6, fill: 'none', accent: '#8E44AD' },
+  { d: 'M23 36 Q23 16 55 10 Q87 16 87 36 M21 36 L21 50 Q21 54 25 56 L31 56 Q35 54 35 50 L35 36 M75 36 L75 50 Q75 54 79 56 L85 56 Q89 54 89 50 L89 36', stroke: '#E67E22', strokeWidth: 2.7, fill: 'none', accent: '#D35400' },
+];
+
 const SIZE_MAP = {
   small: 32,
   medium: 64,
@@ -91,6 +110,9 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
   const glasses = avatarConfig.glassesId !== null && avatarConfig.glassesId >= 0
     ? GLASSES_VARIANTS[avatarConfig.glassesId + 1]
     : null;
+  const headphones = avatarConfig.headphonesId !== null && avatarConfig.headphonesId >= 0
+    ? HEADPHONES_VARIANTS[avatarConfig.headphonesId + 1]
+    : null;
 
   return (
     <svg
@@ -106,6 +128,21 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
           <stop offset="100%" stopColor={avatarConfig.faceColor} stopOpacity="0.85" />
         </linearGradient>
       </defs>
+
+      {headphones && headphones.d && (
+        <g>
+          <path
+            d={headphones.d}
+            fill={headphones.fill || 'none'}
+            stroke={headphones.stroke}
+            strokeWidth={headphones.strokeWidth}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle cx="25" cy="48" r="7" fill={headphones.accent} opacity="0.8" />
+          <circle cx="85" cy="48" r="7" fill={headphones.accent} opacity="0.8" />
+        </g>
+      )}
 
       <rect
         x="20"
@@ -162,13 +199,24 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
         />
       )}
 
-      <path
-        d={mouth.path}
-        fill="none"
-        stroke="#2C1810"
-        strokeWidth={mouth.stroke}
-        strokeLinecap="round"
-      />
+      {mouth.painted ? (
+        <path
+          d={mouth.path}
+          fill={mouth.fill}
+          stroke="#991144"
+          strokeWidth={mouth.stroke}
+          strokeLinecap="round"
+          opacity="0.9"
+        />
+      ) : (
+        <path
+          d={mouth.path}
+          fill="none"
+          stroke="#2C1810"
+          strokeWidth={mouth.stroke}
+          strokeLinecap="round"
+        />
+      )}
 
       {beard && beard.d && (
         <path
