@@ -670,6 +670,12 @@ export async function getUserLives(userId: string | null): Promise<UserLives | n
       if (livesRegained > 0) {
         currentLives = Math.min(maxLives, currentLives + livesRegained);
         localStorage.setItem(STORAGE_KEY_LIVES, currentLives.toString());
+
+        // Si recuperó todas las vidas, limpiar el timestamp
+        if (currentLives >= maxLives) {
+          console.log('[progressionService] All lives recovered - clearing timer (localStorage)');
+          localStorage.removeItem(STORAGE_KEY_LAST_LIFE_LOST);
+        }
       }
     }
 
@@ -677,7 +683,7 @@ export async function getUserLives(userId: string | null): Promise<UserLives | n
       userId: 'local',
       currentLives,
       maxLives,
-      lastLifeLostAt: lastLifeLost,
+      lastLifeLostAt: currentLives >= maxLives ? null : lastLifeLost,
     };
   }
 
@@ -729,13 +735,21 @@ export async function getUserLives(userId: string | null): Promise<UserLives | n
     if (livesRegained > 0) {
       currentLives = Math.min(data.max_lives, currentLives + livesRegained);
 
+      // Si recuperó todas las vidas, limpiar el timestamp
+      const updateData: any = {
+        current_lives: currentLives,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (currentLives >= data.max_lives) {
+        console.log('[progressionService] All lives recovered - clearing timer');
+        updateData.last_life_lost_at = null;
+      }
+
       // Actualizar en base de datos
       await supabase
         .from('user_lives')
-        .update({
-          current_lives: currentLives,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('user_id', userId);
     }
   }
@@ -744,7 +758,7 @@ export async function getUserLives(userId: string | null): Promise<UserLives | n
     userId: data.user_id,
     currentLives,
     maxLives: data.max_lives,
-    lastLifeLostAt: lastLifeLost,
+    lastLifeLostAt: currentLives >= data.max_lives ? null : lastLifeLost,
   };
 }
 
@@ -762,22 +776,44 @@ export async function loseLife(userId: string | null): Promise<{ success: boolea
   const newLives = lives.currentLives - 1;
   console.log('[progressionService] Updating lives:', lives.currentLives, '→', newLives);
 
+  // Solo actualizar last_life_lost_at si es la PRIMERA pérdida (tenía vidas completas)
+  const isFirstLoss = lives.currentLives === lives.maxLives;
+  const now = new Date().toISOString();
+
   // Si no hay usuario, actualizar localStorage
   if (!userId) {
     console.log('[progressionService] Updating localStorage lives');
     localStorage.setItem(STORAGE_KEY_LIVES, newLives.toString());
-    localStorage.setItem(STORAGE_KEY_LAST_LIFE_LOST, new Date().toISOString());
+
+    // Solo actualizar timestamp si es la primera pérdida
+    if (isFirstLoss) {
+      console.log('[progressionService] First life loss - starting regeneration timer');
+      localStorage.setItem(STORAGE_KEY_LAST_LIFE_LOST, now);
+    } else {
+      console.log('[progressionService] Subsequent life loss - keeping existing timer');
+    }
+
     console.log('[progressionService] ✅ Life lost successfully (localStorage)! New count:', newLives);
     return { success: true, livesLeft: newLives };
   }
 
+  // Preparar actualización
+  const updateData: any = {
+    current_lives: newLives,
+    updated_at: now,
+  };
+
+  // Solo actualizar timestamp si es la primera pérdida
+  if (isFirstLoss) {
+    console.log('[progressionService] First life loss - starting regeneration timer');
+    updateData.last_life_lost_at = now;
+  } else {
+    console.log('[progressionService] Subsequent life loss - keeping existing timer');
+  }
+
   const { error } = await supabase
     .from('user_lives')
-    .update({
-      current_lives: newLives,
-      last_life_lost_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq('user_id', userId);
 
   if (error) {
@@ -835,18 +871,34 @@ export async function buyLives(userId: string | null, amount: number, cost: numb
   // Si no hay usuario, actualizar localStorage
   if (!userId) {
     localStorage.setItem(STORAGE_KEY_LIVES, newLives.toString());
+
+    // Si llegó al máximo, limpiar el timer
+    if (newLives >= lives.maxLives) {
+      console.log('[progressionService] Lives full - clearing timer (localStorage)');
+      localStorage.removeItem(STORAGE_KEY_LAST_LIFE_LOST);
+    }
+
     addCoins(-cost);
     console.log('[progressionService] ✅ Lives purchased (localStorage)!', lives.currentLives, '→', newLives);
     return { success: true, newLivesCount: newLives };
   }
 
+  // Preparar actualización de vidas en BD
+  const updateData: any = {
+    current_lives: newLives,
+    updated_at: new Date().toISOString(),
+  };
+
+  // Si llegó al máximo, limpiar el timer
+  if (newLives >= lives.maxLives) {
+    console.log('[progressionService] Lives full - clearing timer');
+    updateData.last_life_lost_at = null;
+  }
+
   // Actualizar vidas en BD
   const { error: updateError } = await supabase
     .from('user_lives')
-    .update({
-      current_lives: newLives,
-      updated_at: new Date().toISOString(),
-    })
+    .update(updateData)
     .eq('user_id', userId);
 
   if (updateError) {

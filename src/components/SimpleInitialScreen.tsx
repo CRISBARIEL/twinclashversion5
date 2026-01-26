@@ -5,6 +5,9 @@ import { SoundGear } from './SoundGear';
 import { LanguageSelector } from './LanguageSelector';
 import { soundManager } from '../lib/sound';
 import { useLanguage } from '../hooks/useLanguage';
+import { NoLivesModal } from './NoLivesModal';
+import { getUserLives } from '../lib/progressionService';
+import { supabase } from '../lib/supabase';
 
 interface SimpleInitialScreenProps {
   onStartLevel1: () => void;
@@ -16,6 +19,7 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
   const { t } = useLanguage();
   const [currentLevel, setCurrentLevel] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [showNoLivesModal, setShowNoLivesModal] = useState(false);
 
   useEffect(() => {
     loadFromSupabase().then(() => {
@@ -25,6 +29,20 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
       soundManager.playStartMusic();
     });
   }, []);
+
+  const checkLivesAndStart = async (startCallback: () => void) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id || null;
+
+    const lives = await getUserLives(userId);
+    if (!lives || lives.currentLives <= 0) {
+      console.log('[SimpleInitialScreen] No lives available - showing modal');
+      setShowNoLivesModal(true);
+      return;
+    }
+
+    startCallback();
+  };
 
   if (loading) {
     return (
@@ -38,11 +56,19 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center p-4 relative overflow-hidden">
-      <LanguageSelector />
-      <div className="absolute top-4 right-16 z-50 bg-white rounded-full shadow-lg">
-        <SoundGear />
-      </div>
+    <>
+      {showNoLivesModal && (
+        <NoLivesModal
+          onClose={() => setShowNoLivesModal(false)}
+          onLivesPurchased={() => setShowNoLivesModal(false)}
+        />
+      )}
+
+      <div className="min-h-screen bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600 flex items-center justify-center p-4 relative overflow-hidden">
+        <LanguageSelector />
+        <div className="absolute top-4 right-16 z-50 bg-white rounded-full shadow-lg">
+          <SoundGear />
+        </div>
 
       <div className="absolute inset-0 pointer-events-none overflow-visible z-0">
         <div className="absolute top-4 left-4 bg-white/15 backdrop-blur-sm rounded-xl p-6 shadow-xl transform rotate-12">
@@ -100,7 +126,7 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
         <div className="space-y-4">
           <button
             type="button"
-            onClick={onStartLevel1}
+            onClick={() => checkLivesAndStart(onStartLevel1)}
             className="w-full bg-gradient-to-r from-blue-500 to-cyan-600 text-white py-5 rounded-xl font-bold text-2xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
           >
             {t.common.play.toUpperCase()}
@@ -109,7 +135,7 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
           {currentLevel > 1 && (
             <button
               type="button"
-              onClick={() => onContinueLevel(currentLevel)}
+              onClick={() => checkLivesAndStart(() => onContinueLevel(currentLevel))}
               className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105"
             >
               {t.common.level.toUpperCase()} {currentLevel}
@@ -144,5 +170,6 @@ export const SimpleInitialScreen = ({ onStartLevel1, onContinueLevel, onStartDue
         </div>
       </div>
     </div>
+    </>
   );
 };

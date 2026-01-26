@@ -4,8 +4,9 @@ import { getLevelsByWorld, getGlobalLevelId } from '../lib/levels';
 import { getThemeName } from '../lib/themes';
 import { canPlayLevel, purchaseLevel, getWorldState, ensureWorld, LEVEL_UNLOCK_COST } from '../lib/worldProgress';
 import { getLocalCoins } from '../lib/progression';
-import { getAllLevelStats, LevelStats } from '../lib/progressionService';
+import { getAllLevelStats, LevelStats, getUserLives } from '../lib/progressionService';
 import { supabase } from '../lib/supabase';
+import { NoLivesModal } from './NoLivesModal';
 
 interface LevelSelectorProps {
   world: number;
@@ -22,6 +23,7 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
   const [coins, setCoins] = useState(0);
   const [loading, setLoading] = useState(false);
   const [levelStats, setLevelStats] = useState<Map<number, LevelStats>>(new Map());
+  const [showNoLivesModal, setShowNoLivesModal] = useState(false);
 
   useEffect(() => {
     const loadLevelStates = async () => {
@@ -65,6 +67,17 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
   const handleLevelClick = async (level: number) => {
     const globalLevel = getGlobalLevelId(world, level);
 
+    // Verificar vidas antes de permitir jugar
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id || null;
+    const lives = await getUserLives(userId);
+
+    if (!lives || lives.currentLives <= 0) {
+      console.log('[LevelSelector] No lives available - showing modal');
+      setShowNoLivesModal(true);
+      return;
+    }
+
     // TEMPORAL: Todos los niveles desbloqueados para pruebas
     onSelectLevel(globalLevel);
     return;
@@ -106,7 +119,15 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
   const maxLevelInWorld = Math.min(5, currentLevel - (world - 1) * 5);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 p-6">
+    <>
+      {showNoLivesModal && (
+        <NoLivesModal
+          onClose={() => setShowNoLivesModal(false)}
+          onLivesPurchased={() => setShowNoLivesModal(false)}
+        />
+      )}
+
+      <div className="min-h-screen bg-gradient-to-br from-purple-600 via-pink-500 to-orange-500 p-6">
       <button
         onClick={onBack}
         className="text-white mb-6 font-semibold text-lg flex items-center gap-2 hover:scale-105 transition-transform"
@@ -231,5 +252,6 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
         </div>
       )}
     </div>
+    </>
   );
 }
