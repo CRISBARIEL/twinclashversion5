@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Calendar, Swords, ShoppingBag, Gift, Coins, Map } from 'lucide-react';
+import { Calendar, Swords, ShoppingBag, Gift, Coins, Map, User, Trophy } from 'lucide-react';
 import { canClaimDaily, claimDailyReward, getLocalCoins, loadFromSupabase, getCurrentLevel } from '../lib/progression';
 import { Shop } from './Shop';
 import { AdminPanel } from './AdminPanel';
@@ -19,9 +19,11 @@ interface InitialScreenProps {
   onShowWorldMap?: () => void;
   onContinueGame?: (level: number) => void;
   openShopDirectly?: boolean;
+  onOpenAvatar?: () => void;
+  onOpenLeaderboard?: () => void;
 }
 
-export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel, onShowWorldMap, onContinueGame, openShopDirectly }: InitialScreenProps) => {
+export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel, onShowWorldMap, onContinueGame, openShopDirectly, onOpenAvatar, onOpenLeaderboard }: InitialScreenProps) => {
   const { t } = useLanguage();
   const [showShop, setShowShop] = useState(openShopDirectly || false);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
@@ -244,6 +246,30 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
             <Swords size={24} />
             <span>{t.menu.playDuel}</span>
           </button>
+
+          <div className="grid grid-cols-2 gap-3">
+            {onOpenAvatar && (
+              <button
+                type="button"
+                onClick={onOpenAvatar}
+                className="bg-gradient-to-r from-teal-500 to-cyan-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+              >
+                <User size={24} />
+                <span>Mi Avatar</span>
+              </button>
+            )}
+
+            {onOpenLeaderboard && (
+              <button
+                type="button"
+                onClick={onOpenLeaderboard}
+                className="bg-gradient-to-r from-yellow-500 to-amber-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all hover:scale-105 flex items-center justify-center gap-2"
+              >
+                <Trophy size={24} />
+                <span>Ranking</span>
+              </button>
+            )}
+          </div>
 
           <div className="flex justify-center">
             <NotificationButton />

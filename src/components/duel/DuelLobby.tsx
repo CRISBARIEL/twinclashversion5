@@ -3,12 +3,20 @@ import { ArrowLeft, Copy, Check, Trophy, AlertCircle } from 'lucide-react';
 import { subscribeToDuelRoom, DuelRoom, submitDuelResult, getDuelRoom } from '../../lib/duelApi';
 import { GameCore } from '../GameCore';
 import { DuelResult } from './DuelResult';
+import { DuelPlayerCard } from '../DuelPlayerCard';
+import { AvatarConfig } from '../../types';
+import { supabase } from '../../lib/supabase';
 
 interface DuelLobbyProps {
   room: DuelRoom;
   role: 'host' | 'guest';
   clientId: string;
   onBack: () => void;
+}
+
+interface PlayerInfo {
+  displayName: string;
+  avatarConfig: AvatarConfig | null;
 }
 
 const hasValidResult = (result: any): boolean => {
@@ -24,6 +32,40 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const gameStartedRef = useRef(false);
+  const [hostInfo, setHostInfo] = useState<PlayerInfo | null>(null);
+  const [guestInfo, setGuestInfo] = useState<PlayerInfo | null>(null);
+
+  const loadPlayerProfiles = useCallback(async (hostId: string, guestId: string | null) => {
+    try {
+      const { data: hostProfile } = await supabase
+        .from('profiles')
+        .select('display_name, avatar_config')
+        .eq('client_id', hostId)
+        .maybeSingle();
+
+      setHostInfo({
+        displayName: hostProfile?.display_name || `Jugador ${hostId.slice(0, 6)}`,
+        avatarConfig: hostProfile?.avatar_config || null,
+      });
+
+      if (guestId) {
+        const { data: guestProfile } = await supabase
+          .from('profiles')
+          .select('display_name, avatar_config')
+          .eq('client_id', guestId)
+          .maybeSingle();
+
+        setGuestInfo({
+          displayName: guestProfile?.display_name || `Jugador ${guestId.slice(0, 6)}`,
+          avatarConfig: guestProfile?.avatar_config || null,
+        });
+      } else {
+        setGuestInfo(null);
+      }
+    } catch (error) {
+      console.error('Error loading player profiles:', error);
+    }
+  }, []);
 
   const handleRoomUpdate = useCallback((updatedRoom: DuelRoom | null) => {
     console.log('[DuelLobby] Room update received:', {
@@ -48,6 +90,8 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     setRoom(updatedRoom);
     setError(null);
 
+    loadPlayerProfiles(updatedRoom.host_client_id, updatedRoom.guest_client_id);
+
     if (updatedRoom.status === 'playing' && updatedRoom.guest_client_id && !gameStartedRef.current) {
       console.log('[DuelLobby] ¡El duelo ha comenzado! Iniciando juego...');
       gameStartedRef.current = true;
@@ -61,7 +105,7 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
       console.log('[DuelLobby] Ambos resultados recibidos y válidos, mostrando pantalla de resultados');
       setShowResults(true);
     }
-  }, []);
+  }, [loadPlayerProfiles]);
 
   useEffect(() => {
     if (!initialRoom || !initialRoom.room_code) {
@@ -339,29 +383,40 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
             </div>
           </div>
 
-          <div className="space-y-3 mb-6">
-            <div className="bg-gray-50 rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Nivel:</span>
-                <span className="font-bold text-gray-800">Nivel {room.level}</span>
-              </div>
+          <div className="mb-4 text-center">
+            <div className="bg-gray-50 rounded-xl p-3">
+              <span className="text-gray-600 text-sm">Nivel: </span>
+              <span className="font-bold text-gray-800">Nivel {room.level}</span>
             </div>
+          </div>
 
-            <div className="bg-gray-50 rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Host:</span>
-                <span className="font-bold text-gray-800">{role === 'host' ? '👤 Tú' : '👥 Rival'}</span>
-              </div>
-            </div>
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            {hostInfo && (
+              <DuelPlayerCard
+                displayName={hostInfo.displayName}
+                avatarConfig={hostInfo.avatarConfig}
+                isHost={true}
+                isCurrentPlayer={role === 'host'}
+                status={room.status as any}
+              />
+            )}
 
-            <div className="bg-gray-50 rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Guest:</span>
-                <span className="font-bold text-gray-800">
-                  {room.guest_client_id ? (role === 'guest' ? '👤 Tú' : '👥 Rival') : '⏳ Esperando...'}
-                </span>
+            {guestInfo ? (
+              <DuelPlayerCard
+                displayName={guestInfo.displayName}
+                avatarConfig={guestInfo.avatarConfig}
+                isHost={false}
+                isCurrentPlayer={role === 'guest'}
+                status={room.status as any}
+              />
+            ) : (
+              <div className="bg-gradient-to-br from-gray-400 to-gray-600 rounded-2xl p-6 shadow-2xl flex items-center justify-center">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">⏳</div>
+                  <p className="text-white text-sm font-semibold">Esperando...</p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {room.status === 'waiting' && (

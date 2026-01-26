@@ -11,6 +11,8 @@ import { AudioUploader } from './components/AudioUploader';
 import { PrivacyPolicy } from './components/PrivacyPolicy';
 import { AdminPush } from './components/AdminPush';
 import { NotificationBellButton } from './components/NotificationBellButton';
+import { AvatarEditor } from './components/AvatarEditor';
+import { DailyLeaderboard } from './components/DailyLeaderboard';
 import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 import { initializeFirebase } from './lib/firebase';
@@ -18,7 +20,7 @@ import { nativeInterstitialService } from './lib/nativeInterstitial';
 import { AlertCircle } from 'lucide-react';
 import { LanguageContext, useLanguageState } from './hooks/useLanguage';
 
-type Screen = 'simple' | 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload' | 'privacy' | 'adminpush';
+type Screen = 'simple' | 'menu' | 'game' | 'daily' | 'challenge' | 'duel' | 'worldmap' | 'levelselect' | 'upload' | 'privacy' | 'adminpush' | 'avatar' | 'leaderboard';
 
 function App() {
   const languageState = useLanguageState();
@@ -152,6 +154,14 @@ function App() {
     setScreen('duel');
   };
 
+  const handleOpenAvatar = () => {
+    setScreen('avatar');
+  };
+
+  const handleOpenLeaderboard = () => {
+    setScreen('leaderboard');
+  };
+
   const handleBackToMenu = () => {
     soundManager.stopLevelMusic();
     soundManager.playStartMusic();
@@ -207,6 +217,8 @@ function App() {
           onStartDailyChallenge={handleStartDailyChallenge}
           onStartDuel={handleStartDuel}
           openShopDirectly={openShopDirectly}
+          onOpenAvatar={handleOpenAvatar}
+          onOpenLeaderboard={handleOpenLeaderboard}
         />
       )}
       {screen === 'worldmap' && (
@@ -258,6 +270,12 @@ function App() {
       )}
       {screen === 'adminpush' && (
         <AdminPush onBack={() => setScreen('simple')} />
+      )}
+      {screen === 'avatar' && (
+        <AvatarEditor onBack={handleBackToMenu} />
+      )}
+      {screen === 'leaderboard' && (
+        <DailyLeaderboard onBack={handleBackToMenu} />
       )}
     </LanguageContext.Provider>
   );

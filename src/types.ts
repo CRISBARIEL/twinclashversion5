@@ -40,3 +40,31 @@ export interface BestScore {
 
 export const PREVIEW_TIME = 10;
 export const FLIP_DELAY = 400;
+
+export interface AvatarConfig {
+  faceColor: string;
+  eyesId: number;
+  mouthId: number;
+  hairId: number;
+  accessoryId: number | null;
+}
+
+export interface PlayerProfile {
+  clientId: string;
+  displayName: string | null;
+  avatarConfig: AvatarConfig | null;
+  coins: number;
+  totalScore?: number;
+  levelsCompleted?: number;
+  stars?: number;
+}
+
+export interface LeaderboardEntry {
+  clientId: string;
+  displayName: string;
+  avatarConfig: AvatarConfig;
+  score: number;
+  levelsCompleted: number;
+  rank: number;
+  isCurrentPlayer: boolean;
+}
