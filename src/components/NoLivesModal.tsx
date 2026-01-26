@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Heart, Clock, Coins } from 'lucide-react';
+import { Heart, Clock, Coins, ShoppingBag } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
 import { getUserLives, getTimeUntilNextLife, formatTimeUntilNextLife, buyLives, UserLives } from '../lib/progressionService';
 import { getLocalCoins } from '../lib/progression';
@@ -124,14 +124,23 @@ export const NoLivesModal = ({ onClose, onLivesPurchased }: NoLivesModalProps) =
           <button
             onClick={handleBuyLife}
             disabled={buying || coins < 1000}
-            className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-gray-900 font-bold py-4 px-6 rounded-xl transition-all hover:scale-105 flex items-center justify-center gap-2 shadow-lg"
+            className="w-full bg-yellow-400 hover:bg-yellow-500 disabled:bg-gray-400 disabled:cursor-not-allowed text-gray-900 font-bold py-4 px-6 rounded-xl transition-all hover:scale-105 shadow-lg"
           >
-            <Coins size={24} />
-            <span>Comprar 1 Vida (1000 monedas)</span>
+            <div className="flex items-center justify-center gap-2 mb-1">
+              <ShoppingBag size={20} />
+              <span className="text-sm font-semibold">Comprar en Tienda</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <Heart size={18} />
+              <span>1 Vida</span>
+              <span className="mx-1">•</span>
+              <Coins size={18} />
+              <span>1,000 monedas</span>
+            </div>
           </button>
 
           <div className="text-center text-sm text-white/70">
-            Tienes: {coins} monedas
+            Tienes: {coins.toLocaleString()} monedas
           </div>
 
           <button
