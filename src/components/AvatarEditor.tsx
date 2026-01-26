@@ -46,7 +46,21 @@ const DEFAULT_CONFIG: AvatarConfig = {
   mustacheId: null,
   glassesId: null,
   headphonesId: null,
+  faceShapeId: 0,
 };
+
+const FACE_SHAPE_NAMES = [
+  'Ovalada',
+  'Redonda',
+  'Cuadrada',
+  'Rectangular',
+  'Triangular',
+  'Triangular inv.',
+  'Delgada',
+  'Ancha',
+  'Diamante',
+  'Corazón',
+];
 
 export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
   const [displayName, setDisplayName] = useState('');
@@ -205,6 +219,30 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                     style={{ backgroundColor: item.color }}
                     title={item.name}
                   />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-white font-semibold mb-2 text-base">
+                Forma de cara
+              </label>
+              <div className="flex gap-2 justify-center flex-wrap">
+                {FACE_SHAPE_NAMES.map((name, id) => (
+                  <button
+                    key={id}
+                    onClick={() => setAvatarConfig({ ...avatarConfig, faceShapeId: id })}
+                    className={`w-16 h-16 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-105 ${
+                      avatarConfig.faceShapeId === id
+                        ? 'border-white shadow-lg scale-105 bg-white/30'
+                        : 'border-white/30'
+                    }`}
+                  >
+                    <AvatarView
+                      config={{ ...DEFAULT_CONFIG, faceShapeId: id, faceColor: avatarConfig.faceColor }}
+                      size="small"
+                    />
+                  </button>
                 ))}
               </div>
             </div>

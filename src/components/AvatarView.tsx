@@ -17,7 +17,21 @@ const DEFAULT_CONFIG: AvatarConfig = {
   mustacheId: null,
   glassesId: null,
   headphonesId: null,
+  faceShapeId: 0,
 };
+
+const FACE_SHAPES = [
+  { path: 'M20 30 Q20 25 24 25 L86 25 Q90 25 90 30 L90 72 Q90 90 72 90 L38 90 Q20 90 20 72 Z', rx: 18, ry: 18, name: 'Ovalada' },
+  { path: 'M25 35 Q25 25 35 25 L75 25 Q85 25 85 35 L85 75 Q85 85 75 85 L35 85 Q25 85 25 75 Z', rx: 25, ry: 25, name: 'Redonda' },
+  { path: 'M25 28 L85 28 L85 88 L25 88 Z', rx: 8, ry: 8, name: 'Cuadrada' },
+  { path: 'M30 25 L80 25 L80 92 L30 92 Z', rx: 10, ry: 15, name: 'Rectangular' },
+  { path: 'M15 28 L95 28 L85 88 L25 88 Z', rx: 8, ry: 8, name: 'Triangular' },
+  { path: 'M25 28 L85 28 L95 88 L15 88 Z', rx: 8, ry: 8, name: 'Triangular invertida' },
+  { path: 'M32 28 L78 28 L78 88 L32 88 Z', rx: 12, ry: 18, name: 'Delgada' },
+  { path: 'M18 32 L92 32 L92 85 L18 85 Z', rx: 15, ry: 12, name: 'Ancha' },
+  { path: 'M55 25 L85 55 L55 90 L25 55 Z', rx: 10, ry: 10, name: 'Diamante' },
+  { path: 'M20 40 Q20 25 30 25 L45 25 Q55 25 55 15 Q55 25 65 25 L80 25 Q90 25 90 40 L90 75 Q90 88 75 88 L35 88 Q20 88 20 75 Z', rx: 15, ry: 15, name: 'Corazón' },
+];
 
 const EYES_VARIANTS = [
   { path: 'M38 45 A4 4 0 1 1 38 45.01 M72 45 A4 4 0 1 1 72 45.01', fill: true },
@@ -98,6 +112,7 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
   const avatarConfig = { ...DEFAULT_CONFIG, ...config };
   const dimension = SIZE_MAP[size];
 
+  const faceShape = FACE_SHAPES[avatarConfig.faceShapeId || 0] || FACE_SHAPES[0];
   const eyes = EYES_VARIANTS[avatarConfig.eyesId] || EYES_VARIANTS[0];
   const mouth = MOUTH_VARIANTS[avatarConfig.mouthId] || MOUTH_VARIANTS[0];
   const hair = HAIR_VARIANTS[avatarConfig.hairId] || HAIR_VARIANTS[0];
@@ -129,16 +144,12 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
         </linearGradient>
       </defs>
 
-      <rect
-        x="20"
-        y="30"
-        width="70"
-        height="60"
-        rx="18"
-        ry="18"
+      <path
+        d={faceShape.path}
         fill={`url(#faceGradient-${size})`}
         stroke="#d4a574"
-        strokeWidth="1"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
       />
 
       {hair.d && (

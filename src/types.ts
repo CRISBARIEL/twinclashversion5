@@ -53,6 +53,7 @@ export interface AvatarConfig {
   glassesId: number | null;
   headphonesId: number | null;
   accessoryId?: number | null;
+  faceShapeId?: number;
 }
 
 export interface PlayerProfile {
