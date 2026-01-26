@@ -43,10 +43,15 @@ export const FLIP_DELAY = 400;
 
 export interface AvatarConfig {
   faceColor: string;
+  eyeColor: string;
   eyesId: number;
   mouthId: number;
   hairId: number;
-  accessoryId: number | null;
+  hairColor: string;
+  beardId: number | null;
+  mustacheId: number | null;
+  glassesId: number | null;
+  accessoryId?: number | null;
 }
 
 export interface PlayerProfile {

@@ -17,12 +17,34 @@ const FACE_COLORS = [
   { name: 'Dark', color: '#5C4033' },
 ];
 
+const EYE_COLORS = [
+  { name: 'Azul', color: '#2E86AB' },
+  { name: 'Verde', color: '#06A77D' },
+  { name: 'Café', color: '#8B4513' },
+  { name: 'Gris', color: '#6C7A89' },
+  { name: 'Miel', color: '#D4A574' },
+  { name: 'Negro', color: '#2C1810' },
+];
+
+const HAIR_COLORS = [
+  { name: 'Negro', color: '#2C1810' },
+  { name: 'Castaño', color: '#8B4513' },
+  { name: 'Rubio', color: '#FFD700' },
+  { name: 'Rojo', color: '#FF6347' },
+  { name: 'Azul', color: '#4169E1' },
+  { name: 'Rosa', color: '#FF69B4' },
+];
+
 const DEFAULT_CONFIG: AvatarConfig = {
   faceColor: '#FFD1A0',
+  eyeColor: '#2E86AB',
   eyesId: 0,
   mouthId: 0,
   hairId: 0,
-  accessoryId: null,
+  hairColor: '#2C1810',
+  beardId: null,
+  mustacheId: null,
+  glassesId: null,
 };
 
 export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
@@ -51,7 +73,8 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
         setDisplayName(data.display_name || '');
         setInitialName(data.display_name || '');
         if (data.avatar_config) {
-          setAvatarConfig(data.avatar_config as AvatarConfig);
+          const config = data.avatar_config as Partial<AvatarConfig>;
+          setAvatarConfig({ ...DEFAULT_CONFIG, ...config });
         }
       }
     } catch (error) {
@@ -124,32 +147,32 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-700 flex items-center justify-center">
         <div className="text-white text-xl">Cargando...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-6">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+    <div className="min-h-screen bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-700 p-4 overflow-y-auto">
+      <div className="max-w-2xl mx-auto pb-6">
+        <div className="flex items-center justify-between mb-6 sticky top-0 bg-gradient-to-r from-teal-700/90 to-cyan-700/90 backdrop-blur-md p-4 rounded-xl z-10">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-white hover:text-purple-200 transition-colors"
+            className="flex items-center gap-2 text-white hover:text-teal-200 transition-colors"
           >
             <ArrowLeft size={24} />
             <span className="text-lg font-semibold">Volver</span>
           </button>
-          <h1 className="text-3xl font-bold text-white flex items-center gap-2">
-            <User size={32} />
+          <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+            <User size={28} />
             Mi Avatar
           </h1>
-          <div className="w-24"></div>
+          <div className="w-20"></div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl">
-          <div className="flex flex-col items-center mb-8">
+        <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
+          <div className="flex flex-col items-center mb-6">
             <div className="bg-white rounded-full p-4 mb-4 shadow-lg">
               <AvatarView config={avatarConfig} size="large" />
             </div>
@@ -163,17 +186,17 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
             />
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-5">
             <div>
-              <label className="block text-white font-semibold mb-3 text-lg">
+              <label className="block text-white font-semibold mb-2 text-base">
                 Color de piel
               </label>
-              <div className="flex gap-3 justify-center flex-wrap">
+              <div className="flex gap-2 justify-center flex-wrap">
                 {FACE_COLORS.map((item) => (
                   <button
                     key={item.color}
                     onClick={() => setAvatarConfig({ ...avatarConfig, faceColor: item.color })}
-                    className={`w-14 h-14 rounded-full border-4 transition-all transform hover:scale-110 ${
+                    className={`w-12 h-12 rounded-full border-4 transition-all transform hover:scale-110 ${
                       avatarConfig.faceColor === item.color
                         ? 'border-white shadow-lg scale-110'
                         : 'border-white/30'
@@ -186,22 +209,43 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
             </div>
 
             <div>
-              <label className="block text-white font-semibold mb-3 text-lg">
+              <label className="block text-white font-semibold mb-2 text-base">
+                Color de ojos
+              </label>
+              <div className="flex gap-2 justify-center flex-wrap">
+                {EYE_COLORS.map((item) => (
+                  <button
+                    key={item.color}
+                    onClick={() => setAvatarConfig({ ...avatarConfig, eyeColor: item.color })}
+                    className={`w-12 h-12 rounded-full border-4 transition-all transform hover:scale-110 ${
+                      avatarConfig.eyeColor === item.color
+                        ? 'border-white shadow-lg scale-110'
+                        : 'border-white/30'
+                    }`}
+                    style={{ backgroundColor: item.color }}
+                    title={item.name}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-white font-semibold mb-2 text-base">
                 Ojos
               </label>
-              <div className="flex gap-3 justify-center flex-wrap">
+              <div className="flex gap-2 justify-center flex-wrap">
                 {[0, 1, 2, 3, 4].map((id) => (
                   <button
                     key={id}
                     onClick={() => setAvatarConfig({ ...avatarConfig, eyesId: id })}
-                    className={`w-16 h-16 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                    className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
                       avatarConfig.eyesId === id
                         ? 'border-white shadow-lg scale-110 bg-white/30'
                         : 'border-white/30'
                     }`}
                   >
                     <AvatarView
-                      config={{ ...DEFAULT_CONFIG, eyesId: id }}
+                      config={{ ...DEFAULT_CONFIG, eyesId: id, eyeColor: avatarConfig.eyeColor }}
                       size="small"
                     />
                   </button>
@@ -210,15 +254,15 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
             </div>
 
             <div>
-              <label className="block text-white font-semibold mb-3 text-lg">
+              <label className="block text-white font-semibold mb-2 text-base">
                 Boca
               </label>
-              <div className="flex gap-3 justify-center flex-wrap">
+              <div className="flex gap-2 justify-center flex-wrap">
                 {[0, 1, 2, 3, 4].map((id) => (
                   <button
                     key={id}
                     onClick={() => setAvatarConfig({ ...avatarConfig, mouthId: id })}
-                    className={`w-16 h-16 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                    className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
                       avatarConfig.mouthId === id
                         ? 'border-white shadow-lg scale-110 bg-white/30'
                         : 'border-white/30'
@@ -234,22 +278,43 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
             </div>
 
             <div>
-              <label className="block text-white font-semibold mb-3 text-lg">
+              <label className="block text-white font-semibold mb-2 text-base">
+                Color de cabello
+              </label>
+              <div className="flex gap-2 justify-center flex-wrap">
+                {HAIR_COLORS.map((item) => (
+                  <button
+                    key={item.color}
+                    onClick={() => setAvatarConfig({ ...avatarConfig, hairColor: item.color })}
+                    className={`w-12 h-12 rounded-full border-4 transition-all transform hover:scale-110 ${
+                      avatarConfig.hairColor === item.color
+                        ? 'border-white shadow-lg scale-110'
+                        : 'border-white/30'
+                    }`}
+                    style={{ backgroundColor: item.color }}
+                    title={item.name}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-white font-semibold mb-2 text-base">
                 Cabello
               </label>
-              <div className="flex gap-3 justify-center flex-wrap">
+              <div className="flex gap-2 justify-center flex-wrap">
                 {[0, 1, 2, 3, 4].map((id) => (
                   <button
                     key={id}
                     onClick={() => setAvatarConfig({ ...avatarConfig, hairId: id })}
-                    className={`w-16 h-16 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                    className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
                       avatarConfig.hairId === id
                         ? 'border-white shadow-lg scale-110 bg-white/30'
                         : 'border-white/30'
                     }`}
                   >
                     <AvatarView
-                      config={{ ...DEFAULT_CONFIG, hairId: id }}
+                      config={{ ...DEFAULT_CONFIG, hairId: id, hairColor: avatarConfig.hairColor }}
                       size="small"
                     />
                   </button>
@@ -258,32 +323,100 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
             </div>
 
             <div>
-              <label className="block text-white font-semibold mb-3 text-lg">
-                Accesorio
+              <label className="block text-white font-semibold mb-2 text-base">
+                Barba
               </label>
-              <div className="flex gap-3 justify-center flex-wrap">
+              <div className="flex gap-2 justify-center flex-wrap">
                 <button
-                  onClick={() => setAvatarConfig({ ...avatarConfig, accessoryId: null })}
-                  className={`w-16 h-16 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
-                    avatarConfig.accessoryId === null
+                  onClick={() => setAvatarConfig({ ...avatarConfig, beardId: null })}
+                  className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                    avatarConfig.beardId === null
                       ? 'border-white shadow-lg scale-110 bg-white/30'
                       : 'border-white/30'
                   }`}
                 >
-                  <span className="text-white text-xs">Ninguno</span>
+                  <span className="text-white text-xs">Sin</span>
                 </button>
-                {[0, 1, 2].map((id) => (
+                {[0, 1, 2, 3, 4].map((id) => (
                   <button
                     key={id}
-                    onClick={() => setAvatarConfig({ ...avatarConfig, accessoryId: id })}
-                    className={`w-16 h-16 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
-                      avatarConfig.accessoryId === id
+                    onClick={() => setAvatarConfig({ ...avatarConfig, beardId: id })}
+                    className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                      avatarConfig.beardId === id
                         ? 'border-white shadow-lg scale-110 bg-white/30'
                         : 'border-white/30'
                     }`}
                   >
                     <AvatarView
-                      config={{ ...DEFAULT_CONFIG, accessoryId: id }}
+                      config={{ ...DEFAULT_CONFIG, beardId: id, hairColor: avatarConfig.hairColor }}
+                      size="small"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-white font-semibold mb-2 text-base">
+                Bigote
+              </label>
+              <div className="flex gap-2 justify-center flex-wrap">
+                <button
+                  onClick={() => setAvatarConfig({ ...avatarConfig, mustacheId: null })}
+                  className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                    avatarConfig.mustacheId === null
+                      ? 'border-white shadow-lg scale-110 bg-white/30'
+                      : 'border-white/30'
+                  }`}
+                >
+                  <span className="text-white text-xs">Sin</span>
+                </button>
+                {[0, 1, 2, 3, 4].map((id) => (
+                  <button
+                    key={id}
+                    onClick={() => setAvatarConfig({ ...avatarConfig, mustacheId: id })}
+                    className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                      avatarConfig.mustacheId === id
+                        ? 'border-white shadow-lg scale-110 bg-white/30'
+                        : 'border-white/30'
+                    }`}
+                  >
+                    <AvatarView
+                      config={{ ...DEFAULT_CONFIG, mustacheId: id, hairColor: avatarConfig.hairColor }}
+                      size="small"
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-white font-semibold mb-2 text-base">
+                Gafas
+              </label>
+              <div className="flex gap-2 justify-center flex-wrap">
+                <button
+                  onClick={() => setAvatarConfig({ ...avatarConfig, glassesId: null })}
+                  className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                    avatarConfig.glassesId === null
+                      ? 'border-white shadow-lg scale-110 bg-white/30'
+                      : 'border-white/30'
+                  }`}
+                >
+                  <span className="text-white text-xs">Sin</span>
+                </button>
+                {[0, 1, 2, 3, 4].map((id) => (
+                  <button
+                    key={id}
+                    onClick={() => setAvatarConfig({ ...avatarConfig, glassesId: id })}
+                    className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                      avatarConfig.glassesId === id
+                        ? 'border-white shadow-lg scale-110 bg-white/30'
+                        : 'border-white/30'
+                    }`}
+                  >
+                    <AvatarView
+                      config={{ ...DEFAULT_CONFIG, glassesId: id }}
                       size="small"
                     />
                   </button>
@@ -292,7 +425,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
             </div>
           </div>
 
-          <div className="flex gap-4 mt-8">
+          <div className="flex gap-4 mt-6">
             <button
               onClick={handleReset}
               className="flex-1 bg-white/20 hover:bg-white/30 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
