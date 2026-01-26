@@ -100,6 +100,14 @@ export const InitialScreen = ({ onStartGame, onStartDailyChallenge, onStartDuel,
         <NoLivesModal
           onClose={() => setShowNoLivesModal(false)}
           onLivesPurchased={() => setShowNoLivesModal(false)}
+          onOpenShop={() => {
+            setShowNoLivesModal(false);
+            setShowShop(true);
+          }}
+          onStartChallenge={() => {
+            setShowNoLivesModal(false);
+            onStartDailyChallenge();
+          }}
         />
       )}
 
