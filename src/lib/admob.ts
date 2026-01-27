@@ -22,10 +22,10 @@ const TEST_IDS = {
 
 // ===== IDs DE PRODUCCIÓN (TUS IDS REALES) =====
 // App ID: ca-app-pub-2140112688604592~6170461480
-// Intersticial Bonificado: ca-app-pub-2140112688604592/1393094754
+// Intersticial: ca-app-pub-2140112688604592/4482879255
 const PRODUCTION_IDS = {
-  rewarded: 'ca-app-pub-2140112688604592/1393094754',      // Intersticial Bonificado (sirve para ambos)
-  interstitial: 'ca-app-pub-2140112688604592/1393094754',
+  rewarded: 'ca-app-pub-2140112688604592/4482879255',      // Intersticial (sirve para ambos)
+  interstitial: 'ca-app-pub-2140112688604592/4482879255',
 };
 
 class AdMobService {

@@ -24,9 +24,9 @@ public class InterstitialAdPlugin extends Plugin {
 
     // IDs de AdMob
     // Test ID: ca-app-pub-3940256099942544/1033173712
-    // Production ID: ca-app-pub-2140112688604592/1393094754
+    // Production ID: ca-app-pub-2140112688604592/4482879255
     private static final String TEST_AD_UNIT_ID = "ca-app-pub-3940256099942544/1033173712";
-    private static final String PRODUCTION_AD_UNIT_ID = "ca-app-pub-2140112688604592/1393094754";
+    private static final String PRODUCTION_AD_UNIT_ID = "ca-app-pub-2140112688604592/4482879255";
 
     @PluginMethod
     public void loadAd(PluginCall call) {
