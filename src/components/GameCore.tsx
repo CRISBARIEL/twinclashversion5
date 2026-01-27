@@ -26,6 +26,7 @@ import { soundManager } from '../lib/sound';
 import { useBackExitGuard } from '../hooks/useBackExitGuard';
 import { useReviewFlow } from '../hooks/useReviewFlow';
 import { useNativeInterstitial } from '../hooks/useNativeInterstitial';
+import { useAdMob } from '../hooks/useAdMob';
 import {
   startGlobalVirusTimer,
   handleVirusMatch,
@@ -134,6 +135,7 @@ export const GameCore = ({
   const [finalMoves, setFinalMoves] = useState(0);
 
   const { showAd: showInterstitialAd, isReady: isInterstitialReady } = useNativeInterstitial(true, false);
+  const { showRewardedAd, isRewardedReady } = useAdMob(true, false);
   const [hintCards, setHintCards] = useState<number[]>([]);
   const [consecutiveMisses, setConsecutiveMisses] = useState(0);
   const [showCoinShop, setShowCoinShop] = useState(false);
@@ -1857,6 +1859,14 @@ export const GameCore = ({
               </div>
             </div>
 
+            {!isDailyChallenge && !isDuel && activeLevel % 5 === 0 && (
+              <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 mb-4 animate-pulse">
+                <div className="text-3xl mb-2">🎬</div>
+                <div className="text-white font-bold text-lg">¡Bonus cada 5 niveles!</div>
+                <div className="text-purple-100 text-sm">Ver video = +1000 monedas extras</div>
+              </div>
+            )}
+
             <div className="bg-gradient-to-br from-yellow-100 to-amber-100 rounded-xl p-6 mb-6 relative overflow-hidden">
               <div className="text-4xl mb-2">💰</div>
               <div className="text-2xl font-bold text-amber-700 mb-1">
@@ -1889,11 +1899,27 @@ export const GameCore = ({
                     console.log('[GameCore] ===== CLICK SIGUIENTE NIVEL =====');
                     console.log('[GameCore] Current level:', activeLevel);
 
-                    const shouldShowAd = levelConfig?.difficulty === 'expert' && isInterstitialReady;
+                    const isMultipleOf5 = activeLevel % 5 === 0;
 
-                    if (shouldShowAd) {
-                      console.log('[GameCore] Showing interstitial ad after completing expert level', activeLevel);
-                      await showInterstitialAd();
+                    if (isMultipleOf5 && isRewardedReady) {
+                      console.log('[GameCore] 🎁 Level', activeLevel, 'is multiple of 5 - showing rewarded ad');
+                      const result = await showRewardedAd();
+
+                      if (result.rewarded) {
+                        console.log('[GameCore] ✅ Rewarded ad completed! User earned coins:', result.coins);
+                        setCurrentCoins(getLocalCoins());
+                      } else {
+                        console.log('[GameCore] ⚠️ Rewarded ad not completed');
+                      }
+                    } else if (!isMultipleOf5) {
+                      const shouldShowInterstitial = levelConfig?.difficulty === 'expert' && isInterstitialReady;
+
+                      if (shouldShowInterstitial) {
+                        console.log('[GameCore] Showing interstitial ad after completing expert level', activeLevel);
+                        await showInterstitialAd();
+                      }
+                    } else if (isMultipleOf5 && !isRewardedReady) {
+                      console.log('[GameCore] ⚠️ Rewarded ad not ready for level', activeLevel);
                     }
 
                     console.log('[GameCore] Calling onComplete...');
