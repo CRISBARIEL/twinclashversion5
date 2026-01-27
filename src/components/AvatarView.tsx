@@ -16,6 +16,7 @@ const DEFAULT_CONFIG: AvatarConfig = {
   beardId: null,
   mustacheId: null,
   glassesId: null,
+  glassesColor: '#1a1a1a',
   headphonesId: null,
   faceShapeId: 0,
 };
@@ -109,21 +110,21 @@ const MUSTACHE_VARIANTS = [
 
 const GLASSES_VARIANTS = [
   null,
-  { d: 'M25 45 L30 42 L45 42 L50 45 L50 52 L45 55 L30 55 L25 52 Z M60 45 L65 42 L80 42 L85 45 L85 52 L80 55 L65 55 L60 52 Z M50 45 L60 45', stroke: '#333', strokeWidth: 2.5, fill: 'rgba(200,230,255,0.3)' },
-  { d: 'M28 48 A8 8 0 1 1 28 48.01 M82 48 A8 8 0 1 1 82 48.01 M44 48 L66 48', stroke: '#1a1a1a', strokeWidth: 2.8, fill: 'rgba(100,100,100,0.15)' },
-  { d: 'M24 42 L48 42 L52 46 L52 52 L48 56 L24 56 L20 52 L20 46 Z M58 42 L82 42 L86 46 L86 52 L82 56 L58 56 L54 52 L54 46 Z M52 48 L54 48', stroke: '#000', strokeWidth: 2.2, fill: 'rgba(50,50,50,0.1)' },
-  { d: 'M26 44 Q26 40 36 40 Q46 40 46 44 Q46 52 36 52 Q26 52 26 44 M64 44 Q64 40 74 40 Q84 40 84 44 Q84 52 74 52 Q64 52 64 44 M46 46 L64 46', stroke: '#4a4a4a', strokeWidth: 2.5, fill: 'rgba(255,200,100,0.2)' },
-  { d: 'M22 46 L26 42 L46 42 L50 46 L50 52 L46 56 L26 56 L22 52 Z M60 46 L64 42 L84 42 L88 46 L88 52 L84 56 L64 56 L60 52 Z M50 48 L60 48', stroke: '#2a2a2a', strokeWidth: 3, fill: 'rgba(0,0,0,0.2)' },
-  { d: 'M26 44 Q26 40 36 40 Q46 40 46 44 Q46 52 36 52 Q26 52 26 44 M64 44 Q64 40 74 40 Q84 40 84 44 Q84 52 74 52 Q64 52 64 44 M46 46 L64 46', stroke: '#c41e3a', strokeWidth: 2.5, fill: 'rgba(255,100,120,0.2)' },
+  { d: 'M25 45 L30 42 L45 42 L50 45 L50 52 L45 55 L30 55 L25 52 Z M60 45 L65 42 L80 42 L85 45 L85 52 L80 55 L65 55 L60 52 Z M50 45 L60 45', strokeWidth: 2.5, fill: 'rgba(200,230,255,0.3)' },
+  { d: 'M28 48 A8 8 0 1 1 28 48.01 M82 48 A8 8 0 1 1 82 48.01 M44 48 L66 48', strokeWidth: 2.8, fill: 'rgba(100,100,100,0.15)' },
+  { d: 'M24 42 L48 42 L52 46 L52 52 L48 56 L24 56 L20 52 L20 46 Z M58 42 L82 42 L86 46 L86 52 L82 56 L58 56 L54 52 L54 46 Z M52 48 L54 48', strokeWidth: 2.2, fill: 'rgba(50,50,50,0.1)' },
+  { d: 'M26 44 Q26 40 36 40 Q46 40 46 44 Q46 52 36 52 Q26 52 26 44 M64 44 Q64 40 74 40 Q84 40 84 44 Q84 52 74 52 Q64 52 64 44 M46 46 L64 46', strokeWidth: 2.5, fill: 'rgba(255,200,100,0.2)' },
+  { d: 'M22 46 L26 42 L46 42 L50 46 L50 52 L46 56 L26 56 L22 52 Z M60 46 L64 42 L84 42 L88 46 L88 52 L84 56 L64 56 L60 52 Z M50 48 L60 48', strokeWidth: 3, fill: 'rgba(0,0,0,0.2)' },
+  { d: 'M26 44 Q26 40 36 40 Q46 40 46 44 Q46 52 36 52 Q26 52 26 44 M64 44 Q64 40 74 40 Q84 40 84 44 Q84 52 74 52 Q64 52 64 44 M46 46 L64 46', strokeWidth: 2.5, fill: 'rgba(255,100,120,0.2)' },
 ];
 
 const HEADPHONES_VARIANTS = [
   null,
-  { d: 'M18 30 Q18 8 55 3 Q92 8 92 30 M12 32 L12 50 Q12 55 17 58 L26 58 Q31 55 31 50 L31 32 M79 32 L79 50 Q79 55 84 58 L93 58 Q98 55 98 50 L98 32', stroke: '#2C3E50', strokeWidth: 3.5, fill: 'none', accent: '#E74C3C' },
-  { d: 'M20 32 Q20 10 55 5 Q90 10 90 32 M14 34 L14 52 Q14 57 19 60 L28 60 Q33 57 33 52 L33 34 M77 34 L77 52 Q77 57 82 60 L91 60 Q96 57 96 52 L96 34', stroke: '#34495E', strokeWidth: 3.2, fill: 'none', accent: '#3498DB' },
-  { d: 'M22 33 Q22 11 55 6 Q88 11 88 33 M16 35 L16 52 Q16 57 21 60 L30 60 Q35 57 35 52 L35 35 M75 35 L75 52 Q75 57 80 60 L89 60 Q94 57 94 52 L94 35', stroke: '#1ABC9C', strokeWidth: 3, fill: 'none', accent: '#16A085' },
-  { d: 'M19 31 Q19 9 55 4 Q91 9 91 31 M13 33 L13 51 Q13 56 18 59 L27 59 Q32 56 32 51 L32 33 M78 33 L78 51 Q78 56 83 59 L92 59 Q97 56 97 51 L97 33', stroke: '#9B59B6', strokeWidth: 3.3, fill: 'none', accent: '#8E44AD' },
-  { d: 'M21 32 Q21 10 55 5 Q89 10 89 32 M15 34 L15 52 Q15 57 20 60 L29 60 Q34 57 34 52 L34 34 M76 34 L76 52 Q76 57 81 60 L90 60 Q95 57 95 52 L95 34', stroke: '#E67E22', strokeWidth: 3.1, fill: 'none', accent: '#D35400' },
+  { d: 'M18 25 Q18 5 55 0 Q92 5 92 25 M8 28 L8 48 Q8 53 13 56 L22 56 Q27 53 27 48 L27 28 M83 28 L83 48 Q83 53 88 56 L97 56 Q102 53 102 48 L102 28', stroke: '#2C3E50', strokeWidth: 3.5, fill: 'none', accent: '#E74C3C', cupX1: 17, cupX2: 93 },
+  { d: 'M20 27 Q20 7 55 2 Q90 7 90 27 M10 30 L10 50 Q10 55 15 58 L24 58 Q29 55 29 50 L29 30 M81 30 L81 50 Q81 55 86 58 L95 58 Q100 55 100 50 L100 30', stroke: '#34495E', strokeWidth: 3.2, fill: 'none', accent: '#3498DB', cupX1: 19, cupX2: 91 },
+  { d: 'M22 28 Q22 8 55 3 Q88 8 88 28 M12 31 L12 50 Q12 55 17 58 L26 58 Q31 55 31 50 L31 31 M79 31 L79 50 Q79 55 84 58 L93 58 Q98 55 98 50 L98 31', stroke: '#1ABC9C', strokeWidth: 3, fill: 'none', accent: '#16A085', cupX1: 21, cupX2: 89 },
+  { d: 'M19 26 Q19 6 55 1 Q91 6 91 26 M9 29 L9 49 Q9 54 14 57 L23 57 Q28 54 28 49 L28 29 M82 29 L82 49 Q82 54 87 57 L96 57 Q101 54 101 49 L101 29', stroke: '#9B59B6', strokeWidth: 3.3, fill: 'none', accent: '#8E44AD', cupX1: 18, cupX2: 92 },
+  { d: 'M21 27 Q21 7 55 2 Q89 7 89 27 M11 30 L11 50 Q11 55 16 58 L25 58 Q30 55 30 50 L30 30 M80 30 L80 50 Q80 55 85 58 L94 58 Q99 55 99 50 L99 30', stroke: '#E67E22', strokeWidth: 3.1, fill: 'none', accent: '#D35400', cupX1: 20, cupX2: 90 },
 ];
 
 const SIZE_MAP = {
@@ -196,8 +197,8 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <circle cx="21" cy="46" r="11" fill={headphones.accent} opacity="0.9" />
-          <circle cx="89" cy="46" r="11" fill={headphones.accent} opacity="0.9" />
+          <circle cx={headphones.cupX1 || 17} cy="39" r="11" fill={headphones.accent} opacity="0.9" />
+          <circle cx={headphones.cupX2 || 93} cy="39" r="11" fill={headphones.accent} opacity="0.9" />
         </g>
       )}
 
@@ -276,7 +277,7 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
           <path
             d={glasses.d}
             fill={glasses.fill || 'none'}
-            stroke={glasses.stroke}
+            stroke={avatarConfig.glassesColor || '#1a1a1a'}
             strokeWidth={glasses.strokeWidth}
             strokeLinecap="round"
             strokeLinejoin="round"
