@@ -60,6 +60,11 @@ const FACE_SHAPE_NAMES = [
   'Ancha',
   'Diamante',
   'Corazón',
+  'Ovalada Fina',
+  'Ovalada Suave',
+  'Delicada',
+  'Fina',
+  'Corazón Delicado',
 ];
 
 export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
@@ -273,7 +278,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                 Ojos
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
-                {[0, 1, 2, 3, 4].map((id) => (
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((id) => (
                   <button
                     key={id}
                     onClick={() => setAvatarConfig({ ...avatarConfig, eyesId: id })}
@@ -297,7 +302,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                 Boca
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
-                {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((id) => (
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((id) => (
                   <button
                     key={id}
                     onClick={() => setAvatarConfig({ ...avatarConfig, mouthId: id })}
@@ -342,7 +347,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                 Cabello
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
-                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((id) => (
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((id) => (
                   <button
                     key={id}
                     onClick={() => setAvatarConfig({ ...avatarConfig, hairId: id })}
