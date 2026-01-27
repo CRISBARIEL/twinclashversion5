@@ -449,7 +449,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                 >
                   <span className="text-white text-xs">Sin</span>
                 </button>
-                {[0, 1, 2, 3, 4].map((id) => (
+                {[0, 1, 2, 3, 4, 5].map((id) => (
                   <button
                     key={id}
                     onClick={() => setAvatarConfig({ ...avatarConfig, glassesId: id })}
