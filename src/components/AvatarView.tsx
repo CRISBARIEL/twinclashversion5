@@ -144,14 +144,6 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
         </linearGradient>
       </defs>
 
-      <path
-        d={faceShape.path}
-        fill={`url(#faceGradient-${size})`}
-        stroke="#d4a574"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
-
       {hair.d && (
         <path
           d={hair.d}
@@ -161,6 +153,14 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
           opacity="0.95"
         />
       )}
+
+      <path
+        d={faceShape.path}
+        fill={`url(#faceGradient-${size})`}
+        stroke="#d4a574"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
 
       {headphones && headphones.d && (
         <g>
