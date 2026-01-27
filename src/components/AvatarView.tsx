@@ -140,7 +140,7 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
   const faceShape = FACE_SHAPES[avatarConfig.faceShapeId || 0] || FACE_SHAPES[0];
   const eyes = EYES_VARIANTS[avatarConfig.eyesId] || EYES_VARIANTS[0];
   const mouth = MOUTH_VARIANTS[avatarConfig.mouthId] || MOUTH_VARIANTS[0];
-  const hair = HAIR_VARIANTS[avatarConfig.hairId] || HAIR_VARIANTS[0];
+  const hair = avatarConfig.hairId === -1 ? null : (HAIR_VARIANTS[avatarConfig.hairId] || HAIR_VARIANTS[0]);
   const beard = avatarConfig.beardId !== null && avatarConfig.beardId >= 0
     ? BEARD_VARIANTS[avatarConfig.beardId + 1]
     : null;
@@ -169,7 +169,7 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
         </linearGradient>
       </defs>
 
-      {hair.d && (
+      {hair && hair.d && (
         <path
           d={hair.d}
           fill={avatarConfig.hairColor}

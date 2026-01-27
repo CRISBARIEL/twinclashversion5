@@ -357,6 +357,16 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                 Cabello
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
+                <button
+                  onClick={() => setAvatarConfig({ ...avatarConfig, hairId: -1 })}
+                  className={`w-14 h-14 rounded-lg border-3 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-110 ${
+                    avatarConfig.hairId === -1
+                      ? 'border-white shadow-lg scale-110 bg-white/30'
+                      : 'border-white/30'
+                  }`}
+                >
+                  <span className="text-white text-xs">Sin</span>
+                </button>
                 {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((id) => (
                   <button
                     key={id}
