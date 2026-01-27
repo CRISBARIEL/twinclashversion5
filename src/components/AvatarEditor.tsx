@@ -35,6 +35,15 @@ const HAIR_COLORS = [
   { name: 'Rosa', color: '#FF69B4' },
 ];
 
+const GLASSES_COLORS = [
+  { name: 'Negro', color: '#1a1a1a' },
+  { name: 'Marrón', color: '#8B4513' },
+  { name: 'Azul', color: '#2E86AB' },
+  { name: 'Verde', color: '#06A77D' },
+  { name: 'Rojo', color: '#c41e3a' },
+  { name: 'Dorado', color: '#FFD700' },
+];
+
 const DEFAULT_CONFIG: AvatarConfig = {
   faceColor: '#FFD1A0',
   eyeColor: '#2E86AB',
@@ -45,6 +54,7 @@ const DEFAULT_CONFIG: AvatarConfig = {
   beardId: null,
   mustacheId: null,
   glassesId: null,
+  glassesColor: '#1a1a1a',
   headphonesId: null,
   faceShapeId: 0,
 };
@@ -460,10 +470,31 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                     }`}
                   >
                     <AvatarView
-                      config={{ ...DEFAULT_CONFIG, glassesId: id }}
+                      config={{ ...DEFAULT_CONFIG, glassesId: id, glassesColor: avatarConfig.glassesColor }}
                       size="small"
                     />
                   </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-white font-semibold mb-2 text-base">
+                Color de gafas
+              </label>
+              <div className="flex gap-2 justify-center flex-wrap">
+                {GLASSES_COLORS.map((item) => (
+                  <button
+                    key={item.color}
+                    onClick={() => setAvatarConfig({ ...avatarConfig, glassesColor: item.color })}
+                    className={`w-12 h-12 rounded-full border-4 transition-all transform hover:scale-110 ${
+                      avatarConfig.glassesColor === item.color
+                        ? 'border-white shadow-lg scale-110'
+                        : 'border-white/30'
+                    }`}
+                    style={{ backgroundColor: item.color }}
+                    title={item.name}
+                  />
                 ))}
               </div>
             </div>
