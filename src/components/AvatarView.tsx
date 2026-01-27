@@ -138,27 +138,19 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
   const dimension = SIZE_MAP[size];
 
   if (avatarConfig.animalId) {
-    const animalImageMap: Record<string, string> = {
-      'cat': '/cat.png',
-      'tiger': '/tigre.png',
-      'fox': '/zorro.png',
-      'eagle': '/agila.png',
-    };
-
-    const imageSrc = animalImageMap[avatarConfig.animalId];
-
-    if (imageSrc) {
-      return (
-        <img
-          src={imageSrc}
-          alt={avatarConfig.animalId}
-          width={dimension}
-          height={dimension}
-          className={`${className} rounded-full object-cover`}
-          style={{ display: 'block' }}
-        />
-      );
-    }
+    return (
+      <div
+        className={`${className} flex items-center justify-center bg-gradient-to-br from-white/20 to-white/5 rounded-full`}
+        style={{
+          width: dimension,
+          height: dimension,
+          fontSize: `${dimension * 0.6}px`,
+          display: 'flex'
+        }}
+      >
+        <span>{avatarConfig.animalId}</span>
+      </div>
+    );
   }
 
   const faceShape = FACE_SHAPES[avatarConfig.faceShapeId || 0] || FACE_SHAPES[0];

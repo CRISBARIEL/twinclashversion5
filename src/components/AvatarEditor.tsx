@@ -45,10 +45,24 @@ const GLASSES_COLORS = [
 ];
 
 const ANIMAL_OPTIONS = [
-  { id: 'cat', name: 'Gatito', image: '/cat.png' },
-  { id: 'tiger', name: 'Tigre', image: '/tigre.png' },
-  { id: 'fox', name: 'Zorro', image: '/zorro.png' },
-  { id: 'eagle', name: 'Águila', image: '/agila.png' },
+  { id: '🐱', name: 'Gatito', emoji: '🐱' },
+  { id: '🐶', name: 'Perrito', emoji: '🐶' },
+  { id: '🐰', name: 'Conejito', emoji: '🐰' },
+  { id: '🦊', name: 'Zorrito', emoji: '🦊' },
+  { id: '🐼', name: 'Panda', emoji: '🐼' },
+  { id: '🐨', name: 'Koala', emoji: '🐨' },
+  { id: '🦁', name: 'León', emoji: '🦁' },
+  { id: '🐘', name: 'Elefante', emoji: '🐘' },
+  { id: '🦒', name: 'Jirafa', emoji: '🦒' },
+  { id: '🐧', name: 'Pingüino', emoji: '🐧' },
+  { id: '🦉', name: 'Búho', emoji: '🦉' },
+  { id: '🐸', name: 'Ranita', emoji: '🐸' },
+  { id: '🐢', name: 'Tortuga', emoji: '🐢' },
+  { id: '🦈', name: 'Tiburón', emoji: '🦈' },
+  { id: '🐬', name: 'Delfín', emoji: '🐬' },
+  { id: '🦋', name: 'Mariposa', emoji: '🦋' },
+  { id: '🐝', name: 'Abejita', emoji: '🐝' },
+  { id: '🐞', name: 'Mariquita', emoji: '🐞' },
 ];
 
 const DEFAULT_CONFIG: AvatarConfig = {
@@ -233,10 +247,10 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                 <label className="block text-white/80 font-medium mb-3 text-sm text-center">
                   Animales
                 </label>
-                <div className="flex gap-3 justify-center flex-wrap">
+                <div className="flex gap-3 justify-center flex-wrap mb-3">
                   <button
                     onClick={() => setAvatarConfig({ ...avatarConfig, animalId: null })}
-                    className={`w-20 h-20 rounded-xl border-4 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur flex items-center justify-center transition-all transform hover:scale-105 ${
+                    className={`w-24 h-16 rounded-xl border-4 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur flex items-center justify-center transition-all transform hover:scale-105 ${
                       !avatarConfig.animalId
                         ? 'border-white shadow-lg scale-105 ring-4 ring-white/30'
                         : 'border-white/30'
@@ -244,21 +258,23 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                   >
                     <span className="text-white text-xs font-semibold text-center">Avatar<br/>Personalizado</span>
                   </button>
+                </div>
+                <label className="block text-white/70 font-medium mb-3 text-xs text-center">
+                  Animalitos del Mundo 4
+                </label>
+                <div className="flex gap-2 justify-center flex-wrap">
                   {ANIMAL_OPTIONS.map((animal) => (
                     <button
                       key={animal.id}
                       onClick={() => setAvatarConfig({ ...avatarConfig, animalId: animal.id })}
-                      className={`w-20 h-20 rounded-xl border-4 bg-white/20 backdrop-blur flex flex-col items-center justify-center transition-all transform hover:scale-105 overflow-hidden ${
+                      className={`w-16 h-16 rounded-xl border-4 bg-white/20 backdrop-blur flex flex-col items-center justify-center transition-all transform hover:scale-105 ${
                         avatarConfig.animalId === animal.id
                           ? 'border-white shadow-lg scale-105 ring-4 ring-white/30'
                           : 'border-white/30'
                       }`}
+                      title={animal.name}
                     >
-                      <img
-                        src={animal.image}
-                        alt={animal.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <span className="text-3xl">{animal.emoji}</span>
                     </button>
                   ))}
                 </div>
