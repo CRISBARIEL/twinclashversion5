@@ -4,6 +4,7 @@ import { AvatarView } from './AvatarView';
 import { AvatarConfig } from '../types';
 import { supabase, getOrCreateClientId } from '../lib/supabase';
 import toast from 'react-hot-toast';
+import { useLanguage } from '../hooks/useLanguage';
 
 interface AvatarEditorProps {
   onBack: () => void;
@@ -100,6 +101,7 @@ const FACE_SHAPE_NAMES = [
 ];
 
 export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
+  const { t } = useLanguage();
   const [displayName, setDisplayName] = useState('');
   const [avatarConfig, setAvatarConfig] = useState<AvatarConfig>(DEFAULT_CONFIG);
   const [loading, setLoading] = useState(true);
@@ -131,7 +133,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
       }
     } catch (error) {
       console.error('Error loading profile:', error);
-      toast.error('Error al cargar perfil');
+      toast.error(t.avatar.errorLoading);
     } finally {
       setLoading(false);
     }
@@ -139,11 +141,11 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
   const handleSave = async () => {
     if (displayName.trim().length < 3) {
-      toast.error('El nombre debe tener al menos 3 caracteres');
+      toast.error(t.avatar.nameMinLength);
       return;
     }
     if (displayName.trim().length > 16) {
-      toast.error('El nombre debe tener máximo 16 caracteres');
+      toast.error(t.avatar.nameMaxLength);
       return;
     }
 
@@ -183,10 +185,10 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
       }
 
       setInitialName(displayName.trim());
-      toast.success('Perfil guardado exitosamente');
+      toast.success(t.avatar.profileSaved);
     } catch (error) {
       console.error('Error saving profile:', error);
-      toast.error('Error al guardar perfil');
+      toast.error(t.avatar.errorSaving);
     } finally {
       setSaving(false);
     }
@@ -200,7 +202,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-700 flex items-center justify-center">
-        <div className="text-white text-xl">Cargando...</div>
+        <div className="text-white text-xl">{t.avatar.loading}</div>
       </div>
     );
   }
@@ -214,11 +216,11 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
             className="flex items-center gap-2 text-white hover:text-teal-200 transition-colors"
           >
             <ArrowLeft size={24} />
-            <span className="text-lg font-semibold">Volver</span>
+            <span className="text-lg font-semibold">{t.avatar.back}</span>
           </button>
           <h1 className="text-2xl font-bold text-white flex items-center gap-2">
             <User size={28} />
-            Mi Avatar
+            {t.avatar.title}
           </h1>
           <div className="w-20"></div>
         </div>
@@ -232,7 +234,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
               type="text"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Tu nombre (3-16 caracteres)"
+              placeholder={t.avatar.namePlaceholder}
               maxLength={16}
               className="text-center text-2xl font-bold bg-white/20 text-white placeholder-white/50 border-2 border-white/30 rounded-lg px-4 py-2 focus:outline-none focus:border-white/60 transition-colors"
             />
@@ -241,11 +243,11 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
           <div className="space-y-5">
             <div>
               <label className="block text-white font-semibold mb-3 text-lg text-center">
-                Elige tu Avatar
+                {t.avatar.chooseAvatar}
               </label>
               <div className="bg-white/5 rounded-xl p-4 mb-4">
                 <label className="block text-white/80 font-medium mb-3 text-sm text-center">
-                  Animales
+                  {t.avatar.animals}
                 </label>
                 <div className="flex gap-3 justify-center flex-wrap mb-3">
                   <button
@@ -256,11 +258,11 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                         : 'border-white/30'
                     }`}
                   >
-                    <span className="text-white text-xs font-semibold text-center">Avatar<br/>Personalizado</span>
+                    <span className="text-white text-xs font-semibold text-center whitespace-pre-line">{t.avatar.customAvatar}</span>
                   </button>
                 </div>
                 <label className="block text-white/70 font-medium mb-3 text-xs text-center">
-                  Animalitos del Mundo 4
+                  {t.avatar.animalsWorld}
                 </label>
                 <div className="flex gap-2 justify-center flex-wrap">
                   {ANIMAL_OPTIONS.map((animal) => (
@@ -279,7 +281,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                   ))}
                 </div>
                 <p className="text-center text-white/60 text-xs mt-3">
-                  {avatarConfig.animalId ? 'Usando avatar de animal' : 'Los avatares personalizados se pueden editar abajo'}
+                  {avatarConfig.animalId ? t.avatar.usingAnimal : t.avatar.canCustomize}
                 </p>
               </div>
             </div>
@@ -288,7 +290,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
               <>
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Color de piel
+                {t.avatar.skinColor}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 {FACE_COLORS.map((item) => (
@@ -309,7 +311,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Forma de cara
+                {t.avatar.faceShape}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 {FACE_SHAPE_NAMES.map((name, id) => (
@@ -333,7 +335,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Color de ojos
+                {t.avatar.eyeColor}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 {EYE_COLORS.map((item) => (
@@ -354,7 +356,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Ojos
+                {t.avatar.eyes}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((id) => (
@@ -378,7 +380,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Boca
+                {t.avatar.mouth}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((id) => (
@@ -402,7 +404,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Color de cabello
+                {t.avatar.hairColor}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 {HAIR_COLORS.map((item) => (
@@ -423,7 +425,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Cabello
+                {t.avatar.hair}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 <button
@@ -434,7 +436,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                       : 'border-white/30'
                   }`}
                 >
-                  <span className="text-white text-xs">Sin</span>
+                  <span className="text-white text-xs">{t.avatar.none}</span>
                 </button>
                 {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((id) => (
                   <button
@@ -457,7 +459,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Barba
+                {t.avatar.beard}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 <button
@@ -468,7 +470,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                       : 'border-white/30'
                   }`}
                 >
-                  <span className="text-white text-xs">Sin</span>
+                  <span className="text-white text-xs">{t.avatar.none}</span>
                 </button>
                 {[0, 1, 2, 3, 4].map((id) => (
                   <button
@@ -491,7 +493,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Bigote
+                {t.avatar.mustache}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 <button
@@ -502,7 +504,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                       : 'border-white/30'
                   }`}
                 >
-                  <span className="text-white text-xs">Sin</span>
+                  <span className="text-white text-xs">{t.avatar.none}</span>
                 </button>
                 {[0, 1, 2, 3, 4].map((id) => (
                   <button
@@ -525,7 +527,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Gafas
+                {t.avatar.glasses}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 <button
@@ -536,7 +538,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                       : 'border-white/30'
                   }`}
                 >
-                  <span className="text-white text-xs">Sin</span>
+                  <span className="text-white text-xs">{t.avatar.none}</span>
                 </button>
                 {[0, 1, 2, 3, 4, 5].map((id) => (
                   <button
@@ -559,7 +561,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Color de gafas
+                {t.avatar.glassesColor}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 {GLASSES_COLORS.map((item) => (
@@ -580,7 +582,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
-                Cascos de Música
+                {t.avatar.headphones}
               </label>
               <div className="flex gap-2 justify-center flex-wrap">
                 <button
@@ -591,7 +593,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                       : 'border-white/30'
                   }`}
                 >
-                  <span className="text-white text-xs">Sin</span>
+                  <span className="text-white text-xs">{t.avatar.none}</span>
                 </button>
                 {[0, 1, 2, 3, 4].map((id) => (
                   <button
@@ -621,7 +623,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
               className="flex-1 bg-white/20 hover:bg-white/30 text-white font-bold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <RotateCcw size={20} />
-              Restablecer
+              {t.avatar.reset}
             </button>
             <button
               onClick={handleSave}
@@ -629,7 +631,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
               className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               <Save size={20} />
-              {saving ? 'Guardando...' : 'Guardar'}
+              {saving ? t.avatar.saving : t.avatar.save}
             </button>
           </div>
         </div>

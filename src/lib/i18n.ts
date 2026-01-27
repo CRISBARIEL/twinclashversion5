@@ -177,6 +177,39 @@ export interface Translations {
     mediumDesc: string;
     hardDesc: string;
   };
+  avatar: {
+    title: string;
+    back: string;
+    save: string;
+    saving: string;
+    reset: string;
+    chooseAvatar: string;
+    animals: string;
+    animalsWorld: string;
+    customAvatar: string;
+    usingAnimal: string;
+    canCustomize: string;
+    skinColor: string;
+    faceShape: string;
+    eyeColor: string;
+    eyes: string;
+    mouth: string;
+    hairColor: string;
+    hair: string;
+    beard: string;
+    mustache: string;
+    glasses: string;
+    glassesColor: string;
+    headphones: string;
+    none: string;
+    namePlaceholder: string;
+    nameMinLength: string;
+    nameMaxLength: string;
+    profileSaved: string;
+    errorLoading: string;
+    errorSaving: string;
+    loading: string;
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -357,6 +390,39 @@ export const translations: Record<Language, Translations> = {
       mediumDesc: 'Tiempo normal y cartas normales',
       hardDesc: 'Menos tiempo y más cartas',
     },
+    avatar: {
+      title: 'Mi Avatar',
+      back: 'Volver',
+      save: 'Guardar',
+      saving: 'Guardando...',
+      reset: 'Restablecer',
+      chooseAvatar: 'Elige tu Avatar',
+      animals: 'Animales',
+      animalsWorld: 'Animalitos del Mundo 4',
+      customAvatar: 'Avatar\nPersonalizado',
+      usingAnimal: 'Usando avatar de animal',
+      canCustomize: 'Los avatares personalizados se pueden editar abajo',
+      skinColor: 'Color de piel',
+      faceShape: 'Forma de cara',
+      eyeColor: 'Color de ojos',
+      eyes: 'Ojos',
+      mouth: 'Boca',
+      hairColor: 'Color de cabello',
+      hair: 'Cabello',
+      beard: 'Barba',
+      mustache: 'Bigote',
+      glasses: 'Gafas',
+      glassesColor: 'Color de gafas',
+      headphones: 'Cascos de Música',
+      none: 'Sin',
+      namePlaceholder: 'Tu nombre (3-16 caracteres)',
+      nameMinLength: 'El nombre debe tener al menos 3 caracteres',
+      nameMaxLength: 'El nombre debe tener máximo 16 caracteres',
+      profileSaved: 'Perfil guardado exitosamente',
+      errorLoading: 'Error al cargar perfil',
+      errorSaving: 'Error al guardar perfil',
+      loading: 'Cargando...',
+    },
   },
   en: {
     common: {
@@ -535,6 +601,39 @@ export const translations: Record<Language, Translations> = {
       mediumDesc: 'Normal time and normal cards',
       hardDesc: 'Less time and more cards',
     },
+    avatar: {
+      title: 'My Avatar',
+      back: 'Back',
+      save: 'Save',
+      saving: 'Saving...',
+      reset: 'Reset',
+      chooseAvatar: 'Choose Your Avatar',
+      animals: 'Animals',
+      animalsWorld: 'Animals from World 4',
+      customAvatar: 'Custom\nAvatar',
+      usingAnimal: 'Using animal avatar',
+      canCustomize: 'Custom avatars can be edited below',
+      skinColor: 'Skin Color',
+      faceShape: 'Face Shape',
+      eyeColor: 'Eye Color',
+      eyes: 'Eyes',
+      mouth: 'Mouth',
+      hairColor: 'Hair Color',
+      hair: 'Hair',
+      beard: 'Beard',
+      mustache: 'Mustache',
+      glasses: 'Glasses',
+      glassesColor: 'Glasses Color',
+      headphones: 'Headphones',
+      none: 'None',
+      namePlaceholder: 'Your name (3-16 characters)',
+      nameMinLength: 'Name must be at least 3 characters',
+      nameMaxLength: 'Name must be maximum 16 characters',
+      profileSaved: 'Profile saved successfully',
+      errorLoading: 'Error loading profile',
+      errorSaving: 'Error saving profile',
+      loading: 'Loading...',
+    },
   },
   'pt-BR': {
     common: {
@@ -712,6 +811,39 @@ export const translations: Record<Language, Translations> = {
       easyDesc: 'Mais tempo e menos cartas',
       mediumDesc: 'Tempo normal e cartas normais',
       hardDesc: 'Menos tempo e mais cartas',
+    },
+    avatar: {
+      title: 'Meu Avatar',
+      back: 'Voltar',
+      save: 'Salvar',
+      saving: 'Salvando...',
+      reset: 'Redefinir',
+      chooseAvatar: 'Escolha seu Avatar',
+      animals: 'Animais',
+      animalsWorld: 'Animais do Mundo 4',
+      customAvatar: 'Avatar\nPersonalizado',
+      usingAnimal: 'Usando avatar de animal',
+      canCustomize: 'Avatares personalizados podem ser editados abaixo',
+      skinColor: 'Cor da Pele',
+      faceShape: 'Forma do Rosto',
+      eyeColor: 'Cor dos Olhos',
+      eyes: 'Olhos',
+      mouth: 'Boca',
+      hairColor: 'Cor do Cabelo',
+      hair: 'Cabelo',
+      beard: 'Barba',
+      mustache: 'Bigode',
+      glasses: 'Óculos',
+      glassesColor: 'Cor dos Óculos',
+      headphones: 'Fones de Ouvido',
+      none: 'Nenhum',
+      namePlaceholder: 'Seu nome (3-16 caracteres)',
+      nameMinLength: 'O nome deve ter pelo menos 3 caracteres',
+      nameMaxLength: 'O nome deve ter no máximo 16 caracteres',
+      profileSaved: 'Perfil salvo com sucesso',
+      errorLoading: 'Erro ao carregar perfil',
+      errorSaving: 'Erro ao salvar perfil',
+      loading: 'Carregando...',
     },
   },
 };
