@@ -137,6 +137,30 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
   const avatarConfig = { ...DEFAULT_CONFIG, ...config };
   const dimension = SIZE_MAP[size];
 
+  if (avatarConfig.animalId) {
+    const animalImageMap: Record<string, string> = {
+      'cat': '/cat.png',
+      'tiger': '/tigre.png',
+      'fox': '/zorro.png',
+      'eagle': '/agila.png',
+    };
+
+    const imageSrc = animalImageMap[avatarConfig.animalId];
+
+    if (imageSrc) {
+      return (
+        <img
+          src={imageSrc}
+          alt={avatarConfig.animalId}
+          width={dimension}
+          height={dimension}
+          className={`${className} rounded-full object-cover`}
+          style={{ display: 'block' }}
+        />
+      );
+    }
+  }
+
   const faceShape = FACE_SHAPES[avatarConfig.faceShapeId || 0] || FACE_SHAPES[0];
   const eyes = EYES_VARIANTS[avatarConfig.eyesId] || EYES_VARIANTS[0];
   const mouth = MOUTH_VARIANTS[avatarConfig.mouthId] || MOUTH_VARIANTS[0];

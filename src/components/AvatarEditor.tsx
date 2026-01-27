@@ -44,7 +44,15 @@ const GLASSES_COLORS = [
   { name: 'Dorado', color: '#FFD700' },
 ];
 
+const ANIMAL_OPTIONS = [
+  { id: 'cat', name: 'Gatito', image: '/cat.png' },
+  { id: 'tiger', name: 'Tigre', image: '/tigre.png' },
+  { id: 'fox', name: 'Zorro', image: '/zorro.png' },
+  { id: 'eagle', name: 'Águila', image: '/agila.png' },
+];
+
 const DEFAULT_CONFIG: AvatarConfig = {
+  animalId: null,
   faceColor: '#FFD1A0',
   eyeColor: '#2E86AB',
   eyesId: 0,
@@ -217,6 +225,51 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
           </div>
 
           <div className="space-y-5">
+            <div>
+              <label className="block text-white font-semibold mb-3 text-lg text-center">
+                Elige tu Avatar
+              </label>
+              <div className="bg-white/5 rounded-xl p-4 mb-4">
+                <label className="block text-white/80 font-medium mb-3 text-sm text-center">
+                  Animales
+                </label>
+                <div className="flex gap-3 justify-center flex-wrap">
+                  <button
+                    onClick={() => setAvatarConfig({ ...avatarConfig, animalId: null })}
+                    className={`w-20 h-20 rounded-xl border-4 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur flex items-center justify-center transition-all transform hover:scale-105 ${
+                      !avatarConfig.animalId
+                        ? 'border-white shadow-lg scale-105 ring-4 ring-white/30'
+                        : 'border-white/30'
+                    }`}
+                  >
+                    <span className="text-white text-xs font-semibold text-center">Avatar<br/>Personalizado</span>
+                  </button>
+                  {ANIMAL_OPTIONS.map((animal) => (
+                    <button
+                      key={animal.id}
+                      onClick={() => setAvatarConfig({ ...avatarConfig, animalId: animal.id })}
+                      className={`w-20 h-20 rounded-xl border-4 bg-white/20 backdrop-blur flex flex-col items-center justify-center transition-all transform hover:scale-105 overflow-hidden ${
+                        avatarConfig.animalId === animal.id
+                          ? 'border-white shadow-lg scale-105 ring-4 ring-white/30'
+                          : 'border-white/30'
+                      }`}
+                    >
+                      <img
+                        src={animal.image}
+                        alt={animal.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+                <p className="text-center text-white/60 text-xs mt-3">
+                  {avatarConfig.animalId ? 'Usando avatar de animal' : 'Los avatares personalizados se pueden editar abajo'}
+                </p>
+              </div>
+            </div>
+
+            {!avatarConfig.animalId && (
+              <>
             <div>
               <label className="block text-white font-semibold mb-2 text-base">
                 Color de piel
@@ -542,6 +595,8 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                 ))}
               </div>
             </div>
+              </>
+            )}
           </div>
 
           <div className="flex gap-4 mt-6">

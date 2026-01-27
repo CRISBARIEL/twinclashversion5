@@ -42,6 +42,7 @@ export const PREVIEW_TIME = 10;
 export const FLIP_DELAY = 400;
 
 export interface AvatarConfig {
+  animalId?: string | null; // 'cat', 'tiger', 'fox', 'eagle'
   faceColor: string;
   eyeColor: string;
   eyesId: number;
@@ -54,6 +55,7 @@ export interface AvatarConfig {
   headphonesId: number | null;
   accessoryId?: number | null;
   faceShapeId?: number;
+  glassesColor?: string;
 }
 
 export interface PlayerProfile {
