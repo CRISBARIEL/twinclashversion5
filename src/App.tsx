@@ -17,6 +17,7 @@ import { loadFromSupabase, getCurrentLevel } from './lib/progression';
 import { soundManager } from './lib/sound';
 import { initializeFirebase } from './lib/firebase';
 import { nativeInterstitialService } from './lib/nativeInterstitial';
+import { getOrCreateClientId } from './lib/supabase';
 import { AlertCircle } from 'lucide-react';
 import { LanguageContext, useLanguageState } from './hooks/useLanguage';
 
@@ -105,14 +106,7 @@ function App() {
   const [isLoadingProgress, setIsLoadingProgress] = useState(true);
   const [openShopDirectly, setOpenShopDirectly] = useState(false);
   const [menuKey, setMenuKey] = useState(0);
-  const [clientId] = useState(() => {
-    let id = localStorage.getItem('clientId');
-    if (!id) {
-      id = `client-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-      localStorage.setItem('clientId', id);
-    }
-    return id;
-  });
+  const [clientId] = useState(() => getOrCreateClientId());
 
   useEffect(() => {
     const initializeApp = async () => {

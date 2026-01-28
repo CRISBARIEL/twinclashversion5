@@ -122,12 +122,14 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
     setLoading(true);
     setError(null);
 
+    loadPlayerProfiles(initialRoom.host_client_id, initialRoom.guest_client_id);
+
     const unsubscribe = subscribeToDuelRoom(initialRoom.room_code, handleRoomUpdate);
 
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [initialRoom?.room_code]);
+  }, [initialRoom?.room_code, loadPlayerProfiles]);
 
   useEffect(() => {
     if (!initialRoom?.room_code || gameStarted || showResults) return;

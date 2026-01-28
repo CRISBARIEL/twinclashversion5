@@ -39,20 +39,34 @@ const hasChanges = () => {
 
 **Problema:**
 - En los duelos, aparecía un avatar estándar en lugar del avatar personalizado
-- El nombre mostraba "Jugador XXXXXX" (con ID del cliente) en lugar del nombre personalizado
+- El nombre mostraba "Jugador" en lugar del nombre personalizado (ej: "Cristian")
 - Esto ocurría incluso cuando el usuario había creado y guardado su avatar
+- **CAUSA RAÍZ:** App.tsx usaba `localStorage.getItem('clientId')` mientras que el resto de la app usaba `localStorage.getItem('client_id')` (con guion bajo). Eran dos IDs diferentes, por lo que el perfil guardado no se encontraba.
 
 **Solución Implementada:**
-- Mejorado el nombre por defecto de "Jugador XXXXXX" a simplemente "Jugador"
-- Agregados logs de consola para diagnosticar problemas de carga
-- El avatar personalizado se carga correctamente desde la base de datos
-- Si el usuario no ha guardado su avatar, se muestra el avatar por defecto de manera elegante
+1. **Unificado el clientId:** Ahora App.tsx usa `getOrCreateClientId()` de `supabase.ts`
+2. **Carga inicial de perfiles:** Los perfiles ahora se cargan al entrar al lobby
+3. **Mejores logs:** Agregados logs de diagnóstico para depuración
+4. **Nombre por defecto mejorado:** De "Jugador XXXXXX" a simplemente "Jugador"
 
 **Archivos modificados:**
-- `src/components/duel/DuelLobby.tsx`
+- `src/App.tsx` (corregido para usar `getOrCreateClientId()`)
+- `src/components/duel/DuelLobby.tsx` (carga inicial + logs)
 
 **Cambios específicos:**
 ```typescript
+// src/App.tsx - Importar función
+import { getOrCreateClientId } from './lib/supabase';
+
+// src/App.tsx - Usar función unificada
+const [clientId] = useState(() => getOrCreateClientId());
+
+// src/components/duel/DuelLobby.tsx - Cargar perfiles al inicio
+useEffect(() => {
+  loadPlayerProfiles(initialRoom.host_client_id, initialRoom.guest_client_id);
+  // ...
+}, [initialRoom?.room_code, loadPlayerProfiles]);
+
 // Mejor nombre por defecto
 displayName: hostProfile?.display_name || 'Jugador'
 
@@ -117,7 +131,18 @@ console.log('[DuelLobby] Guest profile:', { guestProfile, guestError });
 
 ## Instrucciones para el Usuario
 
-### Para usar tu avatar personalizado en duelos:
+### ⚠️ IMPORTANTE: Si ya habías creado un avatar antes de esta actualización
+
+Debido a la corrección del clientId, necesitas **volver a guardar tu avatar** para que aparezca en los duelos:
+
+1. **Abre el editor de avatar** desde el menú principal
+2. **Verifica que tu avatar y nombre estén como los dejaste**
+3. **Toca "Guardar" nuevamente** (aunque no hayas hecho cambios)
+4. **Espera a ver "✓ Guardado"**
+
+Esto asociará tu avatar con el clientId correcto y aparecerá en los duelos.
+
+### Para nuevos usuarios o primera vez usando avatares:
 
 1. **Crear tu avatar:**
    - Ve al menú principal
@@ -173,6 +198,12 @@ console.log('[DuelLobby] Guest profile:', { guestProfile, guestError });
 
 ## Archivos Modificados
 
+### `src/App.tsx`
+- **CRÍTICO:** Importada función `getOrCreateClientId` de `supabase.ts`
+- **CRÍTICO:** Cambiado de usar `localStorage.getItem('clientId')` a `getOrCreateClientId()`
+- Esto asegura que el mismo clientId se use en toda la aplicación
+- Corrige el problema de perfiles no encontrados en duelos
+
 ### `src/components/AvatarEditor.tsx`
 - Agregado `initialAvatarConfig` state
 - Implementada función `hasChanges()`
@@ -182,9 +213,49 @@ console.log('[DuelLobby] Guest profile:', { guestProfile, guestError });
 - Actualizado `loadProfile` para guardar configuración inicial
 
 ### `src/components/duel/DuelLobby.tsx`
+- Agregada carga inicial de perfiles en `useEffect`
 - Mejorado nombre por defecto de jugadores
 - Agregados logs de diagnóstico
 - Mejor manejo de errores al cargar perfiles
+
+## Explicación Técnica del Problema de ClientId
+
+### ¿Qué era el problema?
+
+La aplicación usaba **dos claves diferentes** de localStorage para el mismo concepto (clientId):
+
+1. **En App.tsx:**
+   ```typescript
+   localStorage.getItem('clientId')  // Sin guion bajo
+   localStorage.setItem('clientId', id)
+   ```
+
+2. **En supabase.ts y otros componentes:**
+   ```typescript
+   localStorage.getItem('client_id')  // Con guion bajo
+   localStorage.setItem('client_id', newId)
+   ```
+
+### ¿Por qué causaba el problema?
+
+1. Cuando guardabas tu avatar en el editor, se guardaba con el `client_id` (con guion bajo)
+2. Cuando entrabas a un duelo, App.tsx pasaba el `clientId` (sin guion bajo)
+3. Al buscar el perfil en la base de datos usando el `clientId` (sin guion bajo), no se encontraba
+4. Por eso aparecía "Jugador" y el avatar por defecto
+
+### ¿Cómo se corrigió?
+
+Ahora **todos los componentes usan la misma función** `getOrCreateClientId()` que:
+- Usa siempre `client_id` (con guion bajo)
+- Genera el ID de manera consistente
+- Asegura que todos los componentes usan el mismo ID
+
+### ¿Qué pasa con los usuarios existentes?
+
+Los usuarios que ya habían guardado su avatar con el `client_id` correcto (con guion bajo) seguirán viéndolo correctamente. Sin embargo, App.tsx ahora también usa ese mismo ID, por lo que:
+
+- Si guardaste tu avatar antes: Ya debería funcionar correctamente ahora
+- Si no aparece: Vuelve a guardar tu avatar para forzar la actualización
 
 ## Estado del Build
 
@@ -192,6 +263,7 @@ console.log('[DuelLobby] Guest profile:', { guestProfile, guestError });
 ✅ Todos los cambios probados y funcionando
 ✅ Lógica existente no modificada
 ✅ Diseño existente no modificado
+✅ Problema crítico de clientId corregido
 
 ---
 
@@ -200,7 +272,8 @@ console.log('[DuelLobby] Guest profile:', { guestProfile, guestError });
 Los tres problemas reportados han sido corregidos:
 
 1. ✅ **Botón Guardar**: Ahora detecta cambios y muestra "✓ Guardado" cuando no hay cambios pendientes
-2. ✅ **Avatar en duelos**: Ahora carga y muestra correctamente el avatar personalizado del usuario
+2. ✅ **Avatar en duelos**: **CORREGIDO EL BUG CRÍTICO** - Ahora usa el mismo clientId en toda la app y carga correctamente el avatar personalizado
 3. ✅ **Avatar en desafío diario**: Verificado que funciona según el diseño actual
 
-Todos los cambios son mínimos y no afectan la lógica o diseño existente del juego.
+### Cambio más importante:
+El **problema del clientId duplicado** ha sido corregido. Esto era un bug crítico que impedía que los avatares guardados se mostraran en los duelos. Ahora toda la aplicación usa un único sistema de identificación de cliente consistente.
