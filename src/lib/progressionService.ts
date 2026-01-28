@@ -348,11 +348,11 @@ export async function openChest(userId: string): Promise<ChestReward> {
 
 // SISTEMA DE LOGIN DIARIO
 
-export async function getDailyLogin(userId: string): Promise<DailyLogin | null> {
+export async function getDailyLogin(clientId: string): Promise<DailyLogin | null> {
   const { data, error } = await supabase
     .from('daily_login')
     .select('*')
-    .eq('user_id', userId)
+    .eq('client_id', clientId)
     .maybeSingle();
 
   if (error) {
@@ -365,7 +365,7 @@ export async function getDailyLogin(userId: string): Promise<DailyLogin | null> 
     const { data: newData, error: insertError } = await supabase
       .from('daily_login')
       .insert({
-        user_id: userId,
+        client_id: clientId,
         current_streak: 0,
         longest_streak: 0,
         total_logins: 0,
@@ -379,7 +379,7 @@ export async function getDailyLogin(userId: string): Promise<DailyLogin | null> 
     }
 
     return {
-      userId: newData.user_id,
+      userId: newData.client_id,
       currentStreak: newData.current_streak,
       longestStreak: newData.longest_streak,
       lastLoginDate: newData.last_login_date ? new Date(newData.last_login_date) : null,
@@ -389,7 +389,7 @@ export async function getDailyLogin(userId: string): Promise<DailyLogin | null> 
   }
 
   return {
-    userId: data.user_id,
+    userId: data.client_id || data.user_id,
     currentStreak: data.current_streak,
     longestStreak: data.longest_streak,
     lastLoginDate: data.last_login_date ? new Date(data.last_login_date) : null,
@@ -398,8 +398,8 @@ export async function getDailyLogin(userId: string): Promise<DailyLogin | null> 
   };
 }
 
-export async function checkDailyLogin(userId: string): Promise<{ canClaim: boolean; streak: number; day: number }> {
-  const login = await getDailyLogin(userId);
+export async function checkDailyLogin(clientId: string): Promise<{ canClaim: boolean; streak: number; day: number }> {
+  const login = await getDailyLogin(clientId);
   if (!login) return { canClaim: false, streak: 0, day: 1 };
 
   const today = new Date().toISOString().split('T')[0];
@@ -416,8 +416,8 @@ export async function checkDailyLogin(userId: string): Promise<{ canClaim: boole
   return { canClaim: true, streak: login.currentStreak, day };
 }
 
-export async function claimDailyLogin(userId: string): Promise<{ coins: number; boosts: number; streak: number; day: number }> {
-  const login = await getDailyLogin(userId);
+export async function claimDailyLogin(clientId: string): Promise<{ coins: number; boosts: number; streak: number; day: number }> {
+  const login = await getDailyLogin(clientId);
   if (!login) return { coins: 0, boosts: 0, streak: 0, day: 1 };
 
   const today = new Date().toISOString().split('T')[0];
@@ -476,7 +476,7 @@ export async function claimDailyLogin(userId: string): Promise<{ coins: number; 
       total_logins: login.totalLogins + 1,
       updated_at: new Date().toISOString(),
     })
-    .eq('user_id', userId);
+    .eq('client_id', clientId);
 
   // Dar recompensa
   await addCoins(reward.coins);
@@ -486,13 +486,13 @@ export async function claimDailyLogin(userId: string): Promise<{ coins: number; 
 
 // SISTEMA DE MISIONES DIARIAS
 
-export async function getDailyMissions(userId: string): Promise<DailyMission[]> {
+export async function getDailyMissions(clientId: string): Promise<DailyMission[]> {
   const today = new Date().toISOString().split('T')[0];
 
   const { data, error } = await supabase
     .from('daily_missions')
     .select('*')
-    .eq('user_id', userId)
+    .eq('client_id', clientId)
     .eq('mission_date', today);
 
   if (error) {
@@ -502,12 +502,12 @@ export async function getDailyMissions(userId: string): Promise<DailyMission[]> 
 
   // Si no hay misiones para hoy, generarlas
   if (!data || data.length === 0) {
-    return await generateDailyMissions(userId);
+    return await generateDailyMissions(clientId);
   }
 
   return data.map(m => ({
     id: m.id,
-    userId: m.user_id,
+    userId: m.client_id || m.user_id,
     missionDate: new Date(m.mission_date),
     missionType: m.mission_type,
     target: m.target,
@@ -518,20 +518,20 @@ export async function getDailyMissions(userId: string): Promise<DailyMission[]> 
   }));
 }
 
-async function generateDailyMissions(userId: string): Promise<DailyMission[]> {
+async function generateDailyMissions(clientId: string): Promise<DailyMission[]> {
   const today = new Date().toISOString().split('T')[0];
 
   // Borrar misiones antiguas
   await supabase
     .from('daily_missions')
     .delete()
-    .eq('user_id', userId)
+    .eq('client_id', clientId)
     .neq('mission_date', today);
 
   // Generar 3 misiones
   const missions = [
     {
-      user_id: userId,
+      client_id: clientId,
       mission_date: today,
       mission_type: 'complete_levels',
       target: 5,
@@ -541,7 +541,7 @@ async function generateDailyMissions(userId: string): Promise<DailyMission[]> {
       claimed: false,
     },
     {
-      user_id: userId,
+      client_id: clientId,
       mission_date: today,
       mission_type: 'earn_stars',
       target: 8,
@@ -551,7 +551,7 @@ async function generateDailyMissions(userId: string): Promise<DailyMission[]> {
       claimed: false,
     },
     {
-      user_id: userId,
+      client_id: clientId,
       mission_date: today,
       mission_type: 'perfect_levels',
       target: 2,
@@ -574,7 +574,7 @@ async function generateDailyMissions(userId: string): Promise<DailyMission[]> {
 
   return data.map(m => ({
     id: m.id,
-    userId: m.user_id,
+    userId: m.client_id || m.user_id,
     missionDate: new Date(m.mission_date),
     missionType: m.mission_type,
     target: m.target,
@@ -585,8 +585,8 @@ async function generateDailyMissions(userId: string): Promise<DailyMission[]> {
   }));
 }
 
-export async function updateMissionProgress(userId: string, starsEarned: number, isPerfect: boolean): Promise<void> {
-  const missions = await getDailyMissions(userId);
+export async function updateMissionProgress(clientId: string, starsEarned: number, isPerfect: boolean): Promise<void> {
+  const missions = await getDailyMissions(clientId);
 
   for (const mission of missions) {
     if (mission.claimed) continue;

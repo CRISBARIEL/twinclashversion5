@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Target, X, CheckCircle2, Circle } from 'lucide-react';
 import { getDailyMissions, claimMission, DailyMission } from '../lib/progressionService';
-import { supabase } from '../lib/supabase';
+import { getOrCreateClientId } from '../lib/supabase';
 
 interface DailyMissionsPanelProps {
   forceOpen?: boolean;
@@ -21,13 +21,9 @@ export const DailyMissionsPanel = ({ forceOpen = false, onClose }: DailyMissions
 
   const loadMissions = async () => {
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+    const clientId = getOrCreateClientId();
 
-    const dailyMissions = await getDailyMissions(user.id);
+    const dailyMissions = await getDailyMissions(clientId);
     setMissions(dailyMissions);
     setLoading(false);
   };

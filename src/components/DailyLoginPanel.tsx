@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Star, Gift, X } from 'lucide-react';
 import { checkDailyLogin, claimDailyLogin } from '../lib/progressionService';
-import { supabase } from '../lib/supabase';
+import { getOrCreateClientId } from '../lib/supabase';
 
 interface DailyLoginPanelProps {
   forceOpen?: boolean;
@@ -21,10 +21,9 @@ export const DailyLoginPanel = ({ forceOpen = false, onClose }: DailyLoginPanelP
   }, []);
 
   const checkLogin = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const clientId = getOrCreateClientId();
 
-    const result = await checkDailyLogin(user.id);
+    const result = await checkDailyLogin(clientId);
     setCanClaim(result.canClaim);
     setStreak(result.streak);
     setDay(result.day);
@@ -36,10 +35,9 @@ export const DailyLoginPanel = ({ forceOpen = false, onClose }: DailyLoginPanelP
 
   const handleClaim = async () => {
     setClaiming(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const clientId = getOrCreateClientId();
 
-    const result = await claimDailyLogin(user.id);
+    const result = await claimDailyLogin(clientId);
     setReward(result);
     setStreak(result.streak);
     setDay(result.day);

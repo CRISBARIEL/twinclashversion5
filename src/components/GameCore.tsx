@@ -44,7 +44,7 @@ import {
   loseLife,
   getUserLives,
 } from '../lib/progressionService';
-import { supabase } from '../lib/supabase';
+import { supabase, getOrCreateClientId } from '../lib/supabase';
 
 interface GameCoreProps {
   level: number;
@@ -847,7 +847,8 @@ export const GameCore = ({
               }
 
               // Actualizar misiones diarias
-              await updateMissionProgress(user.id, result.starsEarned, result.starsEarned === 3);
+              const clientId = getOrCreateClientId();
+              await updateMissionProgress(clientId, result.starsEarned, result.starsEarned === 3);
             } catch (err) {
               console.error('[GameCore] Failed to save progression:', err);
             }
