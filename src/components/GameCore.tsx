@@ -148,6 +148,7 @@ export const GameCore = ({
   const [shatterTrigger, setShatterTrigger] = useState(false);
   const [shatterTheme, setShatterTheme] = useState<ShatterTheme>('ice');
   const [coinsEarned, setCoinsEarned] = useState(0);
+  const [pendingObstacleCoins, setPendingObstacleCoins] = useState(0);
   const [showCoinAnimation, setShowCoinAnimation] = useState(false);
   const [currentCoins, setCurrentCoins] = useState(0);
   const [freezeTimeLeft, setFreezeTimeLeft] = useState(0);
@@ -799,9 +800,16 @@ export const GameCore = ({
           }
 
           const baseCoins = 10;
-          setCoinsEarned(baseCoins);
-          addCoins(baseCoins);
+          const totalCoins = baseCoins + pendingObstacleCoins;
+          console.log('[GameCore] 💰 Total coins earned:', {
+            base: baseCoins,
+            obstacles: pendingObstacleCoins,
+            total: totalCoins
+          });
+          setCoinsEarned(totalCoins);
+          addCoins(totalCoins);
           setCurrentCoins(getLocalCoins());
+          setPendingObstacleCoins(0); // Reset para el próximo nivel
 
           trackTikTokLevelComplete(activeLevel).catch(console.error);
 
@@ -828,9 +836,21 @@ export const GameCore = ({
               });
 
               console.log('[GameCore] Level stats saved:', result);
+              const totalCoins = result.coinReward + pendingObstacleCoins;
+              console.log('[GameCore] 💰 Total coins earned:', {
+                levelReward: result.coinReward,
+                obstacles: pendingObstacleCoins,
+                total: totalCoins
+              });
               setStarsEarned(result.starsEarned);
-              setCoinReward(result.coinReward);
-              setCoinsEarned(result.coinReward);
+              setCoinReward(totalCoins);
+              setCoinsEarned(totalCoins);
+
+              // Dar las monedas de obstáculos que estaban pendientes
+              if (pendingObstacleCoins > 0) {
+                addCoins(pendingObstacleCoins);
+              }
+              setPendingObstacleCoins(0); // Reset para el próximo nivel
 
               // Actualizar progreso de cofre
               const chestResult = await incrementChestProgress(user.id);
@@ -908,6 +928,13 @@ export const GameCore = ({
       // Perder una vida (funciona con o sin usuario)
       const result = await loseLife(userId);
       console.log('[GameCore] ✅ Life lost. Lives remaining:', result.livesLeft);
+
+      // Al perder, se pierden las monedas pendientes de obstáculos
+      if (pendingObstacleCoins > 0) {
+        console.log('[GameCore] 💔 Lost', pendingObstacleCoins, 'pending coins from obstacles');
+        setPendingObstacleCoins(0);
+      }
+
       setLivesLeft(result.livesLeft);
       setLivesProcessed(true);
 
@@ -984,8 +1011,8 @@ export const GameCore = ({
           if (neighborIndices.includes(idx) && c.obstacle === 'ice' && (c.obstacleHealth ?? 0) > 0) {
             const newHealth = (c.obstacleHealth ?? 0) - 1;
             if (newHealth <= 0) {
-              addCoins(10);
-              setCurrentCoins(getLocalCoins());
+              // Acumular monedas pero no darlas hasta ganar
+              setPendingObstacleCoins(prev => prev + 10);
               setShatterTheme('ice');
               setShatterTrigger(true);
               setTimeout(() => setShatterTrigger(false), 100);
@@ -1121,25 +1148,22 @@ export const GameCore = ({
             if (adjacentIndices.includes(idx) && c.obstacle && (c.obstacleHealth ?? 0) > 0) {
               const newHealth = (c.obstacleHealth ?? 0) - 1;
               if (newHealth <= 0) {
-                // Award coins when obstacle is destroyed
+                // Acumular monedas pero no darlas hasta ganar
                 if (c.obstacle === 'ice') {
-                  addCoins(10); // 10 coins for ice
-                  setCurrentCoins(getLocalCoins());
-                  console.log('[GameCore] Ice destroyed! +10 coins');
+                  setPendingObstacleCoins(prev => prev + 10); // 10 coins for ice
+                  console.log('[GameCore] Ice destroyed! +10 coins pendientes');
                   setShatterTheme('ice');
                   setShatterTrigger(true);
                   setTimeout(() => setShatterTrigger(false), 100);
                 } else if (c.obstacle === 'stone') {
-                  addCoins(20);
-                  setCurrentCoins(getLocalCoins());
-                  console.log('[GameCore] Stone destroyed! +20 coins');
+                  setPendingObstacleCoins(prev => prev + 20);
+                  console.log('[GameCore] Stone destroyed! +20 coins pendientes');
                   setShatterTheme('stone');
                   setShatterTrigger(true);
                   setTimeout(() => setShatterTrigger(false), 100);
                 } else if (c.obstacle === 'iron') {
-                  addCoins(20);
-                  setCurrentCoins(getLocalCoins());
-                  console.log('[GameCore] Iron destroyed! +20 coins');
+                  setPendingObstacleCoins(prev => prev + 20);
+                  console.log('[GameCore] Iron destroyed! +20 coins pendientes');
                   setShatterTheme('stone');
                   setShatterTrigger(true);
                   setTimeout(() => setShatterTrigger(false), 100);
@@ -1557,6 +1581,11 @@ export const GameCore = ({
               <div className="bg-gradient-to-r from-yellow-400 to-amber-500 text-white px-3 py-1 rounded-full font-bold text-sm shadow-md flex items-center gap-1">
                 🪙 {currentCoins}
               </div>
+              {pendingObstacleCoins > 0 && (
+                <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-2 py-1 rounded-full font-bold text-xs shadow-md flex items-center gap-1 animate-pulse">
+                  +{pendingObstacleCoins} 💎
+                </div>
+              )}
               {!isDailyChallenge && !isDuel && <LivesDisplay />}
             </div>
             {!isDailyChallenge && (
