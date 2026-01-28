@@ -37,26 +37,32 @@ export const DuelLobby = ({ room: initialRoom, role, clientId, onBack }: DuelLob
 
   const loadPlayerProfiles = useCallback(async (hostId: string, guestId: string | null) => {
     try {
-      const { data: hostProfile } = await supabase
+      console.log('[DuelLobby] Loading player profiles', { hostId, guestId });
+
+      const { data: hostProfile, error: hostError } = await supabase
         .from('profiles')
         .select('display_name, avatar_config')
         .eq('client_id', hostId)
         .maybeSingle();
 
+      console.log('[DuelLobby] Host profile:', { hostProfile, hostError });
+
       setHostInfo({
-        displayName: hostProfile?.display_name || `Jugador ${hostId.slice(0, 6)}`,
+        displayName: hostProfile?.display_name || 'Jugador',
         avatarConfig: hostProfile?.avatar_config || null,
       });
 
       if (guestId) {
-        const { data: guestProfile } = await supabase
+        const { data: guestProfile, error: guestError } = await supabase
           .from('profiles')
           .select('display_name, avatar_config')
           .eq('client_id', guestId)
           .maybeSingle();
 
+        console.log('[DuelLobby] Guest profile:', { guestProfile, guestError });
+
         setGuestInfo({
-          displayName: guestProfile?.display_name || `Jugador ${guestId.slice(0, 6)}`,
+          displayName: guestProfile?.display_name || 'Jugador',
           avatarConfig: guestProfile?.avatar_config || null,
         });
       } else {

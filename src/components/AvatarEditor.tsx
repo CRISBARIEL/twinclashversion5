@@ -107,6 +107,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [initialName, setInitialName] = useState('');
+  const [initialAvatarConfig, setInitialAvatarConfig] = useState<AvatarConfig>(DEFAULT_CONFIG);
 
   useEffect(() => {
     loadProfile();
@@ -128,7 +129,9 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
         setInitialName(data.display_name || '');
         if (data.avatar_config) {
           const config = data.avatar_config as Partial<AvatarConfig>;
-          setAvatarConfig({ ...DEFAULT_CONFIG, ...config });
+          const fullConfig = { ...DEFAULT_CONFIG, ...config };
+          setAvatarConfig(fullConfig);
+          setInitialAvatarConfig(fullConfig);
         }
       }
     } catch (error) {
@@ -185,6 +188,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
       }
 
       setInitialName(displayName.trim());
+      setInitialAvatarConfig(avatarConfig);
       toast.success(t.avatar.profileSaved);
     } catch (error) {
       console.error('Error saving profile:', error);
@@ -195,8 +199,13 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
   };
 
   const handleReset = () => {
-    setAvatarConfig(DEFAULT_CONFIG);
+    setAvatarConfig(initialAvatarConfig);
     setDisplayName(initialName);
+  };
+
+  const hasChanges = () => {
+    if (displayName.trim() !== initialName) return true;
+    return JSON.stringify(avatarConfig) !== JSON.stringify(initialAvatarConfig);
   };
 
   if (loading) {
@@ -627,11 +636,15 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
             </button>
             <button
               onClick={handleSave}
-              disabled={saving || displayName.trim().length < 3}
-              className="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              disabled={saving || displayName.trim().length < 3 || !hasChanges()}
+              className={`flex-1 font-bold py-3 px-6 rounded-lg transition-all shadow-lg flex items-center justify-center gap-2 ${
+                !hasChanges() && displayName.trim().length >= 3
+                  ? 'bg-gradient-to-r from-gray-400 to-gray-500 text-white cursor-default'
+                  : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white disabled:opacity-50 disabled:cursor-not-allowed'
+              }`}
             >
               <Save size={20} />
-              {saving ? t.avatar.saving : t.avatar.save}
+              {saving ? t.avatar.saving : (!hasChanges() && displayName.trim().length >= 3 ? '✓ Guardado' : t.avatar.save)}
             </button>
           </div>
         </div>
