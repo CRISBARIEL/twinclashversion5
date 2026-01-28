@@ -140,7 +140,7 @@ Deno.serve(async (req: Request) => {
         },
       ],
       mode: "payment",
-      success_url: `${baseUrl}?payment=success&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${baseUrl}?payment=success&session_id={CHECKOUT_SESSION_ID}&packageId=${packageId}`,
       cancel_url: `${baseUrl}?payment=cancelled`,
       client_reference_id: clientId,
       metadata: {

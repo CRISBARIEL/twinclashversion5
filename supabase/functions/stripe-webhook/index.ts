@@ -78,12 +78,16 @@ Deno.serve(async (req: Request) => {
       const coins = parseInt(session.metadata?.coins || "0");
       const clientId = session.client_reference_id;
       const sessionId = session.id;
+      const packageId = session.metadata?.packageId || "unknown";
+      const amount = session.amount_total || 0;
 
       console.log("Processing checkout.session.completed");
       console.log("Session ID:", sessionId);
       console.log("Client ID:", clientId);
       console.log("Coins to add:", coins);
       console.log("Payment Status:", session.payment_status);
+      console.log("Package ID:", packageId);
+      console.log("Amount:", amount);
 
       if (!clientId) {
         console.error("❌ No client ID in session");
@@ -96,9 +100,40 @@ Deno.serve(async (req: Request) => {
         );
       }
 
+      // Check if transaction already exists
+      const { data: existingTransaction } = await supabase
+        .from("transactions")
+        .select("id, status")
+        .eq("session_id", sessionId)
+        .maybeSingle();
+
+      if (existingTransaction && existingTransaction.status === "completed") {
+        console.log("⚠️ Transaction already processed:", sessionId);
+        return new Response(
+          JSON.stringify({ received: true, status: "already_processed" }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+
       // Verify payment was successful
       if (session.payment_status !== "paid") {
         console.warn("⚠️ Payment not completed yet:", session.payment_status);
+
+        // Record pending transaction
+        await supabase.from("transactions").upsert({
+          session_id: sessionId,
+          client_id: clientId,
+          package_id: packageId,
+          coins,
+          amount,
+          status: "pending",
+          stripe_payment_status: session.payment_status,
+          created_at: new Date().toISOString(),
+        });
+
         return new Response(
           JSON.stringify({ received: true, status: "payment_pending" }),
           {
@@ -118,6 +153,19 @@ Deno.serve(async (req: Request) => {
 
         if (fetchError) {
           console.error("❌ Error fetching profile:", fetchError);
+
+          // Record failed transaction
+          await supabase.from("transactions").upsert({
+            session_id: sessionId,
+            client_id: clientId,
+            package_id: packageId,
+            coins,
+            amount,
+            status: "failed",
+            stripe_payment_status: session.payment_status,
+            created_at: new Date().toISOString(),
+          });
+
           return new Response(
             JSON.stringify({ error: "Database error" }),
             {
@@ -140,6 +188,19 @@ Deno.serve(async (req: Request) => {
 
         if (updateError) {
           console.error("❌ Error updating coins:", updateError);
+
+          // Record failed transaction
+          await supabase.from("transactions").upsert({
+            session_id: sessionId,
+            client_id: clientId,
+            package_id: packageId,
+            coins,
+            amount,
+            status: "failed",
+            stripe_payment_status: session.payment_status,
+            created_at: new Date().toISOString(),
+          });
+
           return new Response(
             JSON.stringify({ error: "Failed to update coins" }),
             {
@@ -148,6 +209,19 @@ Deno.serve(async (req: Request) => {
             }
           );
         }
+
+        // Record successful transaction
+        await supabase.from("transactions").upsert({
+          session_id: sessionId,
+          client_id: clientId,
+          package_id: packageId,
+          coins,
+          amount,
+          status: "completed",
+          stripe_payment_status: session.payment_status,
+          created_at: new Date().toISOString(),
+          completed_at: new Date().toISOString(),
+        });
 
         console.log(`✅ Successfully added ${coins} coins to client ${clientId}. New total: ${newCoins}`);
       } else {

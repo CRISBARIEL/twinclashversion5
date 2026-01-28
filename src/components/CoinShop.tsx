@@ -50,40 +50,110 @@ interface CoinShopProps {
 export function CoinShop({ onClose }: CoinShopProps) {
   const [selectedPackage, setSelectedPackage] = useState<CoinPackage | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [currentCoins, setCurrentCoins] = useState(getLocalCoins());
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const paymentStatus = urlParams.get('payment');
     const packageId = urlParams.get('packageId');
+    const sessionId = urlParams.get('session_id');
 
-    if (paymentStatus === 'success') {
-      loadFromSupabase().then(() => {
-        setCurrentCoins(getLocalCoins());
-        alert('¡Pago exitoso! Tus monedas han sido añadidas a tu cuenta.');
-
-        if (packageId) {
-          const pkg = coinPackages.find(p => p.id === packageId);
-          if (pkg) {
-            const totalCoins = pkg.coins + (pkg.bonus || 0);
-            trackTikTokPurchase('EUR', pkg.price, pkg.id).catch(console.error);
-          }
-        }
-      });
-
-      const url = new URL(window.location.href);
-      url.searchParams.delete('payment');
-      url.searchParams.delete('packageId');
-      window.history.replaceState({}, '', url.toString());
+    if (paymentStatus === 'success' && sessionId) {
+      // Verificar el pago con reintentos
+      setIsVerifying(true);
+      verifyPaymentWithRetries(sessionId, packageId);
     } else if (paymentStatus === 'cancelled') {
       const url = new URL(window.location.href);
       url.searchParams.delete('payment');
       url.searchParams.delete('packageId');
+      url.searchParams.delete('session_id');
       window.history.replaceState({}, '', url.toString());
     }
 
     trackTikTokShopView().catch(console.error);
   }, []);
+
+  const verifyPaymentWithRetries = async (sessionId: string, packageId: string | null, attempt = 1) => {
+    const maxAttempts = 10;
+    const delayMs = 2000;
+
+    try {
+      console.log(`🔍 Verificando pago (intento ${attempt}/${maxAttempts})...`);
+
+      const clientId = localStorage.getItem('client_id');
+      if (!clientId) {
+        alert('Error: No se pudo verificar el pago');
+        clearPaymentParams();
+        return;
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-payment`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sessionId,
+          clientId,
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log('Respuesta de verificación:', data);
+
+      if (data.success && data.status === 'paid') {
+        // Pago confirmado, recargar monedas
+        await loadFromSupabase();
+        setCurrentCoins(getLocalCoins());
+
+        alert('¡Pago exitoso! Tus monedas han sido añadidas a tu cuenta.');
+
+        if (packageId) {
+          const pkg = coinPackages.find(p => p.id === packageId);
+          if (pkg) {
+            trackTikTokPurchase('EUR', pkg.price, pkg.id).catch(console.error);
+          }
+        }
+
+        setIsVerifying(false);
+        clearPaymentParams();
+      } else if (attempt < maxAttempts) {
+        // Reintentar después de un delay
+        console.log(`⏳ Esperando ${delayMs}ms antes del siguiente intento...`);
+        setTimeout(() => {
+          verifyPaymentWithRetries(sessionId, packageId, attempt + 1);
+        }, delayMs);
+      } else {
+        // Max intentos alcanzados
+        setIsVerifying(false);
+        alert('El pago está siendo procesado. Tus monedas aparecerán en unos momentos. Por favor, recarga la página.');
+        clearPaymentParams();
+      }
+    } catch (error) {
+      console.error('Error al verificar el pago:', error);
+
+      if (attempt < maxAttempts) {
+        setTimeout(() => {
+          verifyPaymentWithRetries(sessionId, packageId, attempt + 1);
+        }, delayMs);
+      } else {
+        setIsVerifying(false);
+        alert('Error al verificar el pago. Por favor, contacta con soporte si no recibes tus monedas en 5 minutos.');
+        clearPaymentParams();
+      }
+    }
+  };
+
+  const clearPaymentParams = () => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('payment');
+    url.searchParams.delete('packageId');
+    url.searchParams.delete('session_id');
+    window.history.replaceState({}, '', url.toString());
+  };
 
   const handleSelectPackage = (pkg: CoinPackage) => {
     setSelectedPackage(pkg);
@@ -151,6 +221,22 @@ export function CoinShop({ onClose }: CoinShopProps) {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 overflow-y-auto">
+      {isVerifying && (
+        <div className="absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50">
+          <div className="bg-white rounded-3xl p-8 max-w-md text-center shadow-2xl">
+            <div className="w-16 h-16 border-4 border-yellow-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">Verificando pago...</h3>
+            <p className="text-gray-600">
+              Por favor espera mientras confirmamos tu pago. Esto puede tomar unos segundos.
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-2">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce" style={{ animationDelay: '0s' }}></div>
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl p-6 max-w-2xl w-full shadow-2xl animate-scale-in relative my-auto max-h-[90vh] overflow-y-auto">
         <button
           onClick={onClose}
