@@ -181,8 +181,9 @@ class ReviewService {
 
   async requestInAppReview(): Promise<{ success: boolean; message?: string }> {
     if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') {
-      console.log('[ReviewService] Not on Android, simulating success for testing');
-      return { success: true, message: 'Simulated on web' };
+      console.log('[ReviewService] Not on Android, opening Play Store directly');
+      await this.openPlayStore();
+      return { success: false, message: 'Opened Play Store on web' };
     }
 
     try {
@@ -198,11 +199,6 @@ class ReviewService {
   }
 
   async openPlayStore(): Promise<void> {
-    if (!Capacitor.isNativePlatform() || Capacitor.getPlatform() !== 'android') {
-      console.log('[ReviewService] Would open Play Store on Android');
-      return;
-    }
-
     try {
       await InAppReview.openPlayStore();
     } catch (error) {
