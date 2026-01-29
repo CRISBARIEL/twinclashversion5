@@ -25,6 +25,7 @@ public class MainActivity extends BridgeActivity {
     registerPlugin(NotificationPermissionPlugin.class);
     registerPlugin(InterstitialAdPlugin.class);
     registerPlugin(TikTokPlugin.class);
+    registerPlugin(InAppReviewPlugin.class);
 
     // Inicializar AdMob
     new Thread(
