@@ -137,6 +137,16 @@ export function WorldMap({ currentWorld, currentLevel, worldsCompleted, onSelect
   };
 
   const handleLevelClick = (worldId: number, levelNum: number) => {
+    const globalLevelId = getGlobalLevelId(worldId, levelNum);
+    const userCurrentLevel = getCurrentLevel();
+    const levelUnlocked = globalLevelId <= userCurrentLevel;
+
+    // Solo permitir clic en niveles desbloqueados
+    if (!levelUnlocked) {
+      soundManager.playSound('click');
+      return;
+    }
+
     onSelectWorld(worldId);
   };
 

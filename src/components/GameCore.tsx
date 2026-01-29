@@ -477,6 +477,7 @@ export const GameCore = ({
     setShowWinModal(false);
     setStarsEarned(0);
     setCoinReward(0);
+    setCoinsEarned(0);
     setShowChestReward(false);
     setHintCards([]);
     setConsecutiveMisses(0);
