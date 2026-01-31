@@ -8,9 +8,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import com.getcapacitor.BridgeActivity;
 import com.google.android.gms.ads.MobileAds;
-import com.tiktok.TikTokBusinessSdk;
-import com.tiktok.appevents.TTPIdentifyHandler;
-import com.tiktok.util.TTConsentStatus;
+// TikTok SDK temporalmente deshabilitado - necesita configuración adicional
+// import com.tiktok.TikTokBusinessSdk;
+// import com.tiktok.appevents.TTPIdentifyHandler;
+// import com.tiktok.util.TTConsentStatus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -24,7 +25,8 @@ public class MainActivity extends BridgeActivity {
     // Registrar plugins personalizados
     registerPlugin(NotificationPermissionPlugin.class);
     registerPlugin(InterstitialAdPlugin.class);
-    registerPlugin(TikTokPlugin.class);
+    // TikTok Plugin temporalmente deshabilitado - necesita configuración adicional
+    // registerPlugin(TikTokPlugin.class);
     registerPlugin(InAppReviewPlugin.class);
 
     // Inicializar AdMob
@@ -34,13 +36,15 @@ public class MainActivity extends BridgeActivity {
       }
     ).start();
 
-    // Inicializar TikTok SDK
-    initTikTokSDK();
+    // TikTok SDK temporalmente deshabilitado - necesita configuración adicional
+    // initTikTokSDK();
 
     // Pedir permiso de notificaciones automáticamente (Android 13+)
     requestNotificationPermissionIfNeeded();
   }
 
+  // TikTok SDK temporalmente deshabilitado - necesita configuración adicional
+  /*
   private void initTikTokSDK() {
     try {
       JSONObject config = new JSONObject();
@@ -62,6 +66,7 @@ public class MainActivity extends BridgeActivity {
       System.err.println("[TikTok] Error initializing SDK: " + e.getMessage());
     }
   }
+  */
 
   private void requestNotificationPermissionIfNeeded() {
     // Solo en Android 13 (API 33) o superior

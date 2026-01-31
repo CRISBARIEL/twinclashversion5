@@ -77,15 +77,15 @@ dependencies {
     // Firebase Analytics (opcional pero recomendado)
     implementation("com.google.firebase:firebase-analytics")
 
-    // TikTok Business SDK
-    implementation 'com.github.tiktok:tiktok-business-android-sdk:1.5.0'
+    // TikTok Business SDK - Temporalmente deshabilitado
+    // implementation 'com.github.tiktok:tiktok-business-android-sdk:1.5.0'
 
-    // TikTok SDK dependencies - Lifecycle
-    implementation 'androidx.lifecycle:lifecycle-process:2.3.1'
-    implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.1'
+    // TikTok SDK dependencies - Lifecycle - Temporalmente deshabilitado
+    // implementation 'androidx.lifecycle:lifecycle-process:2.3.1'
+    // implementation 'androidx.lifecycle:lifecycle-common-java8:2.3.1'
 
-    // TikTok SDK dependencies - Install Referrer
-    implementation 'com.android.installreferrer:installreferrer:2.2'
+    // TikTok SDK dependencies - Install Referrer - Temporalmente deshabilitado
+    // implementation 'com.android.installreferrer:installreferrer:2.2'
 }
 
 apply from: 'capacitor.build.gradle'

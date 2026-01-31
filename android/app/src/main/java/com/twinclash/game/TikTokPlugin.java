@@ -5,8 +5,9 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
-import com.tiktok.appevents.TTAppEventLogger;
-import com.tiktok.appevents.TTPCommonConstants;
+// TikTok SDK temporalmente deshabilitado - necesita configuración adicional
+// import com.tiktok.appevents.TTAppEventLogger;
+// import com.tiktok.appevents.TTPCommonConstants;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.Iterator;
@@ -16,6 +17,11 @@ public class TikTokPlugin extends Plugin {
 
     @PluginMethod
     public void trackEvent(PluginCall call) {
+        // TikTok SDK temporalmente deshabilitado
+        System.out.println("[TikTok] SDK disabled - Event not tracked");
+        call.resolve();
+
+        /* CÓDIGO ORIGINAL - Descomentar cuando TikTok esté configurado
         String eventName = call.getString("eventName");
         JSObject properties = call.getObject("properties");
 
@@ -42,96 +48,34 @@ public class TikTokPlugin extends Plugin {
             System.err.println("[TikTok] Error tracking event: " + e.getMessage());
             call.reject("Error tracking event: " + e.getMessage());
         }
+        */
     }
 
     @PluginMethod
     public void trackPurchase(PluginCall call) {
-        String currency = call.getString("currency", "USD");
-        Double value = call.getDouble("value", 0.0);
-        String contentId = call.getString("contentId");
-
-        if (contentId == null) {
-            call.reject("Content ID is required");
-            return;
-        }
-
-        try {
-            JSONObject properties = new JSONObject();
-            properties.put(TTPCommonConstants.CURRENCY, currency);
-            properties.put(TTPCommonConstants.VALUE, value);
-            properties.put(TTPCommonConstants.CONTENT_ID, contentId);
-            properties.put(TTPCommonConstants.CONTENT_TYPE, "product");
-
-            TTAppEventLogger.trackEvent("Purchase", properties);
-            System.out.println("[TikTok] Purchase tracked: " + contentId + " - " + value + " " + currency);
-            call.resolve();
-        } catch (JSONException e) {
-            System.err.println("[TikTok] Error tracking purchase: " + e.getMessage());
-            call.reject("Error tracking purchase: " + e.getMessage());
-        }
+        // TikTok SDK temporalmente deshabilitado
+        System.out.println("[TikTok] SDK disabled - Purchase not tracked");
+        call.resolve();
     }
 
     @PluginMethod
     public void trackRegistration(PluginCall call) {
-        String method = call.getString("method", "email");
-
-        try {
-            JSONObject properties = new JSONObject();
-            properties.put("registration_method", method);
-
-            TTAppEventLogger.trackEvent("CompleteRegistration", properties);
-            System.out.println("[TikTok] Registration tracked: " + method);
-            call.resolve();
-        } catch (JSONException e) {
-            System.err.println("[TikTok] Error tracking registration: " + e.getMessage());
-            call.reject("Error tracking registration: " + e.getMessage());
-        }
+        // TikTok SDK temporalmente deshabilitado
+        System.out.println("[TikTok] SDK disabled - Registration not tracked");
+        call.resolve();
     }
 
     @PluginMethod
     public void trackLevelComplete(PluginCall call) {
-        Integer level = call.getInt("level");
-
-        if (level == null) {
-            call.reject("Level is required");
-            return;
-        }
-
-        try {
-            JSONObject properties = new JSONObject();
-            properties.put("level", level);
-            properties.put("success", true);
-
-            TTAppEventLogger.trackEvent("AchieveLevel", properties);
-            System.out.println("[TikTok] Level complete tracked: " + level);
-            call.resolve();
-        } catch (JSONException e) {
-            System.err.println("[TikTok] Error tracking level: " + e.getMessage());
-            call.reject("Error tracking level: " + e.getMessage());
-        }
+        // TikTok SDK temporalmente deshabilitado
+        System.out.println("[TikTok] SDK disabled - Level complete not tracked");
+        call.resolve();
     }
 
     @PluginMethod
     public void trackContentView(PluginCall call) {
-        String contentType = call.getString("contentType");
-        String contentId = call.getString("contentId");
-
-        if (contentType == null || contentId == null) {
-            call.reject("Content type and ID are required");
-            return;
-        }
-
-        try {
-            JSONObject properties = new JSONObject();
-            properties.put(TTPCommonConstants.CONTENT_TYPE, contentType);
-            properties.put(TTPCommonConstants.CONTENT_ID, contentId);
-
-            TTAppEventLogger.trackEvent("ViewContent", properties);
-            System.out.println("[TikTok] Content view tracked: " + contentType + "/" + contentId);
-            call.resolve();
-        } catch (JSONException e) {
-            System.err.println("[TikTok] Error tracking content view: " + e.getMessage());
-            call.reject("Error tracking content view: " + e.getMessage());
-        }
+        // TikTok SDK temporalmente deshabilitado
+        System.out.println("[TikTok] SDK disabled - Content view not tracked");
+        call.resolve();
     }
 }
