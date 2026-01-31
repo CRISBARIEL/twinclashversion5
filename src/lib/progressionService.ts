@@ -159,6 +159,9 @@ export async function saveLevelResult(userId: string, result: LevelResult): Prom
       const starDiff = stars - currentStats.bestStars;
       coinReward = starDiff * 10; // Solo dar diferencial
     }
+  } else {
+    // Siempre dar una recompensa mínima por completar, incluso sin mejorar
+    coinReward = baseReward;
   }
 
   // Actualizar o insertar stats
