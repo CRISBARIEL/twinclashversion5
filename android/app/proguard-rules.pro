@@ -93,3 +93,21 @@
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
+
+# ============================================
+# TwinClash - Plugins Personalizados
+# ============================================
+# Mantener todos los plugins nativos de TwinClash
+-keep class com.twinclash.game.** { *; }
+-keepclassmembers class com.twinclash.game.** {
+    @com.getcapacitor.PluginMethod *;
+    @com.getcapacitor.annotation.PluginMethod *;
+    @com.getcapacitor.annotation.PermissionCallback *;
+}
+
+# Específicamente para plugins de TwinClash
+-keep class com.twinclash.game.MainActivity { *; }
+-keep class com.twinclash.game.InterstitialAdPlugin { *; }
+-keep class com.twinclash.game.TikTokPlugin { *; }
+-keep class com.twinclash.game.InAppReviewPlugin { *; }
+-keep class com.twinclash.game.NotificationPermissionPlugin { *; }
