@@ -162,6 +162,7 @@ export const GameCore = ({
   const [enableProgressiveVirus, setEnableProgressiveVirus] = useState(false);
   const [globalBombTimer, setGlobalBombTimer] = useState<GlobalBombTimerData | null>(null);
   const [enableProgressiveBomb, setEnableProgressiveBomb] = useState(false);
+  const [isProcessingNextLevel, setIsProcessingNextLevel] = useState(false);
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -475,6 +476,7 @@ export const GameCore = ({
     setMistakes(0);
     setTimeElapsed(0);
     setShowWinModal(false);
+    setIsProcessingNextLevel(false);
     setStarsEarned(0);
     setCoinReward(0);
     setCoinsEarned(0);
@@ -1833,18 +1835,18 @@ export const GameCore = ({
       )}
 
       {showWinModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
-            <div className="text-6xl mb-4">🎉</div>
-            <h3 className="text-3xl font-bold text-green-600 mb-4">¡Completado!</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl my-auto max-h-[90vh] overflow-y-auto">
+            <div className="text-5xl mb-3">🎉</div>
+            <h3 className="text-2xl font-bold text-green-600 mb-3">¡Completado!</h3>
 
             {!isDailyChallenge && !isDuel && starsEarned > 0 && (
-              <div className="mb-4">
-                <div className="flex justify-center gap-2 mb-3">
+              <div className="mb-3">
+                <div className="flex justify-center gap-2 mb-2">
                   {[1, 2, 3].map((star) => (
                     <div
                       key={star}
-                      className={`text-5xl transition-all duration-300 ${
+                      className={`text-4xl transition-all duration-300 ${
                         star <= starsEarned ? 'scale-110' : 'opacity-30 grayscale'
                       }`}
                     >
@@ -1860,9 +1862,9 @@ export const GameCore = ({
                 {starsEarned < 3 && (() => {
                   const targets = calculateStarTargets(activeLevel);
                   return (
-                    <div className="text-xs text-gray-500 mt-2">
-                      {starsEarned < 2 && `2⭐: ${targets.targetMoves2} movimientos`}
-                      {starsEarned < 3 && ` • 3⭐: ${targets.targetMoves3} movimientos`}
+                    <div className="text-xs text-gray-500 mt-1">
+                      {starsEarned < 2 && `2⭐: ${targets.targetMoves2} mov`}
+                      {starsEarned < 3 && ` • 3⭐: ${targets.targetMoves3} mov`}
                     </div>
                   );
                 })()}
@@ -1870,49 +1872,49 @@ export const GameCore = ({
             )}
 
             {isPioneer && (
-              <div className="bg-gradient-to-r from-yellow-400 to-amber-500 rounded-xl p-4 mb-4">
-                <div className="text-3xl mb-2">🏆</div>
-                <div className="text-white font-bold text-lg">¡Medalla Pionero!</div>
-                <div className="text-yellow-100 text-sm">+20 monedas por ser el primero</div>
+              <div className="bg-gradient-to-r from-yellow-400 to-amber-500 rounded-xl p-3 mb-3">
+                <div className="text-2xl mb-1">🏆</div>
+                <div className="text-white font-bold">¡Medalla Pionero!</div>
+                <div className="text-yellow-100 text-xs">+20 monedas</div>
               </div>
             )}
 
-            <div className="bg-gray-100 rounded-xl p-4 mb-4">
+            <div className="bg-gray-100 rounded-xl p-3 mb-3">
               <div className="flex justify-around text-center">
                 <div>
-                  <div className="text-2xl font-bold text-blue-600">{finalTime}s</div>
+                  <div className="text-xl font-bold text-blue-600">{finalTime}s</div>
                   <div className="text-xs text-gray-600">Tiempo</div>
                 </div>
                 <div>
-                  <div className="text-2xl font-bold text-purple-600">{finalMoves}</div>
+                  <div className="text-xl font-bold text-purple-600">{finalMoves}</div>
                   <div className="text-xs text-gray-600">Movimientos</div>
                 </div>
               </div>
             </div>
 
             {!isDailyChallenge && !isDuel && activeLevel % 5 === 0 && (
-              <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 mb-4 animate-pulse">
-                <div className="text-3xl mb-2">🎬</div>
-                <div className="text-white font-bold text-lg">¡Bonus cada 5 niveles!</div>
-                <div className="text-purple-100 text-sm">Ver video = +1000 monedas extras</div>
+              <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-3 mb-3">
+                <div className="text-2xl mb-1">🎬</div>
+                <div className="text-white font-bold">¡Bonus cada 5 niveles!</div>
+                <div className="text-purple-100 text-xs">Ver video = +1000 monedas</div>
               </div>
             )}
 
-            <div className="bg-gradient-to-br from-yellow-100 to-amber-100 rounded-xl p-6 mb-6 relative overflow-hidden">
-              <div className="text-4xl mb-2">💰</div>
-              <div className="text-2xl font-bold text-amber-700 mb-1">
+            <div className="bg-gradient-to-br from-yellow-100 to-amber-100 rounded-xl p-4 mb-4 relative overflow-hidden">
+              <div className="text-3xl mb-1">💰</div>
+              <div className="text-xl font-bold text-amber-700">
                 +{coinsEarned} Monedas
               </div>
-              <div className="text-sm text-amber-600">¡Ganadas en este nivel!</div>
+              <div className="text-xs text-amber-600">¡Ganadas en este nivel!</div>
 
               {showCoinAnimation && (
                 <div className="absolute inset-0 pointer-events-none">
-                  {[...Array(8)].map((_, i) => (
+                  {[...Array(6)].map((_, i) => (
                     <div
                       key={i}
-                      className="absolute text-2xl animate-coin-fall"
+                      className="absolute text-xl animate-coin-fall"
                       style={{
-                        left: `${20 + i * 10}%`,
+                        left: `${20 + i * 12}%`,
                         animationDelay: `${i * 0.1}s`,
                         animationDuration: '1.2s'
                       }}
@@ -1923,64 +1925,79 @@ export const GameCore = ({
                 </div>
               )}
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-2 pb-4">
               {!isDailyChallenge && !isDuel && activeLevel < 250 && (
                 <button
                   onClick={async () => {
+                    if (isProcessingNextLevel) {
+                      console.log('[GameCore] ⚠️ Already processing next level, ignoring click');
+                      return;
+                    }
+
+                    setIsProcessingNextLevel(true);
                     console.log('[GameCore] ===== CLICK SIGUIENTE NIVEL =====');
                     console.log('[GameCore] Current level:', activeLevel);
 
-                    const isMultipleOf5 = activeLevel % 5 === 0;
+                    try {
+                      const isMultipleOf5 = activeLevel % 5 === 0;
 
-                    if (isMultipleOf5 && isRewardedReady) {
-                      console.log('[GameCore] 🎁 Level', activeLevel, 'is multiple of 5 - showing rewarded ad');
-                      const result = await showRewardedAd();
+                      if (isMultipleOf5 && isRewardedReady) {
+                        console.log('[GameCore] 🎁 Level', activeLevel, 'is multiple of 5 - showing rewarded ad');
+                        const result = await showRewardedAd();
 
-                      if (result.rewarded) {
-                        console.log('[GameCore] ✅ Rewarded ad completed! User earned coins:', result.coins);
-                        setCurrentCoins(getLocalCoins());
-                      } else {
-                        console.log('[GameCore] ⚠️ Rewarded ad not completed');
+                        if (result.rewarded) {
+                          console.log('[GameCore] ✅ Rewarded ad completed! User earned coins:', result.coins);
+                          setCurrentCoins(getLocalCoins());
+                        } else {
+                          console.log('[GameCore] ⚠️ Rewarded ad not completed');
+                        }
+                      } else if (!isMultipleOf5) {
+                        const shouldShowInterstitial = levelConfig?.difficulty === 'expert' && isInterstitialReady;
+
+                        if (shouldShowInterstitial) {
+                          console.log('[GameCore] Showing interstitial ad after completing expert level', activeLevel);
+                          await showInterstitialAd();
+                        }
+                      } else if (isMultipleOf5 && !isRewardedReady) {
+                        console.log('[GameCore] ⚠️ Rewarded ad not ready for level', activeLevel);
                       }
-                    } else if (!isMultipleOf5) {
-                      const shouldShowInterstitial = levelConfig?.difficulty === 'expert' && isInterstitialReady;
 
-                      if (shouldShowInterstitial) {
-                        console.log('[GameCore] Showing interstitial ad after completing expert level', activeLevel);
-                        await showInterstitialAd();
-                      }
-                    } else if (isMultipleOf5 && !isRewardedReady) {
-                      console.log('[GameCore] ⚠️ Rewarded ad not ready for level', activeLevel);
+                      console.log('[GameCore] Calling onComplete...');
+                      setShowWinModal(false);
+                      setTimeout(() => {
+                        onComplete();
+                        setIsProcessingNextLevel(false);
+                      }, 100);
+                    } catch (error) {
+                      console.error('[GameCore] Error processing next level:', error);
+                      setIsProcessingNextLevel(false);
                     }
-
-                    console.log('[GameCore] Calling onComplete...');
-                    setShowWinModal(false);
-                    setTimeout(() => {
-                      onComplete();
-                    }, 100);
                   }}
-                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all"
+                  disabled={isProcessingNextLevel}
+                  className={`w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg transition-all ${
+                    isProcessingNextLevel ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-xl'
+                  }`}
                 >
-                  Nivel {activeLevel + 1} 🎯
+                  {isProcessingNextLevel ? 'Cargando...' : 'Siguiente Nivel 🎯'}
                 </button>
               )}
               {!isDailyChallenge && !isDuel && activeLevel === 250 && (
-                <div className="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-6 px-4 rounded-xl font-bold text-center shadow-lg">
-                  <div className="text-2xl mb-2">🎉 ¡FELICIDADES! 🎉</div>
-                  <div className="text-lg">Has completado todos los niveles del juego</div>
+                <div className="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-4 px-4 rounded-xl font-bold text-center shadow-lg">
+                  <div className="text-xl mb-1">🎉 ¡FELICIDADES! 🎉</div>
+                  <div className="text-sm">Has completado todos los niveles</div>
                 </div>
               )}
               <div className="flex gap-2">
                 <button
                   onClick={handleShare}
-                  className="flex-1 bg-blue-500 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors"
+                  className="flex-1 bg-blue-500 text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-1.5 hover:bg-blue-600 transition-colors text-sm"
                 >
-                  <Share2 size={18} />
+                  <Share2 size={16} />
                   Compartir
                 </button>
                 <button
                   onClick={handleRestart}
-                  className="flex-1 bg-green-500 text-white py-3 rounded-xl font-semibold hover:bg-green-600 transition-colors"
+                  className="flex-1 bg-green-500 text-white py-2.5 rounded-xl font-semibold hover:bg-green-600 transition-colors text-sm"
                 >
                   Reintentar
                 </button>
@@ -1990,9 +2007,9 @@ export const GameCore = ({
                   setShowWinModal(false);
                   onBackToMenu();
                 }}
-                className="w-full bg-gray-500 text-white py-3 rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-gray-600 transition-colors"
+                className="w-full bg-gray-500 text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-1.5 hover:bg-gray-600 transition-colors text-sm"
               >
-                <ArrowLeft size={18} />
+                <ArrowLeft size={16} />
                 {isDailyChallenge ? 'Salir' : 'Volver'}
               </button>
             </div>
