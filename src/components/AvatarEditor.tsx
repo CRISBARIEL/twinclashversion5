@@ -10,158 +10,93 @@ interface AvatarEditorProps {
   onBack: () => void;
 }
 
-const SKIN_COLORS = [
-  { name: 'Tanned', value: 'Tanned' },
-  { name: 'Yellow', value: 'Yellow' },
-  { name: 'Pale', value: 'Pale' },
-  { name: 'Light', value: 'Light' },
-  { name: 'Brown', value: 'Brown' },
-  { name: 'DarkBrown', value: 'DarkBrown' },
-  { name: 'Black', value: 'Black' },
+const FACE_EMOJIS = [
+  { id: '😀', name: 'Feliz' },
+  { id: '😃', name: 'Sonriente' },
+  { id: '😄', name: 'Alegre' },
+  { id: '😁', name: 'Radiante' },
+  { id: '😆', name: 'Riendo' },
+  { id: '😊', name: 'Tímido' },
+  { id: '😇', name: 'Angelical' },
+  { id: '🙂', name: 'Contento' },
+  { id: '🙃', name: 'Al revés' },
+  { id: '😉', name: 'Guiño' },
+  { id: '😌', name: 'Relajado' },
+  { id: '😍', name: 'Enamorado' },
+  { id: '🥰', name: 'Cariñoso' },
+  { id: '😘', name: 'Beso' },
+  { id: '😗', name: 'Besitos' },
+  { id: '😙', name: 'Beso feliz' },
+  { id: '😚', name: 'Beso cerrado' },
+  { id: '😋', name: 'Sabroso' },
+  { id: '😛', name: 'Lengua' },
+  { id: '😝', name: 'Loco' },
+  { id: '😜', name: 'Guiño loco' },
+  { id: '🤪', name: 'Zany' },
+  { id: '🤨', name: 'Escéptico' },
+  { id: '🧐', name: 'Monocle' },
+  { id: '🤓', name: 'Nerd' },
+  { id: '😎', name: 'Cool' },
+  { id: '🥳', name: 'Fiesta' },
+  { id: '😏', name: 'Pícaro' },
+  { id: '😒', name: 'Aburrido' },
+  { id: '😞', name: 'Decepcionado' },
 ];
 
-const HAIR_STYLES = [
-  { name: 'Sin Pelo', value: 'NoHair' },
-  { name: 'Gorro', value: 'Eyepatch' },
-  { name: 'Sombrero', value: 'Hat' },
-  { name: 'Hijab', value: 'Hijab' },
-  { name: 'Turbante', value: 'Turban' },
-  { name: 'Gorro Invierno', value: 'WinterHat1' },
-  { name: 'Gorro 2', value: 'WinterHat2' },
-  { name: 'Gorro 3', value: 'WinterHat3' },
-  { name: 'Gorro 4', value: 'WinterHat4' },
-  { name: 'Pelo Largo', value: 'LongHairBigHair' },
-  { name: 'Pelo Bob', value: 'LongHairBob' },
-  { name: 'Pelo Ondulado', value: 'LongHairBun' },
-  { name: 'Pelo Rizado', value: 'LongHairCurly' },
-  { name: 'Pelo Curvo', value: 'LongHairCurvy' },
-  { name: 'Pelo Dread', value: 'LongHairDreads' },
-  { name: 'Pelo Afro', value: 'LongHairFrida' },
-  { name: 'Pelo Fro', value: 'LongHairFro' },
-  { name: 'Pelo Banda', value: 'LongHairFroBand' },
-  { name: 'Pelo Lacio', value: 'LongHairNotTooLong' },
-  { name: 'Pelo Trenzas', value: 'LongHairShavedSides' },
-  { name: 'Pelo Liso', value: 'LongHairMiaWallace' },
-  { name: 'Pelo Medio', value: 'LongHairStraight' },
-  { name: 'Pelo Recto', value: 'LongHairStraight2' },
-  { name: 'Pelo Strands', value: 'LongHairStraightStrand' },
-  { name: 'Pelo Corto 1', value: 'ShortHairDreads01' },
-  { name: 'Pelo Corto 2', value: 'ShortHairDreads02' },
-  { name: 'Pelo Afro Corto', value: 'ShortHairFrizzle' },
-  { name: 'Pelo Corto Lacio', value: 'ShortHairShaggyMullet' },
-  { name: 'Pelo Corto Flat', value: 'ShortHairShortFlat' },
-  { name: 'Pelo Corto Rizado', value: 'ShortHairShortCurly' },
-  { name: 'Pelo Corto Round', value: 'ShortHairShortRound' },
-  { name: 'Pelo Corto Waved', value: 'ShortHairShortWaved' },
-  { name: 'Pelo Rapado', value: 'ShortHairSides' },
-  { name: 'Pelo Caesar', value: 'ShortHairTheCaesar' },
-  { name: 'Pelo Frontal', value: 'ShortHairTheCaesarSidePart' },
-];
-
-const HAIR_COLORS = [
-  { name: 'Auburn', value: 'Auburn' },
-  { name: 'Black', value: 'Black' },
-  { name: 'Blonde', value: 'Blonde' },
-  { name: 'BlondeGolden', value: 'BlondeGolden' },
-  { name: 'Brown', value: 'Brown' },
-  { name: 'BrownDark', value: 'BrownDark' },
-  { name: 'PastelPink', value: 'PastelPink' },
-  { name: 'Platinum', value: 'Platinum' },
-  { name: 'Red', value: 'Red' },
-  { name: 'SilverGray', value: 'SilverGray' },
-];
-
-const EYES_STYLES = [
-  { name: 'Cerrado', value: 'Close' },
-  { name: 'Lloroso', value: 'Cry' },
-  { name: 'Por Defecto', value: 'Default' },
-  { name: 'Mareado', value: 'Dizzy' },
-  { name: 'Emoji Ojos', value: 'EyeRoll' },
-  { name: 'Feliz', value: 'Happy' },
-  { name: 'Corazones', value: 'Hearts' },
-  { name: 'Lateral', value: 'Side' },
-  { name: 'Entrecerrado', value: 'Squint' },
-  { name: 'Sorprendido', value: 'Surprised' },
-  { name: 'Guiño', value: 'Wink' },
-  { name: 'Guiño Malicioso', value: 'WinkWacky' },
-];
-
-const MOUTH_STYLES = [
-  { name: 'Preocupado', value: 'Concerned' },
-  { name: 'Por Defecto', value: 'Default' },
-  { name: 'Disgusto', value: 'Disbelief' },
-  { name: 'Comiendo', value: 'Eating' },
-  { name: 'Mueca', value: 'Grimace' },
-  { name: 'Triste', value: 'Sad' },
-  { name: 'Gritando', value: 'ScreamOpen' },
-  { name: 'Serio', value: 'Serious' },
-  { name: 'Sonrisa', value: 'Smile' },
-  { name: 'Lengua', value: 'Tongue' },
-  { name: 'Ajustado', value: 'Twinkle' },
-  { name: 'Vomitando', value: 'Vomit' },
-];
-
-const FACIAL_HAIR = [
-  { name: 'Sin Vello', value: '' },
-  { name: 'Barba Media', value: 'BeardMedium' },
-  { name: 'Barba Ligera', value: 'BeardLight' },
-  { name: 'Barba Majestuosa', value: 'BeardMajestic' },
-  { name: 'Bigote Delgado', value: 'MoustacheFancy' },
-  { name: 'Bigote Elegante', value: 'MoustacheMagnum' },
-];
-
-const ACCESSORIES = [
-  { name: 'Sin Accesorios', value: '' },
-  { name: 'Gafas Kurt', value: 'Kurt' },
-  { name: 'Prescripción 01', value: 'Prescription01' },
-  { name: 'Prescripción 02', value: 'Prescription02' },
-  { name: 'Gafas Redondas', value: 'Round' },
-  { name: 'Gafas de Sol', value: 'Sunglasses' },
-  { name: 'Gafas Wayfarers', value: 'Wayfarers' },
-];
-
-const CLOTHING_COLORS = [
-  { name: 'Negro', value: 'Black' },
-  { name: 'Azul 01', value: 'Blue01' },
-  { name: 'Azul 02', value: 'Blue02' },
-  { name: 'Azul 03', value: 'Blue03' },
-  { name: 'Gris 01', value: 'Gray01' },
-  { name: 'Gris 02', value: 'Gray02' },
-  { name: 'Heather', value: 'Heather' },
-  { name: 'PastelBlue', value: 'PastelBlue' },
-  { name: 'PastelGreen', value: 'PastelGreen' },
-  { name: 'PastelOrange', value: 'PastelOrange' },
-  { name: 'PastelRed', value: 'PastelRed' },
-  { name: 'PastelYellow', value: 'PastelYellow' },
-  { name: 'Rosa', value: 'Pink' },
-  { name: 'Rojo', value: 'Red' },
-  { name: 'Blanco', value: 'White' },
-];
-
-const ANIMAL_OPTIONS = [
+const ANIMAL_EMOJIS = [
   { id: '🐱', name: 'Gatito' },
   { id: '🐶', name: 'Perrito' },
+  { id: '🐭', name: 'Ratoncito' },
+  { id: '🐹', name: 'Hámster' },
   { id: '🐰', name: 'Conejito' },
   { id: '🦊', name: 'Zorrito' },
+  { id: '🐻', name: 'Osito' },
   { id: '🐼', name: 'Panda' },
   { id: '🐨', name: 'Koala' },
+  { id: '🐯', name: 'Tigre' },
   { id: '🦁', name: 'León' },
-  { id: '🐘', name: 'Elefante' },
-  { id: '🦒', name: 'Jirafa' },
+  { id: '🐮', name: 'Vaca' },
+  { id: '🐷', name: 'Cerdito' },
+  { id: '🐸', name: 'Ranita' },
+  { id: '🐵', name: 'Monito' },
+  { id: '🙈', name: 'No ver' },
+  { id: '🙉', name: 'No oír' },
+  { id: '🙊', name: 'No hablar' },
+  { id: '🐔', name: 'Pollito' },
   { id: '🐧', name: 'Pingüino' },
+  { id: '🐦', name: 'Pajarito' },
+  { id: '🐤', name: 'Pollito bebé' },
+  { id: '🦆', name: 'Pato' },
+  { id: '🦅', name: 'Águila' },
+  { id: '🦉', name: 'Búho' },
+  { id: '🦇', name: 'Murciélago' },
+  { id: '🐺', name: 'Lobo' },
+  { id: '🐗', name: 'Jabalí' },
+  { id: '🐴', name: 'Caballo' },
+  { id: '🦄', name: 'Unicornio' },
+];
+
+const BG_COLORS = [
+  { name: 'Rojo', value: 'Tanned', gradient: 'from-red-400 to-red-600' },
+  { name: 'Naranja', value: 'Yellow', gradient: 'from-orange-400 to-orange-600' },
+  { name: 'Amarillo', value: 'Pale', gradient: 'from-yellow-400 to-yellow-600' },
+  { name: 'Lima', value: 'Light', gradient: 'from-lime-400 to-lime-600' },
+  { name: 'Verde', value: 'Brown', gradient: 'from-green-400 to-green-600' },
+  { name: 'Esmeralda', value: 'DarkBrown', gradient: 'from-emerald-400 to-emerald-600' },
+  { name: 'Teal', value: 'Black', gradient: 'from-teal-400 to-teal-600' },
+  { name: 'Cian', value: 'Auburn', gradient: 'from-cyan-400 to-cyan-600' },
+  { name: 'Azul', value: 'Blonde', gradient: 'from-blue-400 to-blue-600' },
+  { name: 'Índigo', value: 'BlondeGolden', gradient: 'from-indigo-400 to-indigo-600' },
+  { name: 'Violeta', value: 'Platinum', gradient: 'from-violet-400 to-violet-600' },
+  { name: 'Morado', value: 'Red', gradient: 'from-purple-400 to-purple-600' },
+  { name: 'Fucsia', value: 'SilverGray', gradient: 'from-fuchsia-400 to-fuchsia-600' },
+  { name: 'Rosa', value: 'PastelPink', gradient: 'from-pink-400 to-pink-600' },
 ];
 
 const DEFAULT_CONFIG: AvatarConfig = {
-  style: 'dicebear',
+  style: 'emoji',
   seed: Math.random().toString(36).substring(7),
   skinColor: ['Tanned'],
-  hairStyle: ['ShortHairShortFlat'],
-  hairColor: ['Brown'],
-  eyesStyle: ['Default'],
-  mouthStyle: ['Smile'],
-  accessoriesType: [],
-  facialHairType: [],
-  clothingColor: ['Blue02'],
 };
 
 export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
@@ -172,6 +107,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
   const [saving, setSaving] = useState(false);
   const [initialName, setInitialName] = useState('');
   const [initialAvatarConfig, setInitialAvatarConfig] = useState<AvatarConfig>(DEFAULT_CONFIG);
+  const [avatarType, setAvatarType] = useState<'face' | 'animal'>('face');
 
   useEffect(() => {
     loadProfile();
@@ -196,6 +132,10 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
           const fullConfig = { ...DEFAULT_CONFIG, ...config };
           setAvatarConfig(fullConfig);
           setInitialAvatarConfig(fullConfig);
+
+          if (fullConfig.animalId && ANIMAL_EMOJIS.some(a => a.id === fullConfig.animalId)) {
+            setAvatarType('animal');
+          }
         }
       }
     } catch (error) {
@@ -268,23 +208,33 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
   };
 
   const handleRandomize = () => {
+    const randomFace = FACE_EMOJIS[Math.floor(Math.random() * FACE_EMOJIS.length)];
+    const randomColor = BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)];
+
     setAvatarConfig({
-      style: 'dicebear',
-      seed: Math.random().toString(36).substring(7),
-      skinColor: [SKIN_COLORS[Math.floor(Math.random() * SKIN_COLORS.length)].value],
-      hairStyle: [HAIR_STYLES[Math.floor(Math.random() * HAIR_STYLES.length)].value],
-      hairColor: [HAIR_COLORS[Math.floor(Math.random() * HAIR_COLORS.length)].value],
-      eyesStyle: [EYES_STYLES[Math.floor(Math.random() * EYES_STYLES.length)].value],
-      mouthStyle: [MOUTH_STYLES[Math.floor(Math.random() * MOUTH_STYLES.length)].value],
-      accessoriesType: Math.random() > 0.6 ? [ACCESSORIES[Math.floor(Math.random() * ACCESSORIES.length)].value] : [],
-      facialHairType: Math.random() > 0.7 ? [FACIAL_HAIR[Math.floor(Math.random() * FACIAL_HAIR.length)].value] : [],
-      clothingColor: [CLOTHING_COLORS[Math.floor(Math.random() * CLOTHING_COLORS.length)].value],
+      style: 'emoji',
+      seed: randomFace.id,
+      skinColor: [randomColor.value],
+      animalId: undefined,
     });
+    setAvatarType('face');
   };
 
   const hasChanges = () => {
     if (displayName.trim() !== initialName) return true;
     return JSON.stringify(avatarConfig) !== JSON.stringify(initialAvatarConfig);
+  };
+
+  const handleEmojiSelect = (emoji: string) => {
+    if (avatarType === 'animal') {
+      setAvatarConfig({ ...avatarConfig, animalId: emoji, seed: emoji });
+    } else {
+      setAvatarConfig({ ...avatarConfig, seed: emoji, animalId: undefined });
+    }
+  };
+
+  const handleColorSelect = (colorValue: string) => {
+    setAvatarConfig({ ...avatarConfig, skinColor: [colorValue] });
   };
 
   if (loading) {
@@ -294,6 +244,9 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
       </div>
     );
   }
+
+  const currentEmojis = avatarType === 'animal' ? ANIMAL_EMOJIS : FACE_EMOJIS;
+  const selectedEmoji = avatarType === 'animal' ? avatarConfig.animalId : avatarConfig.seed;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-700 p-4 overflow-y-auto">
@@ -341,202 +294,74 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
               </label>
               <div className="flex gap-3 justify-center mb-4">
                 <button
-                  onClick={() => setAvatarConfig({ ...avatarConfig, animalId: null, style: 'dicebear' })}
+                  onClick={() => {
+                    setAvatarType('face');
+                    if (avatarConfig.animalId) {
+                      setAvatarConfig({ ...avatarConfig, animalId: undefined, seed: FACE_EMOJIS[0].id });
+                    }
+                  }}
                   className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                    !avatarConfig.animalId
+                    avatarType === 'face'
                       ? 'bg-white text-teal-600 shadow-lg scale-105'
                       : 'bg-white/20 text-white hover:bg-white/30'
                   }`}
                 >
-                  Personalizado
+                  Caras
                 </button>
                 <button
-                  onClick={() => setAvatarConfig({ ...avatarConfig, animalId: '🐱', style: 'animal' })}
+                  onClick={() => {
+                    setAvatarType('animal');
+                    setAvatarConfig({ ...avatarConfig, animalId: ANIMAL_EMOJIS[0].id, seed: ANIMAL_EMOJIS[0].id });
+                  }}
                   className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                    avatarConfig.animalId
+                    avatarType === 'animal'
                       ? 'bg-white text-teal-600 shadow-lg scale-105'
                       : 'bg-white/20 text-white hover:bg-white/30'
                   }`}
                 >
-                  Animal
+                  Animales
                 </button>
               </div>
 
-              {avatarConfig.animalId && (
-                <div className="flex gap-2 justify-center flex-wrap">
-                  {ANIMAL_OPTIONS.map((animal) => (
-                    <button
-                      key={animal.id}
-                      onClick={() => setAvatarConfig({ ...avatarConfig, animalId: animal.id })}
-                      className={`w-16 h-16 rounded-xl border-4 bg-white/20 backdrop-blur flex items-center justify-center transition-all transform hover:scale-105 ${
-                        avatarConfig.animalId === animal.id
-                          ? 'border-white shadow-lg scale-105 ring-4 ring-white/30'
-                          : 'border-white/30'
-                      }`}
-                      title={animal.name}
-                    >
-                      <span className="text-3xl">{animal.id}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-5 gap-3 max-h-96 overflow-y-auto p-3 bg-white/5 rounded-lg">
+                {currentEmojis.map((emoji) => (
+                  <button
+                    key={emoji.id}
+                    onClick={() => handleEmojiSelect(emoji.id)}
+                    className={`p-4 rounded-xl border-3 bg-white/20 backdrop-blur text-4xl transition-all hover:scale-110 ${
+                      selectedEmoji === emoji.id
+                        ? 'border-white shadow-lg scale-105 ring-4 ring-white/30'
+                        : 'border-white/30'
+                    }`}
+                    title={emoji.name}
+                  >
+                    {emoji.id}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {!avatarConfig.animalId && (
-              <>
-                <div>
-                  <label className="block text-white font-semibold mb-3 text-base">Tono de Piel</label>
-                  <div className="flex gap-2 justify-center flex-wrap">
-                    {SKIN_COLORS.map((item) => (
-                      <button
-                        key={item.value}
-                        onClick={() => setAvatarConfig({ ...avatarConfig, skinColor: [item.value] })}
-                        className={`px-4 py-2 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
-                          avatarConfig.skinColor?.[0] === item.value
-                            ? 'border-white shadow-lg scale-105 bg-white/40'
-                            : 'border-white/30'
-                        }`}
-                      >
-                        {item.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-white font-semibold mb-3 text-base">Estilo de Cabello</label>
-                  <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto p-2 bg-white/5 rounded-lg">
-                    {HAIR_STYLES.map((item) => (
-                      <button
-                        key={item.value}
-                        onClick={() => setAvatarConfig({ ...avatarConfig, hairStyle: [item.value] })}
-                        className={`p-2 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
-                          avatarConfig.hairStyle?.[0] === item.value
-                            ? 'border-white shadow-lg scale-105 bg-white/40'
-                            : 'border-white/30'
-                        }`}
-                      >
-                        {item.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-white font-semibold mb-3 text-base">Color de Cabello</label>
-                  <div className="flex gap-2 justify-center flex-wrap">
-                    {HAIR_COLORS.map((item) => (
-                      <button
-                        key={item.value}
-                        onClick={() => setAvatarConfig({ ...avatarConfig, hairColor: [item.value] })}
-                        className={`px-3 py-2 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
-                          avatarConfig.hairColor?.[0] === item.value
-                            ? 'border-white shadow-lg scale-105 bg-white/40'
-                            : 'border-white/30'
-                        }`}
-                      >
-                        {item.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-white font-semibold mb-3 text-base">Estilo de Ojos</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {EYES_STYLES.map((item) => (
-                      <button
-                        key={item.value}
-                        onClick={() => setAvatarConfig({ ...avatarConfig, eyesStyle: [item.value] })}
-                        className={`p-2 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
-                          avatarConfig.eyesStyle?.[0] === item.value
-                            ? 'border-white shadow-lg scale-105 bg-white/40'
-                            : 'border-white/30'
-                        }`}
-                      >
-                        {item.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-white font-semibold mb-3 text-base">Estilo de Boca</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {MOUTH_STYLES.map((item) => (
-                      <button
-                        key={item.value}
-                        onClick={() => setAvatarConfig({ ...avatarConfig, mouthStyle: [item.value] })}
-                        className={`p-2 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
-                          avatarConfig.mouthStyle?.[0] === item.value
-                            ? 'border-white shadow-lg scale-105 bg-white/40'
-                            : 'border-white/30'
-                        }`}
-                      >
-                        {item.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-white font-semibold mb-3 text-base">Vello Facial</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {FACIAL_HAIR.map((item) => (
-                      <button
-                        key={item.value}
-                        onClick={() => setAvatarConfig({ ...avatarConfig, facialHairType: item.value ? [item.value] : [] })}
-                        className={`p-3 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
-                          (avatarConfig.facialHairType?.[0] === item.value) || (!avatarConfig.facialHairType?.length && !item.value)
-                            ? 'border-white shadow-lg scale-105 bg-white/40'
-                            : 'border-white/30'
-                        }`}
-                      >
-                        {item.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-white font-semibold mb-3 text-base">Accesorios</label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {ACCESSORIES.map((item) => (
-                      <button
-                        key={item.value}
-                        onClick={() => setAvatarConfig({ ...avatarConfig, accessoriesType: item.value ? [item.value] : [] })}
-                        className={`p-3 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
-                          (avatarConfig.accessoriesType?.[0] === item.value) || (!avatarConfig.accessoriesType?.length && !item.value)
-                            ? 'border-white shadow-lg scale-105 bg-white/40'
-                            : 'border-white/30'
-                        }`}
-                      >
-                        {item.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-white font-semibold mb-3 text-base">Color de Ropa</label>
-                  <div className="flex gap-2 justify-center flex-wrap">
-                    {CLOTHING_COLORS.map((item) => (
-                      <button
-                        key={item.value}
-                        onClick={() => setAvatarConfig({ ...avatarConfig, clothingColor: [item.value] })}
-                        className={`px-3 py-2 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
-                          avatarConfig.clothingColor?.[0] === item.value
-                            ? 'border-white shadow-lg scale-105 bg-white/40'
-                            : 'border-white/30'
-                        }`}
-                      >
-                        {item.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
+            <div>
+              <label className="block text-white font-semibold mb-3 text-base text-center">
+                Color de Fondo
+              </label>
+              <div className="grid grid-cols-4 gap-3">
+                {BG_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    onClick={() => handleColorSelect(color.value)}
+                    className={`p-4 rounded-xl border-3 transition-all hover:scale-105 ${
+                      avatarConfig.skinColor?.[0] === color.value
+                        ? 'border-white shadow-lg scale-105 ring-4 ring-white/30'
+                        : 'border-white/30'
+                    }`}
+                  >
+                    <div className={`w-full h-12 rounded-lg bg-gradient-to-br ${color.gradient}`}></div>
+                    <div className="text-white text-xs mt-2 text-center font-medium">{color.name}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="flex gap-4 mt-6">
