@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Avatar</title>
+  <script type="module">
+    import { createAvatar } from 'https://esm.sh/@dicebear/core@9.3.1';
+    import { avataaars } from 'https://esm.sh/@dicebear/collection@9.3.1';
+
+    function generateAvatar() {
+      const skinColor = document.getElementById('skinColor').value;
+      const hairStyle = document.getElementById('hairStyle').value;
+      const hairColor = document.getElementById('hairColor').value;
+      const eyes = document.getElementById('eyes').value;
+      const mouth = document.getElementById('mouth').value;
+
+      const avatar = createAvatar(avataaars, {
+        seed: Math.random().toString(),
+        size: 200,
+        skinColor: [skinColor],
+        top: [hairStyle],
+        hairColor: [hairColor],
+        eyes: [eyes],
+        mouth: [mouth],
+      });
+
+      document.getElementById('avatar-container').innerHTML = avatar.toString();
+      console.log('Generated with options:', {
+        skinColor, hairStyle, hairColor, eyes, mouth
+      });
+    }
+
+    window.generateAvatar = generateAvatar;
+    window.addEventListener('DOMContentLoaded', generateAvatar);
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    #avatar-container {
+      width: 200px;
+      height: 200px;
+      margin: 20px auto;
+      border: 2px solid #333;
+    }
+    #avatar-container svg {
+      width: 100%;
+      height: 100%;
+    }
+    .controls {
+      display: grid;
+      gap: 10px;
+    }
+    select {
+      padding: 8px;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Avataaars</h1>
+
+  <div id="avatar-container"></div>
+
+  <div class="controls">
+    <label>
+      Skin Color:
+      <select id="skinColor" onchange="generateAvatar()">
+        <option value="Tanned">Tanned</option>
+        <option value="Yellow">Yellow</option>
+        <option value="Pale">Pale</option>
+        <option value="Light">Light</option>
+        <option value="Brown">Brown</option>
+        <option value="DarkBrown">DarkBrown</option>
+        <option value="Black">Black</option>
+      </select>
+    </label>
+
+    <label>
+      Hair Style:
+      <select id="hairStyle" onchange="generateAvatar()">
+        <option value="ShortHairShortFlat">Short Flat</option>
+        <option value="LongHairStraight">Long Straight</option>
+        <option value="ShortHairFrizzle">Afro</option>
+        <option value="LongHairCurly">Long Curly</option>
+        <option value="NoHair">No Hair</option>
+      </select>
+    </label>
+
+    <label>
+      Hair Color:
+      <select id="hairColor" onchange="generateAvatar()">
+        <option value="Brown">Brown</option>
+        <option value="Black">Black</option>
+        <option value="Blonde">Blonde</option>
+        <option value="Red">Red</option>
+      </select>
+    </label>
+
+    <label>
+      Eyes:
+      <select id="eyes" onchange="generateAvatar()">
+        <option value="Default">Default</option>
+        <option value="Happy">Happy</option>
+        <option value="Close">Close</option>
+        <option value="Surprised">Surprised</option>
+        <option value="Wink">Wink</option>
+      </select>
+    </label>
+
+    <label>
+      Mouth:
+      <select id="mouth" onchange="generateAvatar()">
+        <option value="Smile">Smile</option>
+        <option value="Default">Default</option>
+        <option value="Serious">Serious</option>
+        <option value="Eating">Eating</option>
+        <option value="Tongue">Tongue</option>
+      </select>
+    </label>
+
+    <button onclick="generateAvatar()">Randomize</button>
+  </div>
+</body>
+</html>

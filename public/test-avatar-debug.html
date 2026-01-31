@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Avatar Debug</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    .avatar-container { 
+      width: 200px; 
+      height: 200px; 
+      border: 2px solid #333; 
+      margin: 20px; 
+      display: inline-block;
+    }
+    .avatar-container svg { 
+      width: 100%; 
+      height: 100%; 
+    }
+  </style>
+</head>
+<body>
+  <h1>DiceBear Avatar Test</h1>
+  <div id="avatars"></div>
+  
+  <script type="module">
+    import { createAvatar } from 'https://esm.sh/@dicebear/core@9.3.1';
+    import { avataaars } from 'https://esm.sh/@dicebear/collection@9.3.1';
+
+    const configs = [
+      { name: 'Default', options: {} },
+      { name: 'Tanned Skin', options: { skinColor: ['Tanned'] } },
+      { name: 'Short Hair', options: { top: ['ShortHairShortFlat'], hairColor: ['Brown'] } },
+      { name: 'Long Hair', options: { top: ['LongHairStraight'], hairColor: ['Blonde'] } },
+      { name: 'Happy Eyes', options: { eyes: ['Happy'], mouth: ['Smile'] } },
+      { name: 'Full Config', options: { 
+        skinColor: ['Light'], 
+        top: ['ShortHairShortFlat'], 
+        hairColor: ['Black'],
+        eyes: ['Happy'],
+        mouth: ['Smile'],
+        clothesColor: ['Blue02']
+      }},
+    ];
+
+    const container = document.getElementById('avatars');
+
+    configs.forEach((config, index) => {
+      const div = document.createElement('div');
+      div.style.display = 'inline-block';
+      div.style.textAlign = 'center';
+      div.style.margin = '10px';
+      
+      const title = document.createElement('div');
+      title.textContent = config.name;
+      title.style.marginBottom = '10px';
+      title.style.fontWeight = 'bold';
+      
+      const avatarDiv = document.createElement('div');
+      avatarDiv.className = 'avatar-container';
+      
+      try {
+        const avatar = createAvatar(avataaars, {
+          seed: `test-${index}`,
+          size: 200,
+          ...config.options
+        });
+        avatarDiv.innerHTML = avatar.toString();
+        
+        const debug = document.createElement('pre');
+        debug.textContent = JSON.stringify(config.options, null, 2);
+        debug.style.fontSize = '10px';
+        debug.style.textAlign = 'left';
+        
+        div.appendChild(title);
+        div.appendChild(avatarDiv);
+        div.appendChild(debug);
+        container.appendChild(div);
+      } catch (error) {
+        avatarDiv.textContent = 'Error: ' + error.message;
+        div.appendChild(title);
+        div.appendChild(avatarDiv);
+        container.appendChild(div);
+        console.error('Error generating avatar:', config.name, error);
+      }
+    });
+  </script>
+</body>
+</html>

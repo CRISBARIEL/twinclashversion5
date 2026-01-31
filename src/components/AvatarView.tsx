@@ -18,14 +18,14 @@ const SIZE_MAP = {
 const DEFAULT_CONFIG: AvatarConfig = {
   style: 'dicebear',
   seed: 'default-user',
-  skinColor: ['ffdbb4'],
-  hairStyle: ['short01'],
-  hairColor: ['2c1b18'],
-  eyesStyle: ['eyes01'],
-  mouthStyle: ['happy01'],
+  skinColor: ['Tanned'],
+  hairStyle: ['ShortHairShortFlat'],
+  hairColor: ['Brown'],
+  eyesStyle: ['Default'],
+  mouthStyle: ['Smile'],
   accessoriesType: [],
   facialHairType: [],
-  clothingColor: ['3c4f5c'],
+  clothingColor: ['Blue02'],
 };
 
 export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarViewProps) => {
@@ -49,48 +49,85 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
 
   const avatarSvg = useMemo(() => {
     try {
-      const avatar = createAvatar(avataaars, {
-        seed: avatarConfig.seed || `user-${Date.now()}`,
-        size: dimension * 2,
-        skinColor: avatarConfig.skinColor,
-        top: avatarConfig.hairStyle,
-        hairColor: avatarConfig.hairColor,
-        eyes: avatarConfig.eyesStyle,
-        mouth: avatarConfig.mouthStyle,
-        accessories: avatarConfig.accessoriesType,
-        accessoriesColor: avatarConfig.accessoriesColor,
-        facialHair: avatarConfig.facialHairType,
-        facialHairColor: avatarConfig.facialHairColor || avatarConfig.hairColor,
-        clothesColor: avatarConfig.clothingColor,
-      });
+      const options: any = {
+        seed: avatarConfig.seed || `seed-${Date.now()}`,
+        size: dimension * 4,
+        backgroundColor: ['transparent'],
+      };
 
-      return avatar.toString();
+      if (avatarConfig.skinColor?.[0]) {
+        options.skinColor = avatarConfig.skinColor;
+      }
+
+      if (avatarConfig.hairStyle?.[0]) {
+        options.top = avatarConfig.hairStyle;
+      }
+
+      if (avatarConfig.hairColor?.[0]) {
+        options.hairColor = avatarConfig.hairColor;
+      }
+
+      if (avatarConfig.eyesStyle?.[0]) {
+        options.eyes = avatarConfig.eyesStyle;
+      }
+
+      if (avatarConfig.mouthStyle?.[0]) {
+        options.mouth = avatarConfig.mouthStyle;
+      }
+
+      if (avatarConfig.accessoriesType?.[0]) {
+        options.accessories = avatarConfig.accessoriesType;
+      }
+
+      if (avatarConfig.accessoriesColor?.[0]) {
+        options.accessoriesColor = avatarConfig.accessoriesColor;
+      }
+
+      if (avatarConfig.facialHairType?.[0]) {
+        options.facialHair = avatarConfig.facialHairType;
+        if (avatarConfig.facialHairColor?.[0] || avatarConfig.hairColor?.[0]) {
+          options.facialHairColor = avatarConfig.facialHairColor || avatarConfig.hairColor;
+        }
+      }
+
+      if (avatarConfig.clothingColor?.[0]) {
+        options.clothesColor = avatarConfig.clothingColor;
+      }
+
+      console.log('🎨 Generating avatar with:', options);
+      const avatar = createAvatar(avataaars, options);
+      const svgString = avatar.toString();
+      console.log('✅ Avatar generated successfully');
+      return svgString;
     } catch (error) {
-      console.error('Error generating avatar:', error);
+      console.error('❌ Error generating avatar:', error);
+      console.error('Config was:', avatarConfig);
       return null;
     }
   }, [
     avatarConfig.seed,
-    avatarConfig.skinColor,
-    avatarConfig.hairStyle,
-    avatarConfig.hairColor,
-    avatarConfig.eyesStyle,
-    avatarConfig.mouthStyle,
-    avatarConfig.accessoriesType,
-    avatarConfig.accessoriesColor,
-    avatarConfig.facialHairType,
-    avatarConfig.facialHairColor,
-    avatarConfig.clothingColor,
+    avatarConfig.skinColor?.[0],
+    avatarConfig.hairStyle?.[0],
+    avatarConfig.hairColor?.[0],
+    avatarConfig.eyesStyle?.[0],
+    avatarConfig.mouthStyle?.[0],
+    avatarConfig.accessoriesType?.[0],
+    avatarConfig.accessoriesColor?.[0],
+    avatarConfig.facialHairType?.[0],
+    avatarConfig.facialHairColor?.[0],
+    avatarConfig.clothingColor?.[0],
     dimension,
   ]);
 
   if (avatarSvg) {
     return (
       <div
-        className={`${className} rounded-full overflow-hidden bg-white shadow-lg`}
+        className={`${className}`}
         style={{
           width: dimension,
           height: dimension,
+          position: 'relative',
+          overflow: 'visible',
         }}
         dangerouslySetInnerHTML={{ __html: avatarSvg }}
       />
