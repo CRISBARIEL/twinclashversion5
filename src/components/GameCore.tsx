@@ -1943,13 +1943,25 @@ export const GameCore = ({
 
                       if (isMultipleOf5 && isRewardedReady) {
                         console.log('[GameCore] 🎁 Level', activeLevel, 'is multiple of 5 - showing rewarded ad');
+                        console.log('[GameCore] Current coins before ad:', getLocalCoins());
+
                         const result = await showRewardedAd();
+                        console.log('[GameCore] Rewarded ad result:', result);
 
                         if (result.rewarded) {
                           console.log('[GameCore] ✅ Rewarded ad completed! User earned coins:', result.coins);
-                          setCurrentCoins(getLocalCoins());
+                          const newCoins = getLocalCoins();
+                          console.log('[GameCore] Current coins after ad:', newCoins);
+                          setCurrentCoins(newCoins);
+
+                          // Forzar actualización visual después de un momento
+                          setTimeout(() => {
+                            const finalCoins = getLocalCoins();
+                            console.log('[GameCore] Final coins check:', finalCoins);
+                            setCurrentCoins(finalCoins);
+                          }, 500);
                         } else {
-                          console.log('[GameCore] ⚠️ Rewarded ad not completed');
+                          console.log('[GameCore] ⚠️ Rewarded ad not completed - no reward');
                         }
                       } else if (!isMultipleOf5) {
                         const shouldShowInterstitial = levelConfig?.difficulty === 'expert' && isInterstitialReady;

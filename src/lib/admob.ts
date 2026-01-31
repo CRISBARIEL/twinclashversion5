@@ -132,56 +132,68 @@ class AdMobService {
     try {
       let rewardGranted = false;
       let rewardAmount = 0;
+      let listenerPromises: any = { reward: null, dismiss: null, failed: null };
+
+      console.log('[AdMob] 🎯 Setting up listeners for rewarded ad...');
 
       // Create a promise that resolves when the ad is dismissed or fails
       const adCompletionPromise = new Promise<void>((resolve) => {
-        const rewardListener = AdMob.addListener(
+        listenerPromises.reward = AdMob.addListener(
           RewardAdPluginEvents.Rewarded,
           (reward: AdMobRewardItem) => {
-            console.log('[AdMob] Reward granted:', reward);
+            console.log('[AdMob] 🎉✅ REWARD EVENT FIRED! Reward:', reward);
             rewardGranted = true;
             rewardAmount = reward.amount;
           }
         );
 
-        const dismissListener = AdMob.addListener(
+        listenerPromises.dismiss = AdMob.addListener(
           RewardAdPluginEvents.Dismissed,
           () => {
-            console.log('[AdMob] Rewarded ad dismissed');
-            rewardListener.then(l => l.remove());
-            dismissListener.then(l => l.remove());
-            failedListener.then(l => l.remove());
-            resolve(); // Resolve the promise when ad is dismissed
+            console.log('[AdMob] 📱 DISMISSED EVENT FIRED. Reward granted:', rewardGranted);
+
+            // Wait a bit before removing listeners to ensure Rewarded event was captured
+            setTimeout(() => {
+              console.log('[AdMob] 🧹 Removing listeners...');
+              listenerPromises.reward?.then((l: any) => l.remove());
+              listenerPromises.dismiss?.then((l: any) => l.remove());
+              listenerPromises.failed?.then((l: any) => l.remove());
+              resolve();
+            }, 200);
           }
         );
 
-        const failedListener = AdMob.addListener(
+        listenerPromises.failed = AdMob.addListener(
           RewardAdPluginEvents.FailedToShow,
           (error) => {
-            console.error('[AdMob] Rewarded ad failed to show:', error);
-            rewardListener.then(l => l.remove());
-            dismissListener.then(l => l.remove());
-            failedListener.then(l => l.remove());
-            resolve(); // Resolve the promise even if ad fails
+            console.error('[AdMob] ❌ FAILED EVENT FIRED:', error);
+            listenerPromises.reward?.then((l: any) => l.remove());
+            listenerPromises.dismiss?.then((l: any) => l.remove());
+            listenerPromises.failed?.then((l: any) => l.remove());
+            resolve();
           }
         );
       });
 
+      console.log('[AdMob] ▶️ Showing rewarded ad...');
       await AdMob.showRewardVideoAd();
       this.rewardedAdLoaded = false;
 
       // Wait for the ad to be completely dismissed before continuing
-      console.log('[AdMob] Waiting for ad to be dismissed...');
+      console.log('[AdMob] ⏳ Waiting for ad to be dismissed...');
       await adCompletionPromise;
-      console.log('[AdMob] Ad dismissed, continuing...');
+      console.log('[AdMob] ✅ Ad interaction complete. Reward granted:', rewardGranted);
 
       if (rewardGranted) {
+        console.log('[AdMob] 💰 Adding 1000 coins...');
         const coins = addCoins(1000);
-        console.log('[AdMob] Reward granted: +1000 coins, total:', coins);
+        console.log('[AdMob] ✅ Reward granted: +1000 coins, total:', coins);
 
         this.preloadRewardedAd();
 
         return { success: true, rewarded: true, coins };
+      } else {
+        console.log('[AdMob] ⚠️ No reward granted - ad was not completed');
       }
 
       this.preloadRewardedAd();
