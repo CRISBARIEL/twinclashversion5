@@ -42,17 +42,36 @@ export const PREVIEW_TIME = 10;
 export const FLIP_DELAY = 400;
 
 export interface AvatarConfig {
-  animalId?: string | null; // 'cat', 'tiger', 'fox', 'eagle'
-  faceColor: string;
-  eyeColor: string;
-  eyesId: number;
-  mouthId: number;
-  hairId: number;
-  hairColor: string;
-  beardId: number | null;
-  mustacheId: number | null;
-  glassesId: number | null;
-  headphonesId: number | null;
+  // Sistema DiceBear (nuevo y preferido)
+  style?: 'dicebear' | 'animal' | 'legacy';
+  seed?: string; // Para generar avatar único
+
+  // Opciones DiceBear
+  skinColor?: string[];
+  hairStyle?: string[];
+  hairColor?: string[];
+  facialHairType?: string[];
+  facialHairColor?: string[];
+  eyesStyle?: string[];
+  mouthStyle?: string[];
+  accessoriesType?: string[];
+  accessoriesColor?: string[];
+  clothingColor?: string[];
+
+  // Animales (mantiene compatibilidad)
+  animalId?: string | null;
+
+  // Legacy (sistema antiguo - mantener para retrocompatibilidad)
+  faceColor?: string;
+  eyeColor?: string;
+  eyesId?: number;
+  mouthId?: number;
+  hairId?: number;
+  hairColor?: string;
+  beardId?: number | null;
+  mustacheId?: number | null;
+  glassesId?: number | null;
+  headphonesId?: number | null;
   accessoryId?: number | null;
   faceShapeId?: number;
   glassesColor?: string;
