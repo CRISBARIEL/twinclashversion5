@@ -15,7 +15,7 @@ const SIZE_MAP = {
   large: 96,
 };
 
-const DEFAULT_CONFIG: AvatarConfig = {
+const DEFAULT_AVATAR_CONFIG: AvatarConfig = {
   style: 'dicebear',
   seed: 'default-user',
   skinColor: ['Tanned'],
@@ -29,10 +29,10 @@ const DEFAULT_CONFIG: AvatarConfig = {
 };
 
 export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarViewProps) => {
-  const avatarConfig = { ...DEFAULT_CONFIG, ...config };
   const dimension = SIZE_MAP[size];
+  const mergedConfig = { ...DEFAULT_AVATAR_CONFIG, ...config };
 
-  if (avatarConfig.animalId) {
+  if (mergedConfig.animalId) {
     return (
       <div
         className={`${className} flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-100 rounded-full shadow-inner`}
@@ -42,7 +42,7 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
           fontSize: `${dimension * 0.6}px`,
         }}
       >
-        <span>{avatarConfig.animalId}</span>
+        <span>{mergedConfig.animalId}</span>
       </div>
     );
   }
@@ -50,73 +50,68 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
   const avatarSvg = useMemo(() => {
     try {
       const options: any = {
-        seed: avatarConfig.seed || `seed-${Date.now()}`,
-        size: dimension * 4,
-        backgroundColor: ['transparent'],
+        seed: mergedConfig.seed || `user-${Date.now()}`,
+        size: 256,
       };
 
-      if (avatarConfig.skinColor?.[0]) {
-        options.skinColor = avatarConfig.skinColor;
+      if (mergedConfig.skinColor?.length && mergedConfig.skinColor[0]) {
+        options.skinColor = mergedConfig.skinColor;
       }
 
-      if (avatarConfig.hairStyle?.[0]) {
-        options.top = avatarConfig.hairStyle;
+      if (mergedConfig.hairStyle?.length && mergedConfig.hairStyle[0]) {
+        options.top = mergedConfig.hairStyle;
       }
 
-      if (avatarConfig.hairColor?.[0]) {
-        options.hairColor = avatarConfig.hairColor;
+      if (mergedConfig.hairColor?.length && mergedConfig.hairColor[0]) {
+        options.hairColor = mergedConfig.hairColor;
       }
 
-      if (avatarConfig.eyesStyle?.[0]) {
-        options.eyes = avatarConfig.eyesStyle;
+      if (mergedConfig.eyesStyle?.length && mergedConfig.eyesStyle[0]) {
+        options.eyes = mergedConfig.eyesStyle;
       }
 
-      if (avatarConfig.mouthStyle?.[0]) {
-        options.mouth = avatarConfig.mouthStyle;
+      if (mergedConfig.mouthStyle?.length && mergedConfig.mouthStyle[0]) {
+        options.mouth = mergedConfig.mouthStyle;
       }
 
-      if (avatarConfig.accessoriesType?.[0]) {
-        options.accessories = avatarConfig.accessoriesType;
+      if (mergedConfig.accessoriesType?.length && mergedConfig.accessoriesType[0]) {
+        options.accessories = mergedConfig.accessoriesType;
       }
 
-      if (avatarConfig.accessoriesColor?.[0]) {
-        options.accessoriesColor = avatarConfig.accessoriesColor;
+      if (mergedConfig.accessoriesColor?.length && mergedConfig.accessoriesColor[0]) {
+        options.accessoriesColor = mergedConfig.accessoriesColor;
       }
 
-      if (avatarConfig.facialHairType?.[0]) {
-        options.facialHair = avatarConfig.facialHairType;
-        if (avatarConfig.facialHairColor?.[0] || avatarConfig.hairColor?.[0]) {
-          options.facialHairColor = avatarConfig.facialHairColor || avatarConfig.hairColor;
+      if (mergedConfig.facialHairType?.length && mergedConfig.facialHairType[0]) {
+        options.facialHair = mergedConfig.facialHairType;
+        const fhColor = mergedConfig.facialHairColor || mergedConfig.hairColor;
+        if (fhColor?.length && fhColor[0]) {
+          options.facialHairColor = fhColor;
         }
       }
 
-      if (avatarConfig.clothingColor?.[0]) {
-        options.clothesColor = avatarConfig.clothingColor;
+      if (mergedConfig.clothingColor?.length && mergedConfig.clothingColor[0]) {
+        options.clothesColor = mergedConfig.clothingColor;
       }
 
-      console.log('🎨 Generating avatar with:', options);
       const avatar = createAvatar(avataaars, options);
-      const svgString = avatar.toString();
-      console.log('✅ Avatar generated successfully');
-      return svgString;
+      return avatar.toString();
     } catch (error) {
-      console.error('❌ Error generating avatar:', error);
-      console.error('Config was:', avatarConfig);
+      console.error('Error generating avatar:', error);
       return null;
     }
   }, [
-    avatarConfig.seed,
-    avatarConfig.skinColor?.[0],
-    avatarConfig.hairStyle?.[0],
-    avatarConfig.hairColor?.[0],
-    avatarConfig.eyesStyle?.[0],
-    avatarConfig.mouthStyle?.[0],
-    avatarConfig.accessoriesType?.[0],
-    avatarConfig.accessoriesColor?.[0],
-    avatarConfig.facialHairType?.[0],
-    avatarConfig.facialHairColor?.[0],
-    avatarConfig.clothingColor?.[0],
-    dimension,
+    mergedConfig.seed,
+    mergedConfig.skinColor?.[0],
+    mergedConfig.hairStyle?.[0],
+    mergedConfig.hairColor?.[0],
+    mergedConfig.eyesStyle?.[0],
+    mergedConfig.mouthStyle?.[0],
+    mergedConfig.accessoriesType?.[0],
+    mergedConfig.accessoriesColor?.[0],
+    mergedConfig.facialHairType?.[0],
+    mergedConfig.facialHairColor?.[0],
+    mergedConfig.clothingColor?.[0],
   ]);
 
   if (avatarSvg) {
@@ -126,8 +121,6 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
         style={{
           width: dimension,
           height: dimension,
-          position: 'relative',
-          overflow: 'visible',
         }}
         dangerouslySetInnerHTML={{ __html: avatarSvg }}
       />
