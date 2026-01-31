@@ -10,93 +10,82 @@ interface AvatarEditorProps {
   onBack: () => void;
 }
 
-const FACE_EMOJIS = [
-  { id: '😀', name: 'Feliz' },
-  { id: '😃', name: 'Sonriente' },
-  { id: '😄', name: 'Alegre' },
-  { id: '😁', name: 'Radiante' },
-  { id: '😆', name: 'Riendo' },
-  { id: '😊', name: 'Tímido' },
-  { id: '😇', name: 'Angelical' },
-  { id: '🙂', name: 'Contento' },
-  { id: '🙃', name: 'Al revés' },
-  { id: '😉', name: 'Guiño' },
-  { id: '😌', name: 'Relajado' },
-  { id: '😍', name: 'Enamorado' },
-  { id: '🥰', name: 'Cariñoso' },
-  { id: '😘', name: 'Beso' },
-  { id: '😗', name: 'Besitos' },
-  { id: '😙', name: 'Beso feliz' },
-  { id: '😚', name: 'Beso cerrado' },
-  { id: '😋', name: 'Sabroso' },
-  { id: '😛', name: 'Lengua' },
-  { id: '😝', name: 'Loco' },
-  { id: '😜', name: 'Guiño loco' },
-  { id: '🤪', name: 'Zany' },
-  { id: '🤨', name: 'Escéptico' },
-  { id: '🧐', name: 'Monocle' },
-  { id: '🤓', name: 'Nerd' },
-  { id: '😎', name: 'Cool' },
-  { id: '🥳', name: 'Fiesta' },
-  { id: '😏', name: 'Pícaro' },
-  { id: '😒', name: 'Aburrido' },
-  { id: '😞', name: 'Decepcionado' },
+const AVATAR_STYLES = [
+  { id: 'marble', name: 'Mármol', description: 'Orgánico y fluido' },
+  { id: 'beam', name: 'Rayo', description: 'Geométrico y angular' },
+  { id: 'pixel', name: 'Pixel', description: 'Retro y pixelado' },
+  { id: 'sunset', name: 'Atardecer', description: 'Suave y colorido' },
+  { id: 'ring', name: 'Anillo', description: 'Círculos concéntricos' },
+  { id: 'bauhaus', name: 'Bauhaus', description: 'Arte moderno' },
 ];
 
-const ANIMAL_EMOJIS = [
-  { id: '🐱', name: 'Gatito' },
-  { id: '🐶', name: 'Perrito' },
-  { id: '🐭', name: 'Ratoncito' },
-  { id: '🐹', name: 'Hámster' },
-  { id: '🐰', name: 'Conejito' },
-  { id: '🦊', name: 'Zorrito' },
-  { id: '🐻', name: 'Osito' },
-  { id: '🐼', name: 'Panda' },
-  { id: '🐨', name: 'Koala' },
-  { id: '🐯', name: 'Tigre' },
-  { id: '🦁', name: 'León' },
-  { id: '🐮', name: 'Vaca' },
-  { id: '🐷', name: 'Cerdito' },
-  { id: '🐸', name: 'Ranita' },
-  { id: '🐵', name: 'Monito' },
-  { id: '🙈', name: 'No ver' },
-  { id: '🙉', name: 'No oír' },
-  { id: '🙊', name: 'No hablar' },
-  { id: '🐔', name: 'Pollito' },
-  { id: '🐧', name: 'Pingüino' },
-  { id: '🐦', name: 'Pajarito' },
-  { id: '🐤', name: 'Pollito bebé' },
-  { id: '🦆', name: 'Pato' },
-  { id: '🦅', name: 'Águila' },
-  { id: '🦉', name: 'Búho' },
-  { id: '🦇', name: 'Murciélago' },
-  { id: '🐺', name: 'Lobo' },
-  { id: '🐗', name: 'Jabalí' },
-  { id: '🐴', name: 'Caballo' },
-  { id: '🦄', name: 'Unicornio' },
-];
-
-const BG_COLORS = [
-  { name: 'Rojo', value: 'Tanned', gradient: 'from-red-400 to-red-600' },
-  { name: 'Naranja', value: 'Yellow', gradient: 'from-orange-400 to-orange-600' },
-  { name: 'Amarillo', value: 'Pale', gradient: 'from-yellow-400 to-yellow-600' },
-  { name: 'Lima', value: 'Light', gradient: 'from-lime-400 to-lime-600' },
-  { name: 'Verde', value: 'Brown', gradient: 'from-green-400 to-green-600' },
-  { name: 'Esmeralda', value: 'DarkBrown', gradient: 'from-emerald-400 to-emerald-600' },
-  { name: 'Teal', value: 'Black', gradient: 'from-teal-400 to-teal-600' },
-  { name: 'Cian', value: 'Auburn', gradient: 'from-cyan-400 to-cyan-600' },
-  { name: 'Azul', value: 'Blonde', gradient: 'from-blue-400 to-blue-600' },
-  { name: 'Índigo', value: 'BlondeGolden', gradient: 'from-indigo-400 to-indigo-600' },
-  { name: 'Violeta', value: 'Platinum', gradient: 'from-violet-400 to-violet-600' },
-  { name: 'Morado', value: 'Red', gradient: 'from-purple-400 to-purple-600' },
-  { name: 'Fucsia', value: 'SilverGray', gradient: 'from-fuchsia-400 to-fuchsia-600' },
-  { name: 'Rosa', value: 'PastelPink', gradient: 'from-pink-400 to-pink-600' },
+const COLOR_PALETTES = [
+  {
+    name: 'Oceano',
+    colors: ['#264653', '#2a9d8f', '#e9c46a', '#f4a261', '#e76f51'],
+    gradient: 'from-[#264653] via-[#2a9d8f] to-[#e9c46a]'
+  },
+  {
+    name: 'Bosque',
+    colors: ['#606c38', '#283618', '#fefae0', '#dda15e', '#bc6c25'],
+    gradient: 'from-[#606c38] via-[#283618] to-[#dda15e]'
+  },
+  {
+    name: 'Amanecer',
+    colors: ['#780000', '#c1121f', '#fdf0d5', '#003049', '#669bbc'],
+    gradient: 'from-[#780000] via-[#c1121f] to-[#fdf0d5]'
+  },
+  {
+    name: 'Crepúsculo',
+    colors: ['#001219', '#005f73', '#0a9396', '#94d2bd', '#e9d8a6'],
+    gradient: 'from-[#001219] via-[#005f73] to-[#94d2bd]'
+  },
+  {
+    name: 'Fuego',
+    colors: ['#d00000', '#dc2f02', '#e85d04', '#f48c06', '#faa307'],
+    gradient: 'from-[#d00000] via-[#dc2f02] to-[#f48c06]'
+  },
+  {
+    name: 'Lavanda',
+    colors: ['#240046', '#3c096c', '#5a189a', '#7209b7', '#9d4edd'],
+    gradient: 'from-[#240046] via-[#5a189a] to-[#9d4edd]'
+  },
+  {
+    name: 'Tropical',
+    colors: ['#fb6900', '#f63700', '#004853', '#007e80', '#00b9bd'],
+    gradient: 'from-[#fb6900] via-[#004853] to-[#00b9bd]'
+  },
+  {
+    name: 'Caramelo',
+    colors: ['#ffcdb2', '#ffb4a2', '#e5989b', '#b5838d', '#6d6875'],
+    gradient: 'from-[#ffcdb2] via-[#e5989b] to-[#6d6875]'
+  },
+  {
+    name: 'Montaña',
+    colors: ['#006466', '#065a60', '#0b525b', '#144552', '#1b3a4b'],
+    gradient: 'from-[#006466] via-[#0b525b] to-[#1b3a4b]'
+  },
+  {
+    name: 'Pastel',
+    colors: ['#e63946', '#f1faee', '#a8dadc', '#457b9d', '#1d3557'],
+    gradient: 'from-[#e63946] via-[#a8dadc] to-[#1d3557]'
+  },
+  {
+    name: 'Neón',
+    colors: ['#ff006e', '#fb5607', '#ffbe0b', '#8338ec', '#3a86ff'],
+    gradient: 'from-[#ff006e] via-[#ffbe0b] to-[#3a86ff]'
+  },
+  {
+    name: 'Terra',
+    colors: ['#582f0e', '#7f4f24', '#936639', '#a68a64', '#b6ad90'],
+    gradient: 'from-[#582f0e] via-[#936639] to-[#b6ad90]'
+  },
 ];
 
 const DEFAULT_CONFIG: AvatarConfig = {
-  style: 'emoji',
+  style: 'marble',
   seed: Math.random().toString(36).substring(7),
-  skinColor: ['Tanned'],
+  colors: ['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90'],
 };
 
 export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
@@ -107,7 +96,6 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
   const [saving, setSaving] = useState(false);
   const [initialName, setInitialName] = useState('');
   const [initialAvatarConfig, setInitialAvatarConfig] = useState<AvatarConfig>(DEFAULT_CONFIG);
-  const [avatarType, setAvatarType] = useState<'face' | 'animal'>('face');
 
   useEffect(() => {
     loadProfile();
@@ -132,10 +120,6 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
           const fullConfig = { ...DEFAULT_CONFIG, ...config };
           setAvatarConfig(fullConfig);
           setInitialAvatarConfig(fullConfig);
-
-          if (fullConfig.animalId && ANIMAL_EMOJIS.some(a => a.id === fullConfig.animalId)) {
-            setAvatarType('animal');
-          }
         }
       }
     } catch (error) {
@@ -208,16 +192,15 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
   };
 
   const handleRandomize = () => {
-    const randomFace = FACE_EMOJIS[Math.floor(Math.random() * FACE_EMOJIS.length)];
-    const randomColor = BG_COLORS[Math.floor(Math.random() * BG_COLORS.length)];
+    const randomStyle = AVATAR_STYLES[Math.floor(Math.random() * AVATAR_STYLES.length)];
+    const randomPalette = COLOR_PALETTES[Math.floor(Math.random() * COLOR_PALETTES.length)];
+    const randomSeed = Math.random().toString(36).substring(2, 10);
 
     setAvatarConfig({
-      style: 'emoji',
-      seed: randomFace.id,
-      skinColor: [randomColor.value],
-      animalId: undefined,
+      style: randomStyle.id,
+      seed: randomSeed,
+      colors: randomPalette.colors,
     });
-    setAvatarType('face');
   };
 
   const hasChanges = () => {
@@ -225,16 +208,12 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
     return JSON.stringify(avatarConfig) !== JSON.stringify(initialAvatarConfig);
   };
 
-  const handleEmojiSelect = (emoji: string) => {
-    if (avatarType === 'animal') {
-      setAvatarConfig({ ...avatarConfig, animalId: emoji, seed: emoji });
-    } else {
-      setAvatarConfig({ ...avatarConfig, seed: emoji, animalId: undefined });
-    }
+  const handleStyleSelect = (style: string) => {
+    setAvatarConfig({ ...avatarConfig, style });
   };
 
-  const handleColorSelect = (colorValue: string) => {
-    setAvatarConfig({ ...avatarConfig, skinColor: [colorValue] });
+  const handlePaletteSelect = (colors: string[]) => {
+    setAvatarConfig({ ...avatarConfig, colors });
   };
 
   if (loading) {
@@ -245,13 +224,10 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
     );
   }
 
-  const currentEmojis = avatarType === 'animal' ? ANIMAL_EMOJIS : FACE_EMOJIS;
-  const selectedEmoji = avatarType === 'animal' ? avatarConfig.animalId : avatarConfig.seed;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-600 via-cyan-600 to-blue-700 p-4 overflow-y-auto">
-      <div className="max-w-2xl mx-auto pb-6">
-        <div className="flex items-center justify-between mb-6 sticky top-0 bg-gradient-to-r from-teal-700/90 to-cyan-700/90 backdrop-blur-md p-4 rounded-xl z-10">
+      <div className="max-w-3xl mx-auto pb-6">
+        <div className="flex items-center justify-between mb-6 sticky top-0 bg-gradient-to-r from-teal-700/90 to-cyan-700/90 backdrop-blur-md p-4 rounded-xl z-10 shadow-lg">
           <button
             onClick={onBack}
             className="flex items-center gap-2 text-white hover:text-teal-200 transition-colors"
@@ -265,7 +241,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
           </h1>
           <button
             onClick={handleRandomize}
-            className="flex items-center gap-2 text-white hover:text-teal-200 transition-colors bg-white/10 px-3 py-2 rounded-lg"
+            className="flex items-center gap-2 text-white hover:text-teal-200 transition-colors bg-white/10 px-3 py-2 rounded-lg hover:bg-white/20"
             title="Avatar Aleatorio"
           >
             <Shuffle size={20} />
@@ -274,7 +250,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
           <div className="flex flex-col items-center mb-6">
-            <div className="bg-gradient-to-br from-white to-gray-100 rounded-full p-2 mb-4 shadow-2xl ring-4 ring-white/30">
+            <div className="bg-gradient-to-br from-white to-gray-100 rounded-full p-3 mb-4 shadow-2xl ring-4 ring-white/30">
               <AvatarView config={avatarConfig} size="large" />
             </div>
             <input
@@ -290,74 +266,68 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
           <div className="space-y-6">
             <div>
               <label className="block text-white font-semibold mb-3 text-lg text-center">
-                Tipo de Avatar
+                Estilo de Avatar
               </label>
-              <div className="flex gap-3 justify-center mb-4">
-                <button
-                  onClick={() => {
-                    setAvatarType('face');
-                    if (avatarConfig.animalId) {
-                      setAvatarConfig({ ...avatarConfig, animalId: undefined, seed: FACE_EMOJIS[0].id });
-                    }
-                  }}
-                  className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                    avatarType === 'face'
-                      ? 'bg-white text-teal-600 shadow-lg scale-105'
-                      : 'bg-white/20 text-white hover:bg-white/30'
-                  }`}
-                >
-                  Caras
-                </button>
-                <button
-                  onClick={() => {
-                    setAvatarType('animal');
-                    setAvatarConfig({ ...avatarConfig, animalId: ANIMAL_EMOJIS[0].id, seed: ANIMAL_EMOJIS[0].id });
-                  }}
-                  className={`px-6 py-3 rounded-xl font-semibold transition-all ${
-                    avatarType === 'animal'
-                      ? 'bg-white text-teal-600 shadow-lg scale-105'
-                      : 'bg-white/20 text-white hover:bg-white/30'
-                  }`}
-                >
-                  Animales
-                </button>
-              </div>
-
-              <div className="grid grid-cols-5 gap-3 max-h-96 overflow-y-auto p-3 bg-white/5 rounded-lg">
-                {currentEmojis.map((emoji) => (
+              <div className="grid grid-cols-3 gap-3">
+                {AVATAR_STYLES.map((style) => (
                   <button
-                    key={emoji.id}
-                    onClick={() => handleEmojiSelect(emoji.id)}
-                    className={`p-4 rounded-xl border-3 bg-white/20 backdrop-blur text-4xl transition-all hover:scale-110 ${
-                      selectedEmoji === emoji.id
+                    key={style.id}
+                    onClick={() => handleStyleSelect(style.id)}
+                    className={`p-4 rounded-xl border-2 transition-all hover:scale-105 bg-white/10 backdrop-blur ${
+                      avatarConfig.style === style.id
                         ? 'border-white shadow-lg scale-105 ring-4 ring-white/30'
-                        : 'border-white/30'
+                        : 'border-white/30 hover:border-white/50'
                     }`}
-                    title={emoji.name}
                   >
-                    {emoji.id}
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="bg-white rounded-full p-1">
+                        <AvatarView
+                          config={{
+                            ...avatarConfig,
+                            style: style.id,
+                            seed: displayName || 'Preview'
+                          }}
+                          size="small"
+                        />
+                      </div>
+                      <div className="text-center">
+                        <div className="text-white font-bold text-sm">{style.name}</div>
+                        <div className="text-white/70 text-xs">{style.description}</div>
+                      </div>
+                    </div>
                   </button>
                 ))}
               </div>
             </div>
 
             <div>
-              <label className="block text-white font-semibold mb-3 text-base text-center">
-                Color de Fondo
+              <label className="block text-white font-semibold mb-3 text-lg text-center">
+                Paleta de Colores
               </label>
-              <div className="grid grid-cols-4 gap-3">
-                {BG_COLORS.map((color) => (
+              <div className="grid grid-cols-2 gap-3">
+                {COLOR_PALETTES.map((palette) => (
                   <button
-                    key={color.value}
-                    onClick={() => handleColorSelect(color.value)}
-                    className={`p-4 rounded-xl border-3 transition-all hover:scale-105 ${
-                      avatarConfig.skinColor?.[0] === color.value
+                    key={palette.name}
+                    onClick={() => handlePaletteSelect(palette.colors)}
+                    className={`p-4 rounded-xl border-2 transition-all hover:scale-105 ${
+                      JSON.stringify(avatarConfig.colors) === JSON.stringify(palette.colors)
                         ? 'border-white shadow-lg scale-105 ring-4 ring-white/30'
-                        : 'border-white/30'
+                        : 'border-white/30 hover:border-white/50'
                     }`}
                   >
-                    <div className={`w-full h-12 rounded-lg bg-gradient-to-br ${color.gradient}`}></div>
-                    <div className="text-white text-xs mt-2 text-center font-medium">{color.name}</div>
+                    <div className="space-y-2">
+                      <div className={`h-12 rounded-lg bg-gradient-to-r ${palette.gradient} shadow-md`}></div>
+                      <div className="flex gap-1 justify-center">
+                        {palette.colors.map((color, i) => (
+                          <div
+                            key={i}
+                            className="w-6 h-6 rounded-full border-2 border-white/50 shadow-sm"
+                            style={{ backgroundColor: color }}
+                          ></div>
+                        ))}
+                      </div>
+                      <div className="text-white text-sm font-medium text-center">{palette.name}</div>
+                    </div>
                   </button>
                 ))}
               </div>

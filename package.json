@@ -23,6 +23,7 @@
     "@dicebear/core": "^9.3.1",
     "@supabase/supabase-js": "^2.87.1",
     "@tsparticles/slim": "^3.9.1",
+    "boring-avatars": "^2.0.4",
     "firebase": "^12.7.0",
     "firebase-admin": "^13.6.0",
     "lucide-react": "^0.344.0",

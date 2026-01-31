@@ -42,11 +42,12 @@ export const PREVIEW_TIME = 10;
 export const FLIP_DELAY = 400;
 
 export interface AvatarConfig {
-  // Sistema DiceBear (nuevo y preferido)
-  style?: 'dicebear' | 'animal' | 'legacy';
+  // Sistema Boring Avatars (nuevo y preferido)
+  style?: string; // 'marble' | 'beam' | 'pixel' | 'sunset' | 'ring' | 'bauhaus'
   seed?: string; // Para generar avatar único
+  colors?: string[]; // Paleta de colores personalizada
 
-  // Opciones DiceBear
+  // Opciones DiceBear (legacy - mantener para retrocompatibilidad)
   skinColor?: string[];
   hairStyle?: string[];
   hairColor?: string[];
@@ -67,7 +68,6 @@ export interface AvatarConfig {
   eyesId?: number;
   mouthId?: number;
   hairId?: number;
-  hairColor?: string;
   beardId?: number | null;
   mustacheId?: number | null;
   glassesId?: number | null;
