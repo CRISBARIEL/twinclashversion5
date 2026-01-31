@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { createAvatar } from '@dicebear/core';
-import { bigSmile } from '@dicebear/collection';
+import { avataaars } from '@dicebear/collection';
 import { AvatarConfig } from '../types';
 
 interface AvatarViewProps {
@@ -17,7 +17,7 @@ const SIZE_MAP = {
 
 const DEFAULT_CONFIG: AvatarConfig = {
   style: 'dicebear',
-  seed: 'default',
+  seed: 'default-user',
   skinColor: ['ffdbb4'],
   hairStyle: ['short01'],
   hairColor: ['2c1b18'],
@@ -25,17 +25,17 @@ const DEFAULT_CONFIG: AvatarConfig = {
   mouthStyle: ['happy01'],
   accessoriesType: [],
   facialHairType: [],
+  clothingColor: ['3c4f5c'],
 };
 
 export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarViewProps) => {
   const avatarConfig = { ...DEFAULT_CONFIG, ...config };
   const dimension = SIZE_MAP[size];
 
-  // Renderizar animales
   if (avatarConfig.animalId) {
     return (
       <div
-        className={`${className} flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-full shadow-inner`}
+        className={`${className} flex items-center justify-center bg-gradient-to-br from-blue-50 to-cyan-100 rounded-full shadow-inner`}
         style={{
           width: dimension,
           height: dimension,
@@ -47,39 +47,29 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
     );
   }
 
-  // Generar avatar con DiceBear
   const avatarSvg = useMemo(() => {
-    if (avatarConfig.style === 'dicebear' || !avatarConfig.style) {
-      try {
-        const avatar = createAvatar(bigSmile, {
-          seed: avatarConfig.seed || 'default',
-          size: dimension * 3, // Renderizar en alta resolución
-          skinColor: avatarConfig.skinColor || ['ffdbb4'],
-          hair: avatarConfig.hairStyle || ['short01'],
-          hairColor: avatarConfig.hairColor || ['2c1b18'],
-          eyes: avatarConfig.eyesStyle || ['eyes01'],
-          mouth: avatarConfig.mouthStyle || ['happy01'],
-          accessories: avatarConfig.accessoriesType || [],
-          accessoriesColor: avatarConfig.accessoriesColor || [],
-          facialHair: avatarConfig.facialHairType || [],
-          facialHairColor: avatarConfig.facialHairColor || avatarConfig.hairColor || ['2c1b18'],
-          clothingColor: avatarConfig.clothingColor || ['3c4f5c'],
-          backgroundColor: ['ffffff'],
-          backgroundType: ['solid'],
-          backgroundRotation: [0],
-        });
+    try {
+      const avatar = createAvatar(avataaars, {
+        seed: avatarConfig.seed || `user-${Date.now()}`,
+        size: dimension * 2,
+        skinColor: avatarConfig.skinColor,
+        top: avatarConfig.hairStyle,
+        hairColor: avatarConfig.hairColor,
+        eyes: avatarConfig.eyesStyle,
+        mouth: avatarConfig.mouthStyle,
+        accessories: avatarConfig.accessoriesType,
+        accessoriesColor: avatarConfig.accessoriesColor,
+        facialHair: avatarConfig.facialHairType,
+        facialHairColor: avatarConfig.facialHairColor || avatarConfig.hairColor,
+        clothesColor: avatarConfig.clothingColor,
+      });
 
-        return avatar.toString();
-      } catch (error) {
-        console.error('Error generating DiceBear avatar:', error);
-        return null;
-      }
+      return avatar.toString();
+    } catch (error) {
+      console.error('Error generating avatar:', error);
+      return null;
     }
-
-    // Retrocompatibilidad con sistema legacy
-    return null;
   }, [
-    avatarConfig.style,
     avatarConfig.seed,
     avatarConfig.skinColor,
     avatarConfig.hairStyle,
@@ -94,7 +84,6 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
     dimension,
   ]);
 
-  // Si tenemos un avatar DiceBear, renderizarlo
   if (avatarSvg) {
     return (
       <div
@@ -108,7 +97,6 @@ export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarVi
     );
   }
 
-  // Fallback: renderizar un avatar por defecto
   return (
     <div
       className={`${className} flex items-center justify-center bg-gradient-to-br from-teal-400 to-cyan-500 rounded-full text-white font-bold shadow-lg`}

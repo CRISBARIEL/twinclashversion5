@@ -10,101 +10,132 @@ interface AvatarEditorProps {
   onBack: () => void;
 }
 
-// Opciones de DiceBear Big Smile
 const SKIN_COLORS = [
-  { name: 'Clara', value: 'ffdbb4' },
-  { name: 'Media', value: 'd4a574' },
-  { name: 'Morena', value: 'ae7c56' },
-  { name: 'Oscura', value: '8d5524' },
-  { name: 'Muy Oscura', value: '5c4033' },
+  { name: 'Tanned', value: 'Tanned' },
+  { name: 'Yellow', value: 'Yellow' },
+  { name: 'Pale', value: 'Pale' },
+  { name: 'Light', value: 'Light' },
+  { name: 'Brown', value: 'Brown' },
+  { name: 'DarkBrown', value: 'DarkBrown' },
+  { name: 'Black', value: 'Black' },
 ];
 
 const HAIR_STYLES = [
-  { name: 'Corto 1', value: 'short01' },
-  { name: 'Corto 2', value: 'short02' },
-  { name: 'Corto 3', value: 'short03' },
-  { name: 'Corto 4', value: 'short04' },
-  { name: 'Corto 5', value: 'short05' },
-  { name: 'Rizado 1', value: 'curly01' },
-  { name: 'Rizado 2', value: 'curly02' },
-  { name: 'Rizado 3', value: 'curly03' },
-  { name: 'Rizado 4', value: 'curly04' },
-  { name: 'Largo 1', value: 'long01' },
-  { name: 'Largo 2', value: 'long02' },
-  { name: 'Largo 3', value: 'long03' },
-  { name: 'Afro', value: 'afro' },
-  { name: 'Mohawk', value: 'mohawk01' },
-  { name: 'Rapado', value: 'shaved' },
-  { name: 'Sin Pelo', value: 'bald' },
+  { name: 'Sin Pelo', value: 'NoHair' },
+  { name: 'Gorro', value: 'Eyepatch' },
+  { name: 'Sombrero', value: 'Hat' },
+  { name: 'Hijab', value: 'Hijab' },
+  { name: 'Turbante', value: 'Turban' },
+  { name: 'Gorro Invierno', value: 'WinterHat1' },
+  { name: 'Gorro 2', value: 'WinterHat2' },
+  { name: 'Gorro 3', value: 'WinterHat3' },
+  { name: 'Gorro 4', value: 'WinterHat4' },
+  { name: 'Pelo Largo', value: 'LongHairBigHair' },
+  { name: 'Pelo Bob', value: 'LongHairBob' },
+  { name: 'Pelo Ondulado', value: 'LongHairBun' },
+  { name: 'Pelo Rizado', value: 'LongHairCurly' },
+  { name: 'Pelo Curvo', value: 'LongHairCurvy' },
+  { name: 'Pelo Dread', value: 'LongHairDreads' },
+  { name: 'Pelo Afro', value: 'LongHairFrida' },
+  { name: 'Pelo Fro', value: 'LongHairFro' },
+  { name: 'Pelo Banda', value: 'LongHairFroBand' },
+  { name: 'Pelo Lacio', value: 'LongHairNotTooLong' },
+  { name: 'Pelo Trenzas', value: 'LongHairShavedSides' },
+  { name: 'Pelo Liso', value: 'LongHairMiaWallace' },
+  { name: 'Pelo Medio', value: 'LongHairStraight' },
+  { name: 'Pelo Recto', value: 'LongHairStraight2' },
+  { name: 'Pelo Strands', value: 'LongHairStraightStrand' },
+  { name: 'Pelo Corto 1', value: 'ShortHairDreads01' },
+  { name: 'Pelo Corto 2', value: 'ShortHairDreads02' },
+  { name: 'Pelo Afro Corto', value: 'ShortHairFrizzle' },
+  { name: 'Pelo Corto Lacio', value: 'ShortHairShaggyMullet' },
+  { name: 'Pelo Corto Flat', value: 'ShortHairShortFlat' },
+  { name: 'Pelo Corto Rizado', value: 'ShortHairShortCurly' },
+  { name: 'Pelo Corto Round', value: 'ShortHairShortRound' },
+  { name: 'Pelo Corto Waved', value: 'ShortHairShortWaved' },
+  { name: 'Pelo Rapado', value: 'ShortHairSides' },
+  { name: 'Pelo Caesar', value: 'ShortHairTheCaesar' },
+  { name: 'Pelo Frontal', value: 'ShortHairTheCaesarSidePart' },
 ];
 
 const HAIR_COLORS = [
-  { name: 'Negro', value: '2c1b18' },
-  { name: 'Castaño Oscuro', value: '4a312c' },
-  { name: 'Castaño', value: '724133' },
-  { name: 'Rubio Oscuro', value: 'b58143' },
-  { name: 'Rubio', value: 'daa520' },
-  { name: 'Rubio Claro', value: 'f5cd79' },
-  { name: 'Rojo', value: 'a55728' },
-  { name: 'Pelirojo', value: 'c93305' },
-  { name: 'Gris', value: '8b8b8b' },
-  { name: 'Blanco', value: 'e5e5e5' },
+  { name: 'Auburn', value: 'Auburn' },
+  { name: 'Black', value: 'Black' },
+  { name: 'Blonde', value: 'Blonde' },
+  { name: 'BlondeGolden', value: 'BlondeGolden' },
+  { name: 'Brown', value: 'Brown' },
+  { name: 'BrownDark', value: 'BrownDark' },
+  { name: 'PastelPink', value: 'PastelPink' },
+  { name: 'Platinum', value: 'Platinum' },
+  { name: 'Red', value: 'Red' },
+  { name: 'SilverGray', value: 'SilverGray' },
 ];
 
 const EYES_STYLES = [
-  { name: 'Normal', value: 'eyes01' },
-  { name: 'Grandes', value: 'eyes02' },
-  { name: 'Alegres', value: 'eyes03' },
-  { name: 'Serios', value: 'eyes04' },
-  { name: 'Sorprendidos', value: 'eyes05' },
-  { name: 'Guiño', value: 'eyes06' },
-  { name: 'Cerrados', value: 'eyes07' },
-  { name: 'Pestañas', value: 'eyes08' },
-  { name: 'Pícaros', value: 'eyes09' },
-  { name: 'Almendra', value: 'eyes10' },
+  { name: 'Cerrado', value: 'Close' },
+  { name: 'Lloroso', value: 'Cry' },
+  { name: 'Por Defecto', value: 'Default' },
+  { name: 'Mareado', value: 'Dizzy' },
+  { name: 'Emoji Ojos', value: 'EyeRoll' },
+  { name: 'Feliz', value: 'Happy' },
+  { name: 'Corazones', value: 'Hearts' },
+  { name: 'Lateral', value: 'Side' },
+  { name: 'Entrecerrado', value: 'Squint' },
+  { name: 'Sorprendido', value: 'Surprised' },
+  { name: 'Guiño', value: 'Wink' },
+  { name: 'Guiño Malicioso', value: 'WinkWacky' },
 ];
 
 const MOUTH_STYLES = [
-  { name: 'Sonrisa', value: 'happy01' },
-  { name: 'Sonrisa Grande', value: 'happy02' },
-  { name: 'Sonrisa Amplia', value: 'happy03' },
-  { name: 'Risa', value: 'happy04' },
-  { name: 'Neutral', value: 'serious01' },
-  { name: 'Pensativo', value: 'serious02' },
-  { name: 'Triste', value: 'sad01' },
-  { name: 'Sorprendido', value: 'surprised01' },
-  { name: 'Beso', value: 'kiss01' },
-  { name: 'Lengua', value: 'tongue01' },
+  { name: 'Preocupado', value: 'Concerned' },
+  { name: 'Por Defecto', value: 'Default' },
+  { name: 'Disgusto', value: 'Disbelief' },
+  { name: 'Comiendo', value: 'Eating' },
+  { name: 'Mueca', value: 'Grimace' },
+  { name: 'Triste', value: 'Sad' },
+  { name: 'Gritando', value: 'ScreamOpen' },
+  { name: 'Serio', value: 'Serious' },
+  { name: 'Sonrisa', value: 'Smile' },
+  { name: 'Lengua', value: 'Tongue' },
+  { name: 'Ajustado', value: 'Twinkle' },
+  { name: 'Vomitando', value: 'Vomit' },
 ];
 
 const FACIAL_HAIR = [
-  { name: 'Sin Barba', value: '' },
-  { name: 'Barba Completa', value: 'beardMustache' },
-  { name: 'Perilla', value: 'goatee' },
-  { name: 'Bigote', value: 'mustache01' },
-  { name: 'Bigote Grueso', value: 'mustache02' },
-  { name: 'Barba Ligera', value: 'stubble' },
+  { name: 'Sin Vello', value: '' },
+  { name: 'Barba Media', value: 'BeardMedium' },
+  { name: 'Barba Ligera', value: 'BeardLight' },
+  { name: 'Barba Majestuosa', value: 'BeardMajestic' },
+  { name: 'Bigote Delgado', value: 'MoustacheFancy' },
+  { name: 'Bigote Elegante', value: 'MoustacheMagnum' },
 ];
 
 const ACCESSORIES = [
   { name: 'Sin Accesorios', value: '' },
-  { name: 'Lentes 1', value: 'glasses01' },
-  { name: 'Lentes 2', value: 'glasses02' },
-  { name: 'Lentes de Sol', value: 'sunglasses01' },
-  { name: 'Lentes de Sol 2', value: 'sunglasses02' },
+  { name: 'Gafas Kurt', value: 'Kurt' },
+  { name: 'Prescripción 01', value: 'Prescription01' },
+  { name: 'Prescripción 02', value: 'Prescription02' },
+  { name: 'Gafas Redondas', value: 'Round' },
+  { name: 'Gafas de Sol', value: 'Sunglasses' },
+  { name: 'Gafas Wayfarers', value: 'Wayfarers' },
 ];
 
 const CLOTHING_COLORS = [
-  { name: 'Azul Oscuro', value: '3c4f5c' },
-  { name: 'Negro', value: '1a1a1a' },
-  { name: 'Gris', value: '6b7280' },
-  { name: 'Azul', value: '3b82f6' },
-  { name: 'Verde', value: '10b981' },
-  { name: 'Rojo', value: 'ef4444' },
-  { name: 'Morado', value: '8b5cf6' },
-  { name: 'Rosa', value: 'ec4899' },
-  { name: 'Amarillo', value: 'f59e0b' },
-  { name: 'Blanco', value: 'ffffff' },
+  { name: 'Negro', value: 'Black' },
+  { name: 'Azul 01', value: 'Blue01' },
+  { name: 'Azul 02', value: 'Blue02' },
+  { name: 'Azul 03', value: 'Blue03' },
+  { name: 'Gris 01', value: 'Gray01' },
+  { name: 'Gris 02', value: 'Gray02' },
+  { name: 'Heather', value: 'Heather' },
+  { name: 'PastelBlue', value: 'PastelBlue' },
+  { name: 'PastelGreen', value: 'PastelGreen' },
+  { name: 'PastelOrange', value: 'PastelOrange' },
+  { name: 'PastelRed', value: 'PastelRed' },
+  { name: 'PastelYellow', value: 'PastelYellow' },
+  { name: 'Rosa', value: 'Pink' },
+  { name: 'Rojo', value: 'Red' },
+  { name: 'Blanco', value: 'White' },
 ];
 
 const ANIMAL_OPTIONS = [
@@ -123,14 +154,14 @@ const ANIMAL_OPTIONS = [
 const DEFAULT_CONFIG: AvatarConfig = {
   style: 'dicebear',
   seed: Math.random().toString(36).substring(7),
-  skinColor: ['ffdbb4'],
-  hairStyle: ['short01'],
-  hairColor: ['2c1b18'],
-  eyesStyle: ['eyes01'],
-  mouthStyle: ['happy01'],
+  skinColor: ['Tanned'],
+  hairStyle: ['ShortHairShortFlat'],
+  hairColor: ['Brown'],
+  eyesStyle: ['Default'],
+  mouthStyle: ['Smile'],
   accessoriesType: [],
   facialHairType: [],
-  clothingColor: ['3c4f5c'],
+  clothingColor: ['Blue02'],
 };
 
 export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
@@ -245,8 +276,8 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
       hairColor: [HAIR_COLORS[Math.floor(Math.random() * HAIR_COLORS.length)].value],
       eyesStyle: [EYES_STYLES[Math.floor(Math.random() * EYES_STYLES.length)].value],
       mouthStyle: [MOUTH_STYLES[Math.floor(Math.random() * MOUTH_STYLES.length)].value],
-      accessoriesType: Math.random() > 0.5 ? [ACCESSORIES[Math.floor(Math.random() * ACCESSORIES.length)].value] : [],
-      facialHairType: Math.random() > 0.6 ? [FACIAL_HAIR[Math.floor(Math.random() * FACIAL_HAIR.length)].value] : [],
+      accessoriesType: Math.random() > 0.6 ? [ACCESSORIES[Math.floor(Math.random() * ACCESSORIES.length)].value] : [],
+      facialHairType: Math.random() > 0.7 ? [FACIAL_HAIR[Math.floor(Math.random() * FACIAL_HAIR.length)].value] : [],
       clothingColor: [CLOTHING_COLORS[Math.floor(Math.random() * CLOTHING_COLORS.length)].value],
     });
   };
@@ -304,7 +335,6 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
           </div>
 
           <div className="space-y-6">
-            {/* Avatar Type Selector */}
             <div>
               <label className="block text-white font-semibold mb-3 text-lg text-center">
                 Tipo de Avatar
@@ -354,7 +384,6 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
             {!avatarConfig.animalId && (
               <>
-                {/* Skin Color */}
                 <div>
                   <label className="block text-white font-semibold mb-3 text-base">Tono de Piel</label>
                   <div className="flex gap-2 justify-center flex-wrap">
@@ -362,27 +391,26 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                       <button
                         key={item.value}
                         onClick={() => setAvatarConfig({ ...avatarConfig, skinColor: [item.value] })}
-                        className={`w-14 h-14 rounded-full border-4 transition-all transform hover:scale-110 shadow-lg ${
+                        className={`px-4 py-2 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
                           avatarConfig.skinColor?.[0] === item.value
-                            ? 'border-white scale-110 ring-4 ring-white/50'
+                            ? 'border-white shadow-lg scale-105 bg-white/40'
                             : 'border-white/30'
                         }`}
-                        style={{ backgroundColor: `#${item.value}` }}
-                        title={item.name}
-                      />
+                      >
+                        {item.name}
+                      </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Hair Style */}
                 <div>
-                  <label className="block text-white font-semibold mb-3 text-base">Estilo de Pelo</label>
-                  <div className="grid grid-cols-4 gap-2">
+                  <label className="block text-white font-semibold mb-3 text-base">Estilo de Cabello</label>
+                  <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto p-2 bg-white/5 rounded-lg">
                     {HAIR_STYLES.map((item) => (
                       <button
                         key={item.value}
                         onClick={() => setAvatarConfig({ ...avatarConfig, hairStyle: [item.value] })}
-                        className={`p-3 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
+                        className={`p-2 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
                           avatarConfig.hairStyle?.[0] === item.value
                             ? 'border-white shadow-lg scale-105 bg-white/40'
                             : 'border-white/30'
@@ -394,30 +422,28 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                   </div>
                 </div>
 
-                {/* Hair Color */}
                 <div>
-                  <label className="block text-white font-semibold mb-3 text-base">Color de Pelo</label>
+                  <label className="block text-white font-semibold mb-3 text-base">Color de Cabello</label>
                   <div className="flex gap-2 justify-center flex-wrap">
                     {HAIR_COLORS.map((item) => (
                       <button
                         key={item.value}
                         onClick={() => setAvatarConfig({ ...avatarConfig, hairColor: [item.value] })}
-                        className={`w-12 h-12 rounded-full border-4 transition-all transform hover:scale-110 shadow-lg ${
+                        className={`px-3 py-2 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
                           avatarConfig.hairColor?.[0] === item.value
-                            ? 'border-white scale-110 ring-4 ring-white/50'
+                            ? 'border-white shadow-lg scale-105 bg-white/40'
                             : 'border-white/30'
                         }`}
-                        style={{ backgroundColor: `#${item.value}` }}
-                        title={item.name}
-                      />
+                      >
+                        {item.name}
+                      </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Eyes Style */}
                 <div>
                   <label className="block text-white font-semibold mb-3 text-base">Estilo de Ojos</label>
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-4 gap-2">
                     {EYES_STYLES.map((item) => (
                       <button
                         key={item.value}
@@ -434,10 +460,9 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                   </div>
                 </div>
 
-                {/* Mouth Style */}
                 <div>
                   <label className="block text-white font-semibold mb-3 text-base">Estilo de Boca</label>
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-4 gap-2">
                     {MOUTH_STYLES.map((item) => (
                       <button
                         key={item.value}
@@ -454,7 +479,6 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                   </div>
                 </div>
 
-                {/* Facial Hair */}
                 <div>
                   <label className="block text-white font-semibold mb-3 text-base">Vello Facial</label>
                   <div className="grid grid-cols-3 gap-2">
@@ -474,7 +498,6 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                   </div>
                 </div>
 
-                {/* Accessories */}
                 <div>
                   <label className="block text-white font-semibold mb-3 text-base">Accesorios</label>
                   <div className="grid grid-cols-3 gap-2">
@@ -494,7 +517,6 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                   </div>
                 </div>
 
-                {/* Clothing Color */}
                 <div>
                   <label className="block text-white font-semibold mb-3 text-base">Color de Ropa</label>
                   <div className="flex gap-2 justify-center flex-wrap">
@@ -502,14 +524,14 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                       <button
                         key={item.value}
                         onClick={() => setAvatarConfig({ ...avatarConfig, clothingColor: [item.value] })}
-                        className={`w-12 h-12 rounded-full border-4 transition-all transform hover:scale-110 shadow-lg ${
+                        className={`px-3 py-2 rounded-lg border-2 bg-white/20 backdrop-blur text-white text-xs font-medium transition-all hover:scale-105 ${
                           avatarConfig.clothingColor?.[0] === item.value
-                            ? 'border-white scale-110 ring-4 ring-white/50'
+                            ? 'border-white shadow-lg scale-105 bg-white/40'
                             : 'border-white/30'
                         }`}
-                        style={{ backgroundColor: `#${item.value}` }}
-                        title={item.name}
-                      />
+                      >
+                        {item.name}
+                      </button>
                     ))}
                   </div>
                 </div>
