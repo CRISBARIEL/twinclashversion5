@@ -546,6 +546,25 @@ export const GameCore = ({
     };
   }, [level, initializeLevel]);
 
+  // Detectar cuando el usuario regresa a la app
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[GameCore] 👁️ App resumed - checking state...');
+
+        // Si el modal de victoria está cerrado pero el botón está en estado de carga,
+        // resetear el estado
+        if (isProcessingNextLevel && !showWinModal) {
+          console.log('[GameCore] ⚠️ Detected stuck processing state - resetting');
+          setIsProcessingNextLevel(false);
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [isProcessingNextLevel, showWinModal]);
+
   // Cargar vidas del usuario
   useEffect(() => {
     const loadUserLives = async () => {
@@ -1953,13 +1972,6 @@ export const GameCore = ({
                           const newCoins = getLocalCoins();
                           console.log('[GameCore] Current coins after ad:', newCoins);
                           setCurrentCoins(newCoins);
-
-                          // Forzar actualización visual después de un momento
-                          setTimeout(() => {
-                            const finalCoins = getLocalCoins();
-                            console.log('[GameCore] Final coins check:', finalCoins);
-                            setCurrentCoins(finalCoins);
-                          }, 500);
                         } else {
                           console.log('[GameCore] ⚠️ Rewarded ad not completed - no reward');
                         }
@@ -1974,14 +1986,16 @@ export const GameCore = ({
                         console.log('[GameCore] ⚠️ Rewarded ad not ready for level', activeLevel);
                       }
 
-                      console.log('[GameCore] Calling onComplete...');
+                      // Cerrar modal y avanzar al siguiente nivel
+                      console.log('[GameCore] ✅ Closing modal and advancing to next level...');
                       setShowWinModal(false);
-                      setTimeout(() => {
-                        onComplete();
-                        setIsProcessingNextLevel(false);
-                      }, 100);
+                      setIsProcessingNextLevel(false);
+
+                      // Llamar onComplete inmediatamente, sin setTimeout
+                      onComplete();
                     } catch (error) {
-                      console.error('[GameCore] Error processing next level:', error);
+                      console.error('[GameCore] ❌ Error processing next level:', error);
+                      setShowWinModal(false);
                       setIsProcessingNextLevel(false);
                     }
                   }}
