@@ -162,7 +162,6 @@ export const GameCore = ({
   const [enableProgressiveVirus, setEnableProgressiveVirus] = useState(false);
   const [globalBombTimer, setGlobalBombTimer] = useState<GlobalBombTimerData | null>(null);
   const [enableProgressiveBomb, setEnableProgressiveBomb] = useState(false);
-  const [isProcessingNextLevel, setIsProcessingNextLevel] = useState(false);
 
   const handleExitConfirmed = useCallback(() => {
     soundManager.stopLevelMusic();
@@ -546,25 +545,6 @@ export const GameCore = ({
     };
   }, [level, initializeLevel]);
 
-  // Detectar cuando el usuario regresa a la app
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        console.log('[GameCore] 👁️ App resumed - checking state...');
-
-        // Si el modal de victoria está cerrado pero el botón está en estado de carga,
-        // resetear el estado
-        if (isProcessingNextLevel && !showWinModal) {
-          console.log('[GameCore] ⚠️ Detected stuck processing state - resetting');
-          setIsProcessingNextLevel(false);
-        }
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [isProcessingNextLevel, showWinModal]);
-
   // Cargar vidas del usuario
   useEffect(() => {
     const loadUserLives = async () => {
@@ -915,6 +895,36 @@ export const GameCore = ({
               console.log('[GameCore] Triggering review check for level:', activeLevel);
               checkAndTriggerReview(activeLevel, true);
             }, 2500);
+
+            // Mostrar anuncio automáticamente si es múltiplo de 5
+            setTimeout(() => {
+              const isMultipleOf5 = activeLevel % 5 === 0;
+              if (isMultipleOf5) {
+                console.log('[GameCore] 🎁 Level', activeLevel, 'completed - auto-showing rewarded ad');
+                if (isRewardedReady) {
+                  showRewardedAd().then((result) => {
+                    console.log('[GameCore] 🎁 Rewarded ad result:', result);
+                    if (result.rewarded) {
+                      console.log('[GameCore] ✅ Reward granted: +1000 coins');
+                      setCurrentCoins(getLocalCoins());
+                    }
+                  }).catch((error) => {
+                    console.error('[GameCore] ❌ Error showing rewarded ad:', error);
+                  });
+                } else {
+                  console.log('[GameCore] ⚠️ Rewarded ad not ready for level', activeLevel);
+                }
+              } else {
+                // Mostrar anuncio intersticial en niveles expert (no múltiplos de 5)
+                const shouldShowInterstitial = levelConfig?.difficulty === 'expert' && isInterstitialReady;
+                if (shouldShowInterstitial) {
+                  console.log('[GameCore] 📺 Expert level', activeLevel, 'completed - showing interstitial ad');
+                  showInterstitialAd().catch((error) => {
+                    console.error('[GameCore] ❌ Error showing interstitial ad:', error);
+                  });
+                }
+              }
+            }, 2000);
           }, 1500);
         }
       };
@@ -1947,54 +1957,16 @@ export const GameCore = ({
             <div className="flex flex-col gap-2 pb-4">
               {!isDailyChallenge && !isDuel && activeLevel < 250 && (
                 <button
-                  onClick={async () => {
-                    if (isProcessingNextLevel) {
-                      console.log('[GameCore] ⚠️ Already processing, ignoring click');
-                      return;
-                    }
-
-                    console.log('[GameCore] ===== CLICK SIGUIENTE NIVEL =====');
-                    console.log('[GameCore] Level:', activeLevel);
-
-                    setIsProcessingNextLevel(true);
-
-                    const isMultipleOf5 = activeLevel % 5 === 0;
-                    console.log('[GameCore] Is multiple of 5:', isMultipleOf5, 'Rewarded ready:', isRewardedReady);
-
-                    try {
-                      if (isMultipleOf5 && isRewardedReady) {
-                        console.log('[GameCore] 🎁 Showing rewarded ad...');
-                        const result = await showRewardedAd();
-                        console.log('[GameCore] 🎁 Ad result:', result);
-
-                        if (result.rewarded) {
-                          const newCoins = getLocalCoins();
-                          setCurrentCoins(newCoins);
-                          console.log('[GameCore] ✅ Reward granted, new coins:', newCoins);
-                        }
-                      } else if (!isMultipleOf5 && levelConfig?.difficulty === 'expert' && isInterstitialReady) {
-                        console.log('[GameCore] 📺 Showing interstitial ad...');
-                        await showInterstitialAd();
-                        console.log('[GameCore] 📺 Interstitial completed');
-                      }
-                    } catch (error) {
-                      console.error('[GameCore] ❌ Ad error:', error);
-                    }
-
-                    console.log('[GameCore] ✅ Proceeding to next level...');
+                  onClick={() => {
+                    console.log('[GameCore] 🎯 Next level button clicked - advancing from level', activeLevel);
                     setShowWinModal(false);
-                    setIsProcessingNextLevel(false);
-
                     setTimeout(() => {
                       onComplete();
                     }, 50);
                   }}
-                  disabled={isProcessingNextLevel}
-                  className={`w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg transition-all ${
-                    isProcessingNextLevel ? 'opacity-60 cursor-not-allowed' : 'hover:shadow-xl'
-                  }`}
+                  className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg transition-all hover:shadow-xl"
                 >
-                  {isProcessingNextLevel ? 'Cargando...' : 'Siguiente Nivel 🎯'}
+                  Siguiente Nivel 🎯
                 </button>
               )}
               {!isDailyChallenge && !isDuel && activeLevel === 250 && (
