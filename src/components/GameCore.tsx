@@ -1949,72 +1949,45 @@ export const GameCore = ({
                 <button
                   onClick={async () => {
                     if (isProcessingNextLevel) {
-                      console.log('[GameCore] ⚠️ Already processing next level, ignoring click');
+                      console.log('[GameCore] ⚠️ Already processing, ignoring click');
                       return;
                     }
 
                     console.log('[GameCore] ===== CLICK SIGUIENTE NIVEL =====');
-                    console.log('[GameCore] Current level:', activeLevel);
+                    console.log('[GameCore] Level:', activeLevel);
 
-                    // Safety timeout: Reset state after 10 seconds no matter what
-                    const safetyTimeout = setTimeout(() => {
-                      console.log('[GameCore] ⚠️ Safety timeout triggered - resetting state');
-                      setIsProcessingNextLevel(false);
-                    }, 10000);
+                    setIsProcessingNextLevel(true);
+
+                    const isMultipleOf5 = activeLevel % 5 === 0;
+                    console.log('[GameCore] Is multiple of 5:', isMultipleOf5, 'Rewarded ready:', isRewardedReady);
 
                     try {
-                      const isMultipleOf5 = activeLevel % 5 === 0;
-
-                      // Mostrar anuncio ANTES de bloquear el botón
                       if (isMultipleOf5 && isRewardedReady) {
-                        console.log('[GameCore] 🎁 Level', activeLevel, 'is multiple of 5 - showing rewarded ad');
-                        console.log('[GameCore] Current coins before ad:', getLocalCoins());
-
+                        console.log('[GameCore] 🎁 Showing rewarded ad...');
                         const result = await showRewardedAd();
-                        console.log('[GameCore] Rewarded ad result:', result);
+                        console.log('[GameCore] 🎁 Ad result:', result);
 
                         if (result.rewarded) {
-                          console.log('[GameCore] ✅ Rewarded ad completed! User earned coins:', result.coins);
                           const newCoins = getLocalCoins();
-                          console.log('[GameCore] Current coins after ad:', newCoins);
                           setCurrentCoins(newCoins);
-                        } else {
-                          console.log('[GameCore] ⚠️ Rewarded ad not completed - no reward');
+                          console.log('[GameCore] ✅ Reward granted, new coins:', newCoins);
                         }
-                      } else if (!isMultipleOf5) {
-                        const shouldShowInterstitial = levelConfig?.difficulty === 'expert' && isInterstitialReady;
-
-                        if (shouldShowInterstitial) {
-                          console.log('[GameCore] Showing interstitial ad after completing expert level', activeLevel);
-                          await showInterstitialAd();
-                        }
-                      } else if (isMultipleOf5 && !isRewardedReady) {
-                        console.log('[GameCore] ⚠️ Rewarded ad not ready for level', activeLevel);
+                      } else if (!isMultipleOf5 && levelConfig?.difficulty === 'expert' && isInterstitialReady) {
+                        console.log('[GameCore] 📺 Showing interstitial ad...');
+                        await showInterstitialAd();
+                        console.log('[GameCore] 📺 Interstitial completed');
                       }
-
-                      // Ahora bloquear el botón para evitar doble click durante la transición
-                      setIsProcessingNextLevel(true);
-
-                      // Cerrar modal y avanzar al siguiente nivel
-                      console.log('[GameCore] ✅ Closing modal and advancing to next level...');
-                      setShowWinModal(false);
-
-                      // Llamar onComplete inmediatamente
-                      onComplete();
-
-                      // Limpiar el timeout de seguridad
-                      clearTimeout(safetyTimeout);
-
-                      // Resetear el estado después de un pequeño delay
-                      setTimeout(() => {
-                        setIsProcessingNextLevel(false);
-                      }, 100);
                     } catch (error) {
-                      console.error('[GameCore] ❌ Error processing next level:', error);
-                      clearTimeout(safetyTimeout);
-                      setShowWinModal(false);
-                      setIsProcessingNextLevel(false);
+                      console.error('[GameCore] ❌ Ad error:', error);
                     }
+
+                    console.log('[GameCore] ✅ Proceeding to next level...');
+                    setShowWinModal(false);
+                    setIsProcessingNextLevel(false);
+
+                    setTimeout(() => {
+                      onComplete();
+                    }, 50);
                   }}
                   disabled={isProcessingNextLevel}
                   className={`w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold shadow-lg transition-all ${

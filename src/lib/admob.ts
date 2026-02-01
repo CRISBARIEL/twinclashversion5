@@ -133,11 +133,27 @@ class AdMobService {
       let rewardGranted = false;
       let rewardAmount = 0;
       let listenerPromises: any = { reward: null, dismiss: null, failed: null };
+      let isResolved = false;
 
       console.log('[AdMob] 🎯 Setting up listeners for rewarded ad...');
 
       // Create a promise that resolves when the ad is dismissed or fails
       const adCompletionPromise = new Promise<void>((resolve) => {
+        const resolveOnce = () => {
+          if (isResolved) return;
+          isResolved = true;
+          resolve();
+        };
+
+        // Safety timeout - auto-resolve after 30 seconds
+        const safetyTimeout = setTimeout(() => {
+          console.warn('[AdMob] ⚠️ Ad timeout - auto-resolving after 30 seconds');
+          listenerPromises.reward?.then((l: any) => l.remove());
+          listenerPromises.dismiss?.then((l: any) => l.remove());
+          listenerPromises.failed?.then((l: any) => l.remove());
+          resolveOnce();
+        }, 30000);
+
         listenerPromises.reward = AdMob.addListener(
           RewardAdPluginEvents.Rewarded,
           (reward: AdMobRewardItem) => {
@@ -155,10 +171,11 @@ class AdMobService {
             // Wait a bit before removing listeners to ensure Rewarded event was captured
             setTimeout(() => {
               console.log('[AdMob] 🧹 Removing listeners...');
+              clearTimeout(safetyTimeout);
               listenerPromises.reward?.then((l: any) => l.remove());
               listenerPromises.dismiss?.then((l: any) => l.remove());
               listenerPromises.failed?.then((l: any) => l.remove());
-              resolve();
+              resolveOnce();
             }, 200);
           }
         );
@@ -167,10 +184,11 @@ class AdMobService {
           RewardAdPluginEvents.FailedToShow,
           (error) => {
             console.error('[AdMob] ❌ FAILED EVENT FIRED:', error);
+            clearTimeout(safetyTimeout);
             listenerPromises.reward?.then((l: any) => l.remove());
             listenerPromises.dismiss?.then((l: any) => l.remove());
             listenerPromises.failed?.then((l: any) => l.remove());
-            resolve();
+            resolveOnce();
           }
         );
       });
