@@ -11,13 +11,13 @@ interface AvatarEditorProps {
 }
 
 const AVATAR_STYLES = [
-  { id: 'adventurer', name: 'Aventurero', description: 'Caras expresivas' },
-  { id: 'adventurer-neutral', name: 'Aventurero Pro', description: 'Estilo profesional' },
-  { id: 'avataaars', name: 'Avataaars', description: 'Estilo clásico' },
-  { id: 'big-ears', name: 'Orejas', description: 'Caras divertidas' },
-  { id: 'lorelei', name: 'Lorelei', description: 'Estilo elegante' },
-  { id: 'micah', name: 'Micah', description: 'Minimalista' },
-  { id: 'personas', name: 'Personas', description: 'Muy realista' },
+  { id: 'adventurer', name: 'Adventurer', description: 'Expressive faces' },
+  { id: 'adventurer-neutral', name: 'Adventurer Pro', description: 'Professional style' },
+  { id: 'avataaars', name: 'Avataaars', description: 'Classic style' },
+  { id: 'big-ears', name: 'Big Ears', description: 'Funny faces' },
+  { id: 'lorelei', name: 'Lorelei', description: 'Elegant style' },
+  { id: 'micah', name: 'Micah', description: 'Minimalist' },
+  { id: 'personas', name: 'Personas', description: 'Very realistic' },
 ];
 
 
@@ -193,7 +193,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
           <button
             onClick={handleRandomize}
             className="flex items-center gap-2 text-white hover:text-teal-200 transition-colors bg-white/10 px-3 py-2 rounded-lg hover:bg-white/20"
-            title="Avatar Aleatorio"
+            title="Random Avatar"
           >
             <Shuffle size={20} />
           </button>
@@ -217,7 +217,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
           <div className="space-y-6">
             <div>
               <label className="block text-white font-semibold mb-3 text-lg text-center">
-                Estilo de Avatar
+                Avatar Style
               </label>
               <div className="grid grid-cols-3 gap-3">
                 {AVATAR_STYLES.map((style) => (
@@ -255,14 +255,14 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
               <div className="bg-white/20 backdrop-blur-lg rounded-xl p-4 border-2 border-white/40">
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-white font-semibold text-lg">
-                    Elige una variación
+                    Choose a variation
                   </label>
                   <button
                     onClick={() => generateVariations()}
                     className="text-white/80 hover:text-white text-sm flex items-center gap-1"
                   >
                     <Shuffle size={16} />
-                    Más opciones
+                    More options
                   </button>
                 </div>
                 <div className="grid grid-cols-4 gap-3">
@@ -293,7 +293,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                   onClick={() => setShowingVariations(false)}
                   className="w-full mt-3 bg-white/10 hover:bg-white/20 text-white text-sm py-2 rounded-lg transition-colors"
                 >
-                  Cerrar
+                  Close
                 </button>
               </div>
             )}
@@ -317,7 +317,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
               }`}
             >
               <Save size={20} />
-              {saving ? t.avatar.saving : (!hasChanges() && displayName.trim().length >= 3 ? 'Guardado' : t.avatar.save)}
+              {saving ? t.avatar.saving : (!hasChanges() && displayName.trim().length >= 3 ? 'Saved' : t.avatar.save)}
             </button>
           </div>
         </div>
