@@ -24,6 +24,9 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
   const [loading, setLoading] = useState(false);
   const [levelStats, setLevelStats] = useState<Map<number, LevelStats>>(new Map());
   const [showNoLivesModal, setShowNoLivesModal] = useState(false);
+  const [showAdminPasswordModal, setShowAdminPasswordModal] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminLevelTarget, setAdminLevelTarget] = useState<number | null>(null);
 
   useEffect(() => {
     const loadLevelStates = async () => {
@@ -69,11 +72,8 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
     const isUnlocked = level === 1 || levelAccess[level];
 
     if (!isUnlocked) {
-      if (level === 5 && !levelAccess[4]) {
-        alert('Para jugar el nivel 5, primero debes completar el nivel 4 o comprarlo');
-        return;
-      }
-      setPurchaseModalLevel(level);
+      setAdminLevelTarget(level);
+      setShowAdminPasswordModal(true);
       return;
     }
 
@@ -108,6 +108,34 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
     }
 
     setLoading(false);
+  };
+
+  const handleAdminUnlock = async () => {
+    const correctPassword = 'admin2025';
+
+    if (adminPassword !== correctPassword) {
+      alert('Contraseña incorrecta');
+      return;
+    }
+
+    if (!adminLevelTarget) return;
+
+    const globalLevel = getGlobalLevelId(world, adminLevelTarget);
+    setShowAdminPasswordModal(false);
+    setAdminPassword('');
+    setAdminLevelTarget(null);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id || null;
+    const lives = await getUserLives(userId);
+
+    if (!lives || lives.currentLives <= 0) {
+      console.log('[LevelSelector] No lives available - showing modal');
+      setShowNoLivesModal(true);
+      return;
+    }
+
+    onSelectLevel(globalLevel);
   };
 
   const maxLevelInWorld = Math.min(5, currentLevel - (world - 1) * 5);
@@ -240,6 +268,68 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
                 className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all disabled:opacity-50"
               >
                 {loading ? 'Desbloqueando...' : 'Desbloquear'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAdminPasswordModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <div className="text-6xl mb-4">🔑</div>
+            <h3 className="text-3xl font-bold text-gray-800 mb-2">
+              Acceso Administrador
+            </h3>
+            <p className="text-sm text-gray-500 mb-6">
+              Este nivel está bloqueado. ¿Deseas comprarlo con monedas o usar acceso de administrador?
+            </p>
+
+            <input
+              type="password"
+              value={adminPassword}
+              onChange={(e) => setAdminPassword(e.target.value)}
+              placeholder="Contraseña de admin"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:outline-none mb-4"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleAdminUnlock();
+                }
+              }}
+            />
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAdminPasswordModal(false);
+                  setAdminPassword('');
+                  setAdminLevelTarget(null);
+                }}
+                className="flex-1 bg-gray-500 text-white py-3 rounded-xl font-semibold hover:bg-gray-600 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAdminPasswordModal(false);
+                  setAdminPassword('');
+                  if (adminLevelTarget) {
+                    setPurchaseModalLevel(adminLevelTarget);
+                  }
+                  setAdminLevelTarget(null);
+                }}
+                className="flex-1 bg-gradient-to-r from-yellow-500 to-amber-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
+              >
+                Comprar
+              </button>
+              <button
+                type="button"
+                onClick={handleAdminUnlock}
+                className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-xl font-semibold hover:shadow-lg transition-all"
+              >
+                Desbloquear
               </button>
             </div>
           </div>
