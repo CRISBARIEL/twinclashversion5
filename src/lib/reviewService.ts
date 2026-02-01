@@ -1,10 +1,11 @@
-import { supabase } from './supabase';
+import { supabase, getOrCreateClientId } from './supabase';
 import { Capacitor } from '@capacitor/core';
 import { InAppReview } from './inAppReview';
 
 export interface ReviewTracking {
   id?: string;
   user_id?: string;
+  client_id?: string;
   last_prompt_timestamp?: string;
   prompt_count: number;
   review_flow_shown: boolean;
@@ -29,6 +30,7 @@ class ReviewService {
 
   async getTrackingData(): Promise<ReviewTracking> {
     const { data: { user } } = await supabase.auth.getUser();
+    const clientId = getOrCreateClientId();
 
     if (user) {
       const { data } = await supabase
@@ -41,6 +43,7 @@ class ReviewService {
 
       const newTracking: ReviewTracking = {
         user_id: user.id,
+        client_id: clientId,
         prompt_count: 0,
         review_flow_shown: false,
         feedback_sent: false,
@@ -55,24 +58,44 @@ class ReviewService {
 
       return created || newTracking;
     } else {
-      const stored = localStorage.getItem(this.localStorageKey);
-      if (stored) return JSON.parse(stored);
+      const { data } = await supabase
+        .from('review_tracking')
+        .select('*')
+        .eq('client_id', clientId)
+        .maybeSingle();
+
+      if (data) return data;
 
       const newTracking: ReviewTracking = {
+        client_id: clientId,
         prompt_count: 0,
         review_flow_shown: false,
         feedback_sent: false,
         highest_level_completed: 0,
       };
 
-      localStorage.setItem(this.localStorageKey, JSON.stringify(newTracking));
-      return newTracking;
+      const { data: created, error } = await supabase
+        .from('review_tracking')
+        .insert([newTracking])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating review tracking:', error);
+        const stored = localStorage.getItem(this.localStorageKey);
+        if (stored) return JSON.parse(stored);
+        localStorage.setItem(this.localStorageKey, JSON.stringify(newTracking));
+        return newTracking;
+      }
+
+      return created || newTracking;
     }
   }
 
   async updateTrackingData(updates: Partial<ReviewTracking>): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
     const current = await this.getTrackingData();
+    const clientId = getOrCreateClientId();
 
     const updated: ReviewTracking = {
       ...current,
@@ -80,11 +103,16 @@ class ReviewService {
       updated_at: new Date().toISOString(),
     };
 
-    if (user && current.id) {
-      await supabase
+    if (current.id) {
+      const { error } = await supabase
         .from('review_tracking')
         .update(updated)
         .eq('id', current.id);
+
+      if (error) {
+        console.error('Error updating review tracking:', error);
+        localStorage.setItem(this.localStorageKey, JSON.stringify(updated));
+      }
     } else {
       localStorage.setItem(this.localStorageKey, JSON.stringify(updated));
     }
@@ -165,11 +193,13 @@ class ReviewService {
 
   async saveFeedback(feedback: FeedbackData): Promise<void> {
     const { data: { user } } = await supabase.auth.getUser();
+    const clientId = getOrCreateClientId();
 
     await supabase
       .from('user_feedback')
       .insert([{
         user_id: user?.id || null,
+        client_id: clientId,
         feedback_type: feedback.feedback_type,
         feedback_text: feedback.feedback_text || '',
       }]);

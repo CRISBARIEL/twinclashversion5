@@ -8,8 +8,9 @@ export interface InAppReviewPlugin {
 const InAppReview = registerPlugin<InAppReviewPlugin>('InAppReview', {
   web: () => ({
     async requestReview() {
-      console.log('InAppReview: requestReview (web simulation)');
-      return { success: false, message: 'Not available on web' };
+      console.log('InAppReview: requestReview (web) - redirecting to Play Store');
+      window.open('https://play.google.com/store/apps/details?id=com.twinclash.game&pcampaignid=web_share&showAllReviews=true', '_blank');
+      return { success: true, message: 'Opened Play Store for review' };
     },
     async openPlayStore() {
       console.log('InAppReview: openPlayStore - opening in new tab');

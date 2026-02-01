@@ -40,14 +40,14 @@ export function useReviewFlow() {
     console.log('[useReviewFlow] User wants to review now');
     try {
       const result = await reviewService.requestInAppReview();
+      await reviewService.recordReviewFlowShown();
+
       if (result.success) {
         toast.success('¡Gracias por tu reseña!');
-        setCurrentStep(null);
       } else {
         await reviewService.openPlayStore();
-        await reviewService.recordReviewFlowShown();
-        setCurrentStep(null);
       }
+      setCurrentStep(null);
     } catch (error) {
       console.error('Error launching review:', error);
       toast.error('No se pudo abrir la reseña');
