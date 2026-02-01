@@ -66,8 +66,17 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
 
   const handleLevelClick = async (level: number) => {
     const globalLevel = getGlobalLevelId(world, level);
+    const isUnlocked = level === 1 || levelAccess[level];
 
-    // Verificar vidas antes de permitir jugar
+    if (!isUnlocked) {
+      if (level === 5 && !levelAccess[4]) {
+        alert('Para jugar el nivel 5, primero debes completar el nivel 4 o comprarlo');
+        return;
+      }
+      setPurchaseModalLevel(level);
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     const userId = user?.id || null;
     const lives = await getUserLives(userId);
@@ -78,22 +87,7 @@ export function LevelSelector({ world, currentLevel, onSelectLevel, onBack }: Le
       return;
     }
 
-    // TEMPORAL: Todos los niveles desbloqueados para pruebas
     onSelectLevel(globalLevel);
-    return;
-
-    // Código original comentado:
-    // if (level === 1 || levelAccess[level]) {
-    //   onSelectLevel(globalLevel);
-    //   return;
-    // }
-
-    // if (level === 5 && !levelAccess[4]) {
-    //   alert('Para jugar el nivel 5, primero debes completar el nivel 4 o comprarlo');
-    //   return;
-    // }
-
-    // setPurchaseModalLevel(level);
   };
 
   const handlePurchaseLevel = async () => {
