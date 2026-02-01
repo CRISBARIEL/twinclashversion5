@@ -34,6 +34,8 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
   const [saving, setSaving] = useState(false);
   const [initialName, setInitialName] = useState('');
   const [initialAvatarConfig, setInitialAvatarConfig] = useState<AvatarConfig>(DEFAULT_CONFIG);
+  const [showingVariations, setShowingVariations] = useState(false);
+  const [variationSeeds, setVariationSeeds] = useState<string[]>([]);
 
   useEffect(() => {
     loadProfile();
@@ -127,6 +129,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
   const handleReset = () => {
     setAvatarConfig(initialAvatarConfig);
     setDisplayName(initialName);
+    setShowingVariations(false);
   };
 
   const handleRandomize = () => {
@@ -137,6 +140,7 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
       style: randomStyle.id,
       seed: randomSeed,
     });
+    setShowingVariations(false);
   };
 
   const hasChanges = () => {
@@ -146,6 +150,21 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
 
   const handleStyleSelect = (style: string) => {
     setAvatarConfig({ ...avatarConfig, style });
+    generateVariations();
+    setShowingVariations(true);
+  };
+
+  const generateVariations = () => {
+    const seeds: string[] = [];
+    for (let i = 0; i < 8; i++) {
+      seeds.push(Math.random().toString(36).substring(2, 10));
+    }
+    setVariationSeeds(seeds);
+  };
+
+  const handleVariationSelect = (seed: string) => {
+    setAvatarConfig({ ...avatarConfig, seed });
+    setShowingVariations(false);
   };
 
   if (loading) {
@@ -231,6 +250,53 @@ export const AvatarEditor = ({ onBack }: AvatarEditorProps) => {
                 ))}
               </div>
             </div>
+
+            {showingVariations && (
+              <div className="bg-white/20 backdrop-blur-lg rounded-xl p-4 border-2 border-white/40">
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-white font-semibold text-lg">
+                    Elige una variación
+                  </label>
+                  <button
+                    onClick={() => generateVariations()}
+                    className="text-white/80 hover:text-white text-sm flex items-center gap-1"
+                  >
+                    <Shuffle size={16} />
+                    Más opciones
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 gap-3">
+                  {variationSeeds.map((seed, index) => (
+                    <button
+                      key={seed}
+                      onClick={() => handleVariationSelect(seed)}
+                      className={`p-3 rounded-lg border-2 transition-all hover:scale-110 bg-white/10 ${
+                        avatarConfig.seed === seed
+                          ? 'border-white shadow-lg scale-105 ring-2 ring-white/50'
+                          : 'border-white/30 hover:border-white/50'
+                      }`}
+                    >
+                      <div className="bg-white rounded-full p-1">
+                        <AvatarView
+                          config={{
+                            style: avatarConfig.style,
+                            seed: seed,
+                          }}
+                          size="small"
+                        />
+                      </div>
+                      <div className="text-white text-xs text-center mt-1">#{index + 1}</div>
+                    </button>
+                  ))}
+                </div>
+                <button
+                  onClick={() => setShowingVariations(false)}
+                  className="w-full mt-3 bg-white/10 hover:bg-white/20 text-white text-sm py-2 rounded-lg transition-colors"
+                >
+                  Cerrar
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-4 mt-6">
