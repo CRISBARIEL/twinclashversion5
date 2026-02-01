@@ -1953,13 +1953,19 @@ export const GameCore = ({
                       return;
                     }
 
-                    setIsProcessingNextLevel(true);
                     console.log('[GameCore] ===== CLICK SIGUIENTE NIVEL =====');
                     console.log('[GameCore] Current level:', activeLevel);
+
+                    // Safety timeout: Reset state after 10 seconds no matter what
+                    const safetyTimeout = setTimeout(() => {
+                      console.log('[GameCore] ⚠️ Safety timeout triggered - resetting state');
+                      setIsProcessingNextLevel(false);
+                    }, 10000);
 
                     try {
                       const isMultipleOf5 = activeLevel % 5 === 0;
 
+                      // Mostrar anuncio ANTES de bloquear el botón
                       if (isMultipleOf5 && isRewardedReady) {
                         console.log('[GameCore] 🎁 Level', activeLevel, 'is multiple of 5 - showing rewarded ad');
                         console.log('[GameCore] Current coins before ad:', getLocalCoins());
@@ -1986,15 +1992,26 @@ export const GameCore = ({
                         console.log('[GameCore] ⚠️ Rewarded ad not ready for level', activeLevel);
                       }
 
+                      // Ahora bloquear el botón para evitar doble click durante la transición
+                      setIsProcessingNextLevel(true);
+
                       // Cerrar modal y avanzar al siguiente nivel
                       console.log('[GameCore] ✅ Closing modal and advancing to next level...');
                       setShowWinModal(false);
-                      setIsProcessingNextLevel(false);
 
-                      // Llamar onComplete inmediatamente, sin setTimeout
+                      // Llamar onComplete inmediatamente
                       onComplete();
+
+                      // Limpiar el timeout de seguridad
+                      clearTimeout(safetyTimeout);
+
+                      // Resetear el estado después de un pequeño delay
+                      setTimeout(() => {
+                        setIsProcessingNextLevel(false);
+                      }, 100);
                     } catch (error) {
                       console.error('[GameCore] ❌ Error processing next level:', error);
+                      clearTimeout(safetyTimeout);
                       setShowWinModal(false);
                       setIsProcessingNextLevel(false);
                     }
