@@ -2,12 +2,25 @@ import { useState, useEffect } from 'react';
 import { X, Trophy, Clock, Move, Users, Sparkles } from 'lucide-react';
 import { getTop, getCrewTop, ScoreEntry, getCrewIdFromURL } from '../lib/api';
 import { getOrCreateClientId } from '../lib/supabase';
+import { AvatarView } from './AvatarView';
 
 interface LeaderboardProps {
   seed: string;
   onClose: () => void;
   onPlayNow?: () => void;
 }
+
+const AVATAR_STYLES = ['adventurer', 'adventurer-neutral', 'avataaars', 'big-ears', 'lorelei', 'micah', 'personas'];
+
+const getAvatarForPlayer = (clientId: string) => {
+  const hash = clientId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  const styleIndex = hash % AVATAR_STYLES.length;
+
+  return {
+    style: AVATAR_STYLES[styleIndex],
+    seed: clientId,
+  };
+};
 
 export const Leaderboard = ({ seed, onClose, onPlayNow }: LeaderboardProps) => {
   const [scores, setScores] = useState<ScoreEntry[]>([]);
@@ -141,6 +154,8 @@ export const Leaderboard = ({ seed, onClose, onPlayNow }: LeaderboardProps) => {
                     ? 'text-amber-600'
                     : 'text-gray-400';
 
+                const avatarConfig = getAvatarForPlayer(score.client_id);
+
                 return (
                   <div
                     key={score.id}
@@ -152,7 +167,7 @@ export const Leaderboard = ({ seed, onClose, onPlayNow }: LeaderboardProps) => {
                         : 'bg-gray-50'
                     }`}
                   >
-                    <div className={`text-2xl font-bold ${medalColor} w-8 text-center`}>
+                    <div className={`text-2xl font-bold ${medalColor} w-8 text-center flex-shrink-0`}>
                       {position <= 3 ? (
                         <Trophy size={24} className="inline" />
                       ) : (
@@ -160,11 +175,15 @@ export const Leaderboard = ({ seed, onClose, onPlayNow }: LeaderboardProps) => {
                       )}
                     </div>
 
-                    <div className="flex-1">
+                    <div className="bg-white rounded-full p-1 flex-shrink-0 shadow-md">
+                      <AvatarView config={avatarConfig} size="small" />
+                    </div>
+
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 text-sm mb-1">
                         {isBot && <span className="text-xs">🧪</span>}
                         {score.display_name && (
-                          <span className="text-xs text-gray-600 font-medium">
+                          <span className="text-xs text-gray-600 font-medium truncate">
                             {score.display_name}
                           </span>
                         )}
@@ -190,7 +209,7 @@ export const Leaderboard = ({ seed, onClose, onPlayNow }: LeaderboardProps) => {
                     </div>
 
                     {!isBot && (
-                      <div className="text-xs text-gray-400">
+                      <div className="text-xs text-gray-400 flex-shrink-0">
                         {new Date(score.created_at).toLocaleTimeString('es', {
                           hour: '2-digit',
                           minute: '2-digit',
