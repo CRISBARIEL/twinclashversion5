@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Review System</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    .card {
+      background: #2a2a2a;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    button {
+      background: #3b82f6;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin: 5px;
+      font-size: 14px;
+    }
+    button:hover {
+      background: #2563eb;
+    }
+    .success { background: #10b981; }
+    .danger { background: #ef4444; }
+    pre {
+      background: #1a1a1a;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 12px;
+    }
+    .info {
+      background: #3b82f6;
+      padding: 10px;
+      border-radius: 6px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Test Review System</h1>
+
+  <div class="card">
+    <h2>Estado de Client ID</h2>
+    <div id="client-id-status"></div>
+  </div>
+
+  <div class="card">
+    <h2>Estado de Review Tracking</h2>
+    <div id="tracking-status"></div>
+    <button onclick="loadTracking()">Cargar Estado</button>
+    <button onclick="resetTracking()" class="danger">Reset Tracking</button>
+  </div>
+
+  <div class="card">
+    <h2>Pruebas de Triggers</h2>
+    <p>Simula completar niveles para ver si aparece el modal:</p>
+    <button onclick="testLevel(5)">Nivel 5 (Trigger)</button>
+    <button onclick="testLevel(10)">Nivel 10 (Trigger)</button>
+    <button onclick="testLevel(20)">Nivel 20 (Trigger)</button>
+    <button onclick="testLevel(7)">Nivel 7 (No trigger)</button>
+    <div id="test-result" class="info" style="display:none; margin-top:10px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>Test Manual</h2>
+    <button onclick="forceShowModal()" class="success">Forzar Modal de Satisfacción</button>
+    <button onclick="testInAppReview()">Test In-App Review (abre Play Store)</button>
+  </div>
+
+  <div class="card">
+    <h2>Logs</h2>
+    <pre id="logs"></pre>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://dljjqxjpvskwoxifhqai.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsampxeGpwdnNrd294aWZocWFpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzAwNjA4NzAsImV4cCI6MjA0NTYzNjg3MH0.4I1Rl4fN1sMSRPjmpjM2WZmT02HvsCrFOxOMLMaqAWY';
+
+    const { createClient } = supabase;
+    const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function log(message, data = null) {
+      const timestamp = new Date().toLocaleTimeString();
+      const logElement = document.getElementById('logs');
+      const logMessage = `[${timestamp}] ${message}`;
+      logElement.textContent = logMessage + (data ? '\n' + JSON.stringify(data, null, 2) : '') + '\n\n' + logElement.textContent;
+      console.log(logMessage, data);
+    }
+
+    function getOrCreateClientId() {
+      let clientId = localStorage.getItem('client_id');
+      if (!clientId) {
+        clientId = 'web_' + Math.random().toString(36).substr(2, 9) + Date.now();
+        localStorage.setItem('client_id', clientId);
+      }
+      return clientId;
+    }
+
+    async function loadTracking() {
+      try {
+        const clientId = getOrCreateClientId();
+        log('Loading tracking for client_id:', clientId);
+
+        const { data, error } = await supabaseClient
+          .from('review_tracking')
+          .select('*')
+          .eq('client_id', clientId)
+          .maybeSingle();
+
+        if (error) {
+          log('Error loading tracking:', error);
+          document.getElementById('tracking-status').innerHTML = `<pre style="color:#ef4444;">${JSON.stringify(error, null, 2)}</pre>`;
+          return;
+        }
+
+        if (data) {
+          log('Tracking data found:', data);
+          document.getElementById('tracking-status').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        } else {
+          log('No tracking data found, creating new...');
+
+          const newTracking = {
+            client_id: clientId,
+            prompt_count: 0,
+            review_flow_shown: false,
+            feedback_sent: false,
+            highest_level_completed: 0,
+          };
+
+          const { data: created, error: createError } = await supabaseClient
+            .from('review_tracking')
+            .insert([newTracking])
+            .select()
+            .single();
+
+          if (createError) {
+            log('Error creating tracking:', createError);
+            document.getElementById('tracking-status').innerHTML = `<pre style="color:#ef4444;">${JSON.stringify(createError, null, 2)}</pre>`;
+          } else {
+            log('Tracking created:', created);
+            document.getElementById('tracking-status').innerHTML = `<pre>${JSON.stringify(created, null, 2)}</pre>`;
+          }
+        }
+      } catch (error) {
+        log('Exception:', error);
+        document.getElementById('tracking-status').innerHTML = `<pre style="color:#ef4444;">${error.message}</pre>`;
+      }
+    }
+
+    async function resetTracking() {
+      try {
+        const clientId = getOrCreateClientId();
+        log('Resetting tracking for client_id:', clientId);
+
+        const { error } = await supabaseClient
+          .from('review_tracking')
+          .delete()
+          .eq('client_id', clientId);
+
+        if (error) {
+          log('Error resetting:', error);
+        } else {
+          log('Tracking reset successfully');
+          await loadTracking();
+        }
+      } catch (error) {
+        log('Exception:', error);
+      }
+    }
+
+    async function testLevel(level) {
+      log(`Testing level ${level} completion...`);
+
+      const clientId = getOrCreateClientId();
+      const { data: tracking } = await supabaseClient
+        .from('review_tracking')
+        .select('*')
+        .eq('client_id', clientId)
+        .maybeSingle();
+
+      if (!tracking) {
+        log('No tracking found, creating...');
+        await loadTracking();
+        return;
+      }
+
+      const triggerLevels = [5, 10, 20, 30, 50];
+      const isTrigger = triggerLevels.includes(level);
+
+      let shouldShow = false;
+      let reason = '';
+
+      if (!isTrigger) {
+        reason = `Nivel ${level} no es un trigger level`;
+      } else if (tracking.review_flow_shown) {
+        reason = 'Ya se mostró el flujo completo';
+      } else if (tracking.feedback_sent) {
+        reason = 'Ya se envió feedback';
+      } else if (tracking.prompt_count >= 3) {
+        reason = 'Máximo de prompts alcanzado (3)';
+      } else if (tracking.last_prompt_timestamp) {
+        const lastPrompt = new Date(tracking.last_prompt_timestamp);
+        const now = new Date();
+        const daysSince = (now - lastPrompt) / (1000 * 60 * 60 * 24);
+        if (daysSince < 14) {
+          reason = `Muy pronto desde último prompt (${daysSince.toFixed(1)} días, necesita 14)`;
+        } else {
+          shouldShow = true;
+          reason = '¡Debería mostrarse!';
+        }
+      } else {
+        shouldShow = true;
+        reason = '¡Debería mostrarse! (primera vez)';
+      }
+
+      const result = document.getElementById('test-result');
+      result.style.display = 'block';
+      result.style.background = shouldShow ? '#10b981' : '#ef4444';
+      result.innerHTML = `<strong>Nivel ${level}:</strong> ${reason}`;
+
+      log(`Test nivel ${level}:`, { shouldShow, reason, tracking });
+    }
+
+    function forceShowModal() {
+      log('Abriendo app en nueva ventana para test...');
+      window.open('/', '_blank');
+      alert('Abre la consola del navegador en la nueva ventana y ejecuta:\n\nwindow.__testReview = true;\nlocation.reload();');
+    }
+
+    function testInAppReview() {
+      log('Abriendo Google Play Store...');
+      window.open('https://play.google.com/store/apps/details?id=com.twinclash.game&showAllReviews=true', '_blank');
+    }
+
+    // Init
+    document.getElementById('client-id-status').innerHTML = `<div class="info">Client ID: <strong>${getOrCreateClientId()}</strong></div>`;
+    loadTracking();
+  </script>
+</body>
+</html>

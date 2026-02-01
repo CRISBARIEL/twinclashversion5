@@ -121,6 +121,14 @@ class ReviewService {
   async shouldShowReviewPrompt(levelCompleted: number, isWin: boolean): Promise<boolean> {
     console.log('[ReviewService] Checking if should show prompt:', { levelCompleted, isWin });
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceReview = urlParams.get('force_review') === 'true';
+
+    if (forceReview) {
+      console.log('[ReviewService] 🔧 DEBUG MODE: Forcing review prompt');
+      return true;
+    }
+
     if (!isWin) {
       console.log('[ReviewService] Not a win, skipping');
       return false;
