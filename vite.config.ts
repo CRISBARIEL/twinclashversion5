@@ -6,6 +6,6 @@ export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
     exclude: ['lucide-react'],
-    include: ['boring-avatars'],
+    include: ['@dicebear/core', '@dicebear/collection'],
   },
 });

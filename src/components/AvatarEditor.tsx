@@ -11,12 +11,13 @@ interface AvatarEditorProps {
 }
 
 const AVATAR_STYLES = [
-  { id: 'marble', name: 'Mármol', description: 'Orgánico y fluido' },
-  { id: 'beam', name: 'Rayo', description: 'Geométrico y angular' },
-  { id: 'pixel', name: 'Pixel', description: 'Retro y pixelado' },
-  { id: 'sunset', name: 'Atardecer', description: 'Suave y colorido' },
-  { id: 'ring', name: 'Anillo', description: 'Círculos concéntricos' },
-  { id: 'bauhaus', name: 'Bauhaus', description: 'Arte moderno' },
+  { id: 'adventurer', name: 'Aventurero', description: 'Caras expresivas' },
+  { id: 'adventurer-neutral', name: 'Aventurero Pro', description: 'Estilo profesional' },
+  { id: 'avataaars', name: 'Avataaars', description: 'Estilo clásico' },
+  { id: 'big-ears', name: 'Orejas', description: 'Caras divertidas' },
+  { id: 'lorelei', name: 'Lorelei', description: 'Estilo elegante' },
+  { id: 'micah', name: 'Micah', description: 'Minimalista' },
+  { id: 'personas', name: 'Personas', description: 'Muy realista' },
 ];
 
 const COLOR_PALETTES = [
@@ -83,7 +84,7 @@ const COLOR_PALETTES = [
 ];
 
 const DEFAULT_CONFIG: AvatarConfig = {
-  style: 'marble',
+  style: 'adventurer',
   seed: Math.random().toString(36).substring(7),
   colors: ['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90'],
 };

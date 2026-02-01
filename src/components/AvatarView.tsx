@@ -1,5 +1,7 @@
-import Avatar from 'boring-avatars';
+import { createAvatar } from '@dicebear/core';
+import { adventurer, adventurerNeutral, avataaars, bigEars, lorelei, micah, personas } from '@dicebear/collection';
 import { AvatarConfig } from '../types';
+import { useMemo } from 'react';
 
 interface AvatarViewProps {
   config: AvatarConfig | null;
@@ -13,23 +15,35 @@ const SIZE_MAP = {
   large: 96,
 };
 
-const DEFAULT_COLORS = ['#92A1C6', '#146A7C', '#F0AB3D', '#C271B4', '#C20D90'];
+const STYLE_MAP = {
+  adventurer,
+  'adventurer-neutral': adventurerNeutral,
+  avataaars,
+  'big-ears': bigEars,
+  lorelei,
+  micah,
+  personas,
+};
 
 export const AvatarView = ({ config, size = 'medium', className = '' }: AvatarViewProps) => {
   const dimension = SIZE_MAP[size];
 
-  const variant = (config?.style as 'marble' | 'beam' | 'pixel' | 'sunset' | 'ring' | 'bauhaus') || 'marble';
-  const name = config?.seed || 'Player';
-  const colors = config?.colors || DEFAULT_COLORS;
+  const avatarSvg = useMemo(() => {
+    const style = (config?.style || 'adventurer') as keyof typeof STYLE_MAP;
+    const seed = config?.seed || 'Player';
+
+    const avatar = createAvatar(STYLE_MAP[style] || adventurer, {
+      seed,
+      size: dimension,
+    });
+
+    return avatar.toString();
+  }, [config?.style, config?.seed, dimension]);
 
   return (
-    <div className={className}>
-      <Avatar
-        size={dimension}
-        name={name}
-        variant={variant}
-        colors={colors}
-      />
-    </div>
+    <div
+      className={className}
+      dangerouslySetInnerHTML={{ __html: avatarSvg }}
+    />
   );
 };
