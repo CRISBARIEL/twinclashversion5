@@ -475,7 +475,6 @@ export const GameCore = ({
     setMistakes(0);
     setTimeElapsed(0);
     setShowWinModal(false);
-    setIsProcessingNextLevel(false);
     setStarsEarned(0);
     setCoinReward(0);
     setCoinsEarned(0);
